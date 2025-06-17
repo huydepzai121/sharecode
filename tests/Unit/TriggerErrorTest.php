@@ -25,6 +25,8 @@ class TriggerErrorTest extends \Codeception\Test\Unit
     /**
      * Tìm kiếm chỗ nào có trigger_error() với kiểu 256 mà không có http response code trước đó thì là lỗi
      *
+     * @link https://github.com/nukeviet/nukeviet/issues/3855
+     *
      * @group install
      * @group all
      */
