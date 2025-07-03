@@ -647,3 +647,6 @@ $lang_module['draft_menu'] = 'Bài viết dở';
 $lang_module['queue_draft'] = 'Bạn có <strong>%s</strong> bài viết đang lưu nháp';
 $lang_module['queue_approval'] = 'Bạn có <strong>%s</strong> bài viết đang chờ duyệt';
 $lang_module['queue_public'] = 'Bạn có <strong>%s</strong> bài viết đang chờ đăng';
+$lang_module['reject_reason'] = 'Nguyên nhân từ chối';
+$lang_module['reject_reason_error'] = 'Xin mời nhập nguyên nhân từ chối';
+$lang_module['reject_reason_view'] = 'Nhấp để xem nguyên nhân từ chối của bài viết này';

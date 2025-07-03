@@ -647,3 +647,6 @@ $lang_module['draft_menu'] = 'Draft articles';
 $lang_module['queue_draft'] = 'You have <strong>%s</strong> draft articles';
 $lang_module['queue_approval'] = 'You have <strong>%s</strong> articles pending approval';
 $lang_module['queue_public'] = 'You have <strong>%s</strong> articles awaiting publication';
+$lang_module['reject_reason'] = 'Reason for rejection';
+$lang_module['reject_reason_error'] = 'Please enter the reason for rejection';
+$lang_module['reject_reason_view'] = 'Click to view the reason for rejection of this article';

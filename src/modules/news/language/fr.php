@@ -647,3 +647,6 @@ $lang_module['draft_menu'] = 'Articles brouillons';
 $lang_module['queue_draft'] = 'Vous avez <strong>%s</strong> articles en brouillon';
 $lang_module['queue_approval'] = 'Vous avez <strong>%s</strong> articles en attente d\'approbation';
 $lang_module['queue_public'] = 'Vous avez <strong>%s</strong> articles en attente de publication';
+$lang_module['reject_reason'] = 'Raison du refus';
+$lang_module['reject_reason_error'] = 'Veuillez saisir la raison du refus';
+$lang_module['reject_reason_view'] = 'Cliquez pour voir la raison du refus de cet article';
