@@ -198,7 +198,7 @@ class DoApi
         $res = json_decode($responsive['body'], true);
 
         if (!is_array($res)) {
-            $this->error = 'Not Json respon';
+            $this->error = $responsive['body'];
 
             return [];
         }

@@ -1,0 +1,13 @@
+{
+    "info": {
+        "name": "Danh mục ShareCode",
+        "description": "Hiển thị danh sách danh mục mã nguồn phổ biến",
+        "author": "VINADES.,JSC",
+        "version": "5.0.0"
+    },
+    "config": {
+        "numrow": 6,
+        "show_count": 1,
+        "show_description": 1
+    }
+}

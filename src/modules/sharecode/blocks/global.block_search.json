@@ -1,0 +1,33 @@
+{
+    "info": {
+        "name": "ShareCode: Tìm kiếm",
+        "author": "VINADES.,JSC",
+        "website": "https://vinades.vn",
+        "description": "Block tìm kiếm mã nguồn với bộ lọc danh mục và giá"
+    },
+    "config": {
+        "show_category_filter": "1"
+    },
+    "datafunction": "nv_block_config_sharecode_search",
+    "submitfunction": "nv_block_config_sharecode_search_submit",
+    "i18n": {
+        "vi": {
+            "language": {
+                "show_category_filter": "Hiển thị bộ lọc danh mục",
+                "show_category_filter_note": "Cho phép người dùng lọc theo danh mục trong block tìm kiếm"
+            },
+            "info": {
+                "name": "ShareCode: Tìm kiếm"
+            }
+        },
+        "en": {
+            "language": {
+                "show_category_filter": "Show category filter",
+                "show_category_filter_note": "Allow users to filter by category in search block"
+            },
+            "info": {
+                "name": "ShareCode: Search"
+            }
+        }
+    }
+}

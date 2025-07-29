@@ -41,5 +41,9 @@ nv_add_hook($module_name, 'get_module_admin_theme', $priority, function ($vars) 
         return $new_theme;
     }
 
+    if (($module_info['module_file'] ?? '') == 'sharecode' and in_array($op, ['main', 'categories', 'sources', 'reviews', 'logs', 'config', 'tags', 'tag-content', 'pending', 'get_details'])) {
+        return $new_theme;
+    }
+
     return 'admin_default';
 });

@@ -556,6 +556,7 @@ if ($nv_check_update and !defined('NV_IS_UPDATE')) {
         nv_redirect_location(NV_BASE_SITEURL . 'index.php?' . NV_LANG_VARIABLE . '=' . $global_config['site_lang']);
     }
 }
+
 unset($nv_check_update);
 
 nv_apply_hook('', 'modify_global_config');
