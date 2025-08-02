@@ -130,16 +130,24 @@
                         <small class="form-text text-muted">Các từ khóa để tìm kiếm, cách nhau bằng dấu phẩy</small>
                     </div>
                     
-                    <div class="mb-3">
-                        <label for="tags_select2" class="form-label">Tags/Nhãn</label>
-                        <select class="form-control select2-tags" name="tags_select2" id="tags_select2" multiple="multiple" style="width: 100%">
-                            {if isset($AVAILABLE_TAGS)}
-                                {foreach from=$AVAILABLE_TAGS item=tag}
-                                <option value="{$tag.name}"{if $tag.selected} selected{/if}>{$tag.name}</option>
-                                {/foreach}
-                            {/if}
-                        </select>
-                        <small class="form-text text-muted">Chọn hoặc tạo mới các nhãn cho mã nguồn</small>
+                    <div class="card mb-3">
+                        <div class="card-header py-2">
+                            <div class="d-flex gap-2 justify-content-between align-items-center">
+                                <div class="fw-medium fs-5 text-truncate">Các tag cho mã nguồn</div>
+                                <button type="button" class="btn btn-secondary btn-sm" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-title="Tạo tự động dựa vào nội dung mã nguồn" aria-label="Tạo tự động dựa vào nội dung mã nguồn" data-toggle="tags_auto_create">
+                                    <i class="fa-solid fa-tags" data-icon="fa-tags"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <select id="sourcecontent_tags" class="form-control" aria-label="Các tag cho mã nguồn" name="tags[]" multiple data-placeholder="Nhập tag..." style="width: 100%">
+                                {if isset($AVAILABLE_TAGS)}
+                                    {foreach from=$AVAILABLE_TAGS item=tag}
+                                    <option value="{$tag.name}"{if $tag.selected} selected{/if}>{$tag.name}</option>
+                                    {/foreach}
+                                {/if}
+                            </select>
+                        </div>
                     </div>
                     
                     <div class="mb-3">
@@ -554,15 +562,71 @@ $(document).ready(function() {
         }
     });
     
-    // Initialize Select2 for tags
-    $('.select2-tags').select2({
+    // Initialize Select2 for tags (similar to news module)
+    $('#sourcecontent_tags').select2({
         language: '{$smarty.const.NV_LANG_INTERFACE}',
         width: '100%',
         tags: true,
         tokenSeparators: [',', ' '],
-        placeholder: 'Chọn hoặc tạo mới tags...',
+        placeholder: 'Nhập tag...',
         allowClear: true,
-        maximumSelectionLength: 10
+        maximumSelectionLength: 20,
+        createTag: function (params) {
+            var term = $.trim(params.term);
+            if (term === '') {
+                return null;
+            }
+            return {
+                id: term,
+                text: term,
+                newTag: true
+            };
+        },
+        templateResult: function (data) {
+            var $result = $('<span></span>');
+            $result.text(data.text);
+            if (data.newTag) {
+                $result.append(' <em>(tạo mới)</em>');
+            }
+            return $result;
+        }
+    });
+    
+    // Auto-create tags button functionality
+    $('[data-toggle="tags_auto_create"]').on('click', function() {
+        var title = $('#title').val().trim();
+        var shortDesc = $('#short_description').val().trim();
+        var detailedDesc = '';
+        
+        // Get content from CKEditor if available
+        if (typeof CKEDITOR !== 'undefined' && CKEDITOR.instances.detailed_description) {
+            detailedDesc = CKEDITOR.instances.detailed_description.getData();
+            detailedDesc = $('<div>').html(detailedDesc).text(); // Strip HTML
+        } else {
+            detailedDesc = $('#detailed_description').val().trim();
+        }
+        
+        var content = title + ' ' + shortDesc + ' ' + detailedDesc;
+        var autoTags = extractTagsFromContent(content);
+        
+        if (autoTags.length > 0) {
+            // Add auto-generated tags to select2
+            var currentTags = $('#sourcecontent_tags').val() || [];
+            var newTags = [...new Set([...currentTags, ...autoTags])]; // Remove duplicates
+            
+            // Add new options if they don't exist
+            autoTags.forEach(function(tag) {
+                if ($('#sourcecontent_tags option[value="' + tag + '"]').length === 0) {
+                    var newOption = new Option(tag, tag, false, false);
+                    $('#sourcecontent_tags').append(newOption);
+                }
+            });
+            
+            $('#sourcecontent_tags').val(newTags).trigger('change');
+            nukeviet.toast('Đã tạo ' + autoTags.length + ' tags tự động: ' + autoTags.join(', '), 'success');
+        } else {
+            nukeviet.toast('Không thể tạo tags tự động. Vui lòng nhập thêm nội dung.', 'warning');
+        }
     });
     
     // Initialize CKEditor for detailed description
@@ -575,6 +639,47 @@ $(document).ready(function() {
         });
     }
 });
+
+// Function to extract tags from content
+function extractTagsFromContent(content) {
+    if (!content || content.length < 10) return [];
+    
+    // Common programming and technology keywords
+    var techKeywords = [
+        'php', 'mysql', 'javascript', 'html', 'css', 'bootstrap', 'jquery', 'ajax', 'json', 'xml',
+        'cms', 'nukeviet', 'wordpress', 'laravel', 'codeigniter', 'framework', 'api', 'rest',
+        'mobile', 'responsive', 'admin', 'dashboard', 'ecommerce', 'shop', 'cart', 'payment',
+        'user', 'login', 'register', 'authentication', 'authorization', 'security', 'seo',
+        'blog', 'news', 'article', 'content', 'management', 'template', 'theme', 'plugin',
+        'module', 'extension', 'widget', 'slider', 'gallery', 'portfolio', 'contact', 'form',
+        'website', 'web', 'online', 'digital', 'system', 'software', 'application', 'tool'
+    ];
+    
+    var tags = [];
+    content = content.toLowerCase();
+    
+    // Extract tech keywords
+    techKeywords.forEach(function(keyword) {
+        if (content.includes(keyword) && tags.indexOf(keyword) === -1) {
+            tags.push(keyword);
+        }
+    });
+    
+    // Extract words that might be tags (2-15 characters, alphanumeric)
+    var words = content.match(/\b[a-zA-Z][a-zA-Z0-9]{1,14}\b/g) || [];
+    var commonWords = ['the', 'and', 'for', 'are', 'but', 'not', 'you', 'all', 'can', 'had', 'her', 'was', 'one', 'our', 'out', 'day', 'get', 'has', 'him', 'how', 'man', 'new', 'now', 'old', 'see', 'two', 'way', 'who', 'boy', 'did', 'its', 'let', 'put', 'say', 'she', 'too', 'use', 'that', 'with', 'have', 'this', 'will', 'your', 'from', 'they', 'know', 'want', 'been', 'good', 'much', 'some', 'time', 'very', 'when', 'come', 'here', 'just', 'like', 'long', 'make', 'many', 'over', 'such', 'take', 'than', 'them', 'well', 'were'];
+    
+    words.forEach(function(word) {
+        if (word.length >= 3 && word.length <= 15 && 
+            commonWords.indexOf(word.toLowerCase()) === -1 && 
+            tags.indexOf(word.toLowerCase()) === -1 &&
+            tags.length < 10) {
+            tags.push(word.toLowerCase());
+        }
+    });
+    
+    return tags.slice(0, 8); // Limit to 8 auto-generated tags
+}
 
 // Toggle download fields based on type
 function toggleDownloadFields() {

@@ -111,7 +111,7 @@ if ($nv_Request->isset_request('save', 'post')) {
     $post['fee_type'] = $nv_Request->get_title('fee_type', 'post', 'free');
     $post['fee_amount'] = $nv_Request->get_float('fee_amount', 'post', 0);
     $post['keywords'] = $nv_Request->get_title('keywords', 'post', ''); // This will be moved in template (issue #1)
-    $post['tags'] = $nv_Request->get_title('tags', 'post', ''); // New select2 tags field (issue #1)
+    $post['tags'] = $nv_Request->get_array('tags', 'post', []); // New select2 tags field (issue #1)
     $post['status'] = $nv_Request->get_int('status', 'post', 1);
     $post['tag_ids'] = $nv_Request->get_array('tag_ids', 'post', []);
     
@@ -304,9 +304,35 @@ if ($nv_Request->isset_request('save', 'post')) {
                 $source_id = $db->lastInsertId(); // Trường hợp thêm mới
             }
 
-            // Cập nhật tags cho source
+            // Xử lý tags từ select2 (issue #1)
             if ($source_id > 0) {
-                nv_admin_sharecode_update_source_tags($source_id, $post['tag_ids']);
+                // Process tags from select2 field
+                $tag_ids_from_names = [];
+                if (!empty($post['tags'])) {
+                    foreach ($post['tags'] as $tag_name) {
+                        $tag_name = trim($tag_name);
+                        if (!empty($tag_name)) {
+                            // Check if tag exists
+                            $tag_id = $db->query("SELECT id FROM " . NV_PREFIXLANG . "_" . $module_data . "_tags WHERE name=" . $db->quote($tag_name))->fetchColumn();
+                            
+                            if (!$tag_id) {
+                                // Create new tag
+                                $alias = change_alias($tag_name);
+                                $sql = "INSERT INTO " . NV_PREFIXLANG . "_" . $module_data . "_tags (name, alias, description, weight, status, add_time) VALUES (" . $db->quote($tag_name) . ", " . $db->quote($alias) . ", '', 0, 1, " . NV_CURRENTTIME . ")";
+                                $db->exec($sql);
+                                $tag_id = $db->lastInsertId();
+                            }
+                            
+                            if ($tag_id) {
+                                $tag_ids_from_names[] = $tag_id;
+                            }
+                        }
+                    }
+                }
+                
+                // Merge with existing tag_ids if any
+                $all_tag_ids = array_unique(array_merge($post['tag_ids'], $tag_ids_from_names));
+                nv_admin_sharecode_update_source_tags($source_id, $all_tag_ids);
             }
             
             // Gửi email thông báo nếu là thêm mới và được cấu hình
