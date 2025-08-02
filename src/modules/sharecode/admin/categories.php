@@ -69,17 +69,25 @@ if ($nv_Request->get_title('save', 'post', '') != '') {
     $post['title'] = $nv_Request->get_title('title', 'post', '');
     $post['alias'] = $nv_Request->get_title('alias', 'post', '');
     $post['description'] = $nv_Request->get_textarea('description', 'post', '');
-    $post['parentid'] = $nv_Request->get_int('parentid', 'post', 0);
-    $post['weight'] = $nv_Request->get_int('weight', 'post', 0);
+    // Removed parent category functionality as per issue #1
+    // $post['parentid'] = $nv_Request->get_int('parentid', 'post', 0);
+    // Removed weight/order display as per issue #1  
+    // $post['weight'] = $nv_Request->get_int('weight', 'post', 0);
     $post['status'] = $nv_Request->get_int('status', 'post', 1);
     
     if (empty($post['title'])) {
         $error[] = 'Tên danh mục không được để trống';
     }
     
+    // Auto-generate alias from title if empty (issue #1 fix)
     if (empty($post['alias'])) {
         $post['alias'] = nv_admin_sharecode_create_alias($post['title'], 'categories', $id);
-    } elseif (!nv_admin_sharecode_check_alias($post['alias'], 'categories', $id)) {
+    } else {
+        // Clean up manually entered alias
+        $post['alias'] = nv_admin_sharecode_create_alias($post['alias'], 'categories', $id);
+    }
+    
+    if (!nv_admin_sharecode_check_alias($post['alias'], 'categories', $id)) {
         $error[] = 'Liên kết tĩnh đã tồn tại';
     }
     
@@ -90,20 +98,16 @@ if ($nv_Request->get_title('save', 'post', '') != '') {
                     title=" . $db->quote($post['title']) . ",
                     alias=" . $db->quote($post['alias']) . ",
                     description=" . $db->quote($post['description']) . ",
-                    parentid=" . $post['parentid'] . ",
-                    weight=" . $post['weight'] . ",
                     status=" . $post['status'] . ",
                     edit_time=" . NV_CURRENTTIME . "
                     WHERE id=" . $id;
         } else {
             // Thêm mới
             $sql = "INSERT INTO " . NV_PREFIXLANG . "_" . $module_data . "_categories
-                    (title, alias, description, parentid, weight, status, add_time) VALUES (
+                    (title, alias, description, status, add_time) VALUES (
                     " . $db->quote($post['title']) . ",
                     " . $db->quote($post['alias']) . ",
                     " . $db->quote($post['description']) . ",
-                    " . $post['parentid'] . ",
-                    " . $post['weight'] . ",
                     " . $post['status'] . ",
                     " . NV_CURRENTTIME . "
                     )";
@@ -150,8 +154,6 @@ if (!empty($post)) {
         'title' => '',
         'alias' => '',
         'description' => '',
-        'parentid' => 0,
-        'weight' => 0,
         'status' => 1
     ];
 }
@@ -164,9 +166,9 @@ $is_edit = ($id > 0);
 $tpl->assign('IS_EDIT', $is_edit);
 $tpl->assign('DATA', $data);
 
-// Parent category options
-$parent_options = nv_admin_sharecode_get_category_options($data['parentid'] ?? 0, $id);
-$tpl->assign('PARENT_OPTIONS', $parent_options);
+// Parent category functionality removed as per issue #1
+// $parent_options = nv_admin_sharecode_get_category_options($data['parentid'] ?? 0, $id);
+// $tpl->assign('PARENT_OPTIONS', $parent_options);
 
 // Assign errors if any
 $tpl->assign('ERRORS', $error);

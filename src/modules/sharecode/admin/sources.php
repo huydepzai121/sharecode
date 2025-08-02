@@ -101,16 +101,23 @@ if ($nv_Request->isset_request('save', 'post')) {
     
     $post['title'] = $nv_Request->get_title('title', 'post', '');
     $post['alias'] = $nv_Request->get_title('alias', 'post', '');
-    $post['description'] = $nv_Request->get_textarea('description', 'post', '');
+    $post['short_description'] = $nv_Request->get_textarea('short_description', 'post', ''); // Renamed from description (issue #1)
+    $post['detailed_description'] = $nv_Request->get_editor('detailed_description', 'post', ''); // New detailed description (issue #1)
     $post['catid'] = $nv_Request->get_int('catid', 'post', 0);
     $post['download_link_type'] = $nv_Request->get_title('download_link_type', 'post', 'internal');
     $post['download_link'] = $nv_Request->get_textarea('download_link', 'post', '');
+    $post['external_source_link'] = $nv_Request->get_textarea('external_source_link', 'post', ''); // New external source field (issue #1)
     $post['demo_link'] = $nv_Request->get_textarea('demo_link', 'post', '');
     $post['fee_type'] = $nv_Request->get_title('fee_type', 'post', 'free');
     $post['fee_amount'] = $nv_Request->get_float('fee_amount', 'post', 0);
-    $post['keywords'] = $nv_Request->get_title('keywords', 'post', '');
+    $post['keywords'] = $nv_Request->get_title('keywords', 'post', ''); // This will be moved in template (issue #1)
+    $post['tags'] = $nv_Request->get_title('tags', 'post', ''); // New select2 tags field (issue #1)
     $post['status'] = $nv_Request->get_int('status', 'post', 1);
     $post['tag_ids'] = $nv_Request->get_array('tag_ids', 'post', []);
+    
+    // Avatar/background image field (issue #1)
+    $post['avatar'] = '';
+    $post['background_image'] = '';
     
     // Contact fields
     $post['contact_phone'] = $nv_Request->get_title('contact_phone', 'post', '');
@@ -125,12 +132,50 @@ if ($nv_Request->isset_request('save', 'post')) {
     // Debug: Kiểm tra tag_ids được gửi lên
     // var_dump('Tag IDs received:', $post['tag_ids']); // Uncomment để debug
     
+    // Enhanced validation (issue #1)
     if (empty($post['title'])) {
         $error[] = 'Tên mã nguồn không được để trống';
+    } elseif (strlen($post['title']) < 3) {
+        $error[] = 'Tên mã nguồn phải có ít nhất 3 ký tự';
+    } elseif (strlen($post['title']) > 255) {
+        $error[] = 'Tên mã nguồn không được vượt quá 255 ký tự';
     }
     
     if ($post['catid'] <= 0) {
-        $error[] = 'Vui lòng chọn danh mục';
+        $error[] = 'Vui lòng chọn danh mục phù hợp cho mã nguồn';
+    }
+    
+    if (empty($post['short_description'])) {
+        $error[] = 'Mô tả ngắn không được để trống';
+    } elseif (strlen($post['short_description']) < 10) {
+        $error[] = 'Mô tả ngắn phải có ít nhất 10 ký tự';
+    }
+    
+    // Validate download links based on type
+    if ($post['download_link_type'] == 'external' && empty($post['download_link'])) {
+        $error[] = 'Vui lòng nhập link download bên ngoài';
+    } elseif ($post['download_link_type'] == 'external' && !filter_var($post['download_link'], FILTER_VALIDATE_URL)) {
+        $error[] = 'Link download không hợp lệ';
+    }
+    
+    // Validate fee amount if paid
+    if ($post['fee_type'] == 'paid' && $post['fee_amount'] <= 0) {
+        $error[] = 'Vui lòng nhập số tiền hợp lệ cho mã nguồn trả phí';
+    }
+    
+    // Validate contact info if fee type is contact
+    if ($post['fee_type'] == 'contact') {
+        $contact_fields = ['contact_phone', 'contact_email', 'contact_skype', 'contact_telegram', 'contact_zalo', 'contact_facebook', 'contact_website'];
+        $has_contact = false;
+        foreach ($contact_fields as $field) {
+            if (!empty($post[$field])) {
+                $has_contact = true;
+                break;
+            }
+        }
+        if (!$has_contact) {
+            $error[] = 'Vui lòng nhập ít nhất một thông tin liên hệ khi chọn loại phí "Liên hệ"';
+        }
     }
     
     // Xử lý upload file mã nguồn
@@ -180,10 +225,16 @@ if ($nv_Request->isset_request('save', 'post')) {
         $error[] = 'Vui lòng chọn file mã nguồn để upload';
     }
     
+    // Auto-fill alias from title (issue #1)
     if (empty($post['alias'])) {
         $post['alias'] = nv_admin_sharecode_create_alias($post['title'], 'sources', $id);
-    } elseif (!nv_admin_sharecode_check_alias($post['alias'], 'sources', $id)) {
-        $error[] = 'Liên kết tĩnh đã tồn tại';
+    } else {
+        // Clean up manually entered alias
+        $post['alias'] = nv_admin_sharecode_create_alias($post['alias'], 'sources', $id);
+    }
+    
+    if (!nv_admin_sharecode_check_alias($post['alias'], 'sources', $id)) {
+        $error[] = 'Liên kết tĩnh "' . $post['alias'] . '" đã tồn tại. Vui lòng sử dụng liên kết khác.';
     }
     
     if (empty($error)) {
@@ -192,10 +243,12 @@ if ($nv_Request->isset_request('save', 'post')) {
             $sql = "UPDATE " . NV_PREFIXLANG . "_" . $module_data . "_sources SET 
                     title=" . $db->quote($post['title']) . ",
                     alias=" . $db->quote($post['alias']) . ",
-                    description=" . $db->quote($post['description']) . ",
+                    short_description=" . $db->quote($post['short_description']) . ",
+                    detailed_description=" . $db->quote($post['detailed_description']) . ",
                     catid=" . $post['catid'] . ",
                     download_link_type=" . $db->quote($post['download_link_type']) . ",
                     download_link=" . $db->quote($post['download_link']) . ",
+                    external_source_link=" . $db->quote($post['external_source_link']) . ",
                     demo_link=" . $db->quote($post['demo_link']) . ",
                     fee_type=" . $db->quote($post['fee_type']) . ",
                     fee_amount=" . $post['fee_amount'] . ",
@@ -214,15 +267,17 @@ if ($nv_Request->isset_request('save', 'post')) {
         } else {
             // Thêm mới
             $sql = "INSERT INTO " . NV_PREFIXLANG . "_" . $module_data . "_sources
-                    (title, alias, description, catid, download_link_type, download_link, demo_link, keywords, fee_type, fee_amount, 
+                    (title, alias, short_description, detailed_description, catid, download_link_type, download_link, external_source_link, demo_link, keywords, fee_type, fee_amount, 
                      contact_phone, contact_email, contact_skype, contact_telegram, contact_zalo, contact_facebook, contact_website, contact_address,
                      status, userid, add_time) VALUES (
                     " . $db->quote($post['title']) . ",
                     " . $db->quote($post['alias']) . ",
-                    " . $db->quote($post['description']) . ",
+                    " . $db->quote($post['short_description']) . ",
+                    " . $db->quote($post['detailed_description']) . ",
                     " . $post['catid'] . ",
                     " . $db->quote($post['download_link_type']) . ",
                     " . $db->quote($post['download_link']) . ",
+                    " . $db->quote($post['external_source_link']) . ",
                     " . $db->quote($post['demo_link']) . ",
                     " . $db->quote($post['keywords']) . ",
                     " . $db->quote($post['fee_type']) . ",

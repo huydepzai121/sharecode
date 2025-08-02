@@ -42,37 +42,45 @@
                     <div class="mb-3">
                         <label for="alias" class="form-label">Liên kết tĩnh</label>
                         <input type="text" class="form-control" name="alias" id="alias" value="{$DATA.alias}">
-                        <small class="form-text text-muted">Để trống sẽ tự động tạo</small>
+                        <small class="form-text text-muted">Sẽ tự động tạo từ tên mã nguồn</small>
                     </div>
                     
                     <div class="mb-3">
-                        <label for="description" class="form-label">Mô tả</label>
-                        <textarea class="form-control" name="description" id="description" rows="5">{$DATA.description}</textarea>
+                        <label for="short_description" class="form-label">Mô tả ngắn <span class="text-danger">*</span></label>
+                        <textarea class="form-control" name="short_description" id="short_description" rows="3" required>{$DATA.short_description}</textarea>
+                        <small class="form-text text-muted">Mô tả ngắn gọn về mã nguồn (tối thiểu 10 ký tự)</small>
                     </div>
                     
                     <div class="mb-3">
-                        <label for="keywords" class="form-label">Từ khóa</label>
-                        <input type="text" class="form-control" name="keywords" id="keywords" value="{$DATA.keywords}">
-                        <small class="form-text text-muted">Các từ khóa cách nhau bằng dấu phẩy</small>
+                        <label for="detailed_description" class="form-label">Mô tả chi tiết</label>
+                        <textarea class="form-control ckeditor" name="detailed_description" id="detailed_description" rows="8">{$DATA.detailed_description}</textarea>
+                        <small class="form-text text-muted">Mô tả chi tiết về tính năng, cách sử dụng</small>
                     </div>
                     
                     <div class="mb-3">
                         <label for="download_link_type" class="form-label">Loại link download</label>
-                        <select class="form-select" name="download_link_type" id="download_link_type">
-                            <option value="internal"{if $DATA.download_link_type eq 'internal'} selected{/if}>File nội bộ</option>
-                            <option value="external"{if $DATA.download_link_type eq 'external'} selected{/if}>Link bên ngoài</option>
+                        <select class="form-select" name="download_link_type" id="download_link_type" onchange="toggleDownloadFields()">
+                            <option value="internal"{if $DATA.download_link_type eq 'internal'} selected{/if}>File upload nội bộ</option>
+                            <option value="external"{if $DATA.download_link_type eq 'external'} selected{/if}>Link download bên ngoài</option>
                         </select>
                     </div>
                     
+                    <div class="mb-3" id="external_download_group" style="display: {if $DATA.download_link_type eq 'external'}block{else}none{/if};">
+                        <label for="download_link" class="form-label">Link download bên ngoài</label>
+                        <input type="url" class="form-control" name="download_link" id="download_link" value="{$DATA.download_link}" placeholder="https://example.com/download-link">
+                        <small class="form-text text-muted">URL trực tiếp đến file tải về</small>
+                    </div>
+                    
                     <div class="mb-3">
-                        <label for="download_link" class="form-label">Link download</label>
-                        <input type="text" class="form-control" name="download_link" id="download_link" value="{$DATA.download_link}">
-                        <small class="form-text text-muted">Đường dẫn file hoặc URL</small>
+                        <label for="external_source_link" class="form-label">Link mã nguồn bên ngoài</label>
+                        <input type="url" class="form-control" name="external_source_link" id="external_source_link" value="{$DATA.external_source_link}" placeholder="https://github.com/user/repo">
+                        <small class="form-text text-muted">Link đến repository GitHub, GitLab hoặc trang web mã nguồn</small>
                     </div>
                     
                     <div class="mb-3">
                         <label for="demo_link" class="form-label">Link demo</label>
-                        <input type="url" class="form-control" name="demo_link" id="demo_link" value="{$DATA.demo_link}">
+                        <input type="url" class="form-control" name="demo_link" id="demo_link" value="{$DATA.demo_link}" placeholder="https://demo.example.com">
+                        <small class="form-text text-muted">Link xem demo trực tiếp của mã nguồn</small>
                     </div>
                 </div>
                 
@@ -85,13 +93,53 @@
                     </div>
                     
                     <div class="mb-3">
-                        <label for="image" class="form-label">Hình ảnh</label>
-                        <input type="file" class="form-control" name="image" id="image" accept="image/*">
-                        {if isset($DATA.image_url) and !empty($DATA.image_url)}
+                        <label for="avatar" class="form-label">Avatar/Hình đại diện</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" name="avatar" id="avatar" value="{$DATA.avatar}" placeholder="Chọn hình ảnh..." readonly>
+                            <button type="button" class="btn btn-outline-secondary" onclick="nv_open_file_manager('avatar')">
+                                <i class="fa fa-folder-open"></i> Chọn
+                            </button>
+                        </div>
+                        {if isset($DATA.avatar_url) and !empty($DATA.avatar_url)}
                         <div class="mt-2">
-                            <img src="{$DATA.image_url}" alt="Current image" class="img-thumbnail" style="max-width: 150px;">
+                            <img src="{$DATA.avatar_url}" alt="Current avatar" class="img-thumbnail" style="max-width: 150px;">
                         </div>
                         {/if}
+                        <small class="form-text text-muted">Hình đại diện cho mã nguồn (khuyến nghị 300x200px)</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="background_image" class="form-label">Hình nền</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" name="background_image" id="background_image" value="{$DATA.background_image}" placeholder="Chọn hình nền..." readonly>
+                            <button type="button" class="btn btn-outline-secondary" onclick="nv_open_file_manager('background_image')">
+                                <i class="fa fa-folder-open"></i> Chọn
+                            </button>
+                        </div>
+                        {if isset($DATA.background_image_url) and !empty($DATA.background_image_url)}
+                        <div class="mt-2">
+                            <img src="{$DATA.background_image_url}" alt="Current background" class="img-thumbnail" style="max-width: 150px;">
+                        </div>
+                        {/if}
+                        <small class="form-text text-muted">Hình nền chi tiết (khuyến nghị 1200x600px)</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="keywords" class="form-label">Từ khóa tìm kiếm</label>
+                        <input type="text" class="form-control" name="keywords" id="keywords" value="{$DATA.keywords}" placeholder="php, mysql, cms, nukeviet">
+                        <small class="form-text text-muted">Các từ khóa để tìm kiếm, cách nhau bằng dấu phẩy</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="tags_select2" class="form-label">Tags/Nhãn</label>
+                        <select class="form-control select2-tags" name="tags_select2" id="tags_select2" multiple="multiple" style="width: 100%">
+                            {if isset($AVAILABLE_TAGS)}
+                                {foreach from=$AVAILABLE_TAGS item=tag}
+                                <option value="{$tag.name}"{if $tag.selected} selected{/if}>{$tag.name}</option>
+                                {/foreach}
+                            {/if}
+                        </select>
+                        <small class="form-text text-muted">Chọn hoặc tạo mới các nhãn cho mã nguồn</small>
                     </div>
                     
                     <div class="mb-3">
@@ -483,5 +531,165 @@ $(document).ready(function() {
             });
         });
     });
+    
+    // Enhanced functionality for Issue #1 fixes
+    
+    // Auto-fill alias from title
+    var aliasField = $('#alias');
+    var titleField = $('#title');
+    var isEditMode = {if $IS_EDIT}true{else}false{/if};
+    
+    titleField.on('input keyup', function() {
+        if (!isEditMode || aliasField.val() === '') {
+            var title = $(this).val();
+            var alias = nv_create_alias(title);
+            aliasField.val(alias);
+        }
+    });
+    
+    aliasField.on('blur', function() {
+        var alias = $(this).val();
+        if (alias !== '') {
+            $(this).val(nv_create_alias(alias));
+        }
+    });
+    
+    // Initialize Select2 for tags
+    $('.select2-tags').select2({
+        language: '{$smarty.const.NV_LANG_INTERFACE}',
+        width: '100%',
+        tags: true,
+        tokenSeparators: [',', ' '],
+        placeholder: 'Chọn hoặc tạo mới tags...',
+        allowClear: true,
+        maximumSelectionLength: 10
+    });
+    
+    // Initialize CKEditor for detailed description
+    if (typeof CKEDITOR !== 'undefined') {
+        CKEDITOR.replace('detailed_description', {
+            height: 300,
+            filebrowserBrowseUrl: script_name + '?' + nv_name_variable + '=upload&' + nv_fc_variable + '=ckeditor',
+            filebrowserImageBrowseUrl: script_name + '?' + nv_name_variable + '=upload&' + nv_fc_variable + '=ckeditor&type=image',
+            filebrowserFlashBrowseUrl: script_name + '?' + nv_name_variable + '=upload&' + nv_fc_variable + '=ckeditor&type=flash'
+        });
+    }
 });
+
+// Toggle download fields based on type
+function toggleDownloadFields() {
+    const downloadType = document.getElementById('download_link_type').value;
+    const externalDownloadGroup = document.getElementById('external_download_group');
+    
+    if (downloadType === 'external') {
+        externalDownloadGroup.style.display = 'block';
+    } else {
+        externalDownloadGroup.style.display = 'none';
+    }
+}
+
+// NukeViet file manager integration
+function nv_open_file_manager(field_id) {
+    var url = script_name + '?' + nv_name_variable + '=upload&popup=1&area=' + field_id;
+    window.open(url, 'fileManager', 'width=900,height=600,resizable=yes,scrollbars=yes');
+}
+
+// File manager callback function
+function nv_select_file(file_path, field_id) {
+    $('#' + field_id).val(file_path);
+    // Update preview if exists
+    var preview_img = $('#' + field_id).siblings('.mt-2').find('img');
+    if (preview_img.length) {
+        preview_img.attr('src', NV_BASE_SITEURL + file_path);
+    }
+}
+
+// Vietnamese alias creation function
+function nv_create_alias(text) {
+    if (!text) return '';
+    
+    // Vietnamese character map
+    var map = {
+        'à': 'a', 'á': 'a', 'ạ': 'a', 'ả': 'a', 'ã': 'a', 'â': 'a', 'ầ': 'a', 'ấ': 'a', 'ậ': 'a', 'ẩ': 'a', 'ẫ': 'a', 'ă': 'a', 'ằ': 'a', 'ắ': 'a', 'ặ': 'a', 'ẳ': 'a', 'ẵ': 'a',
+        'è': 'e', 'é': 'e', 'ẹ': 'e', 'ẻ': 'e', 'ẽ': 'e', 'ê': 'e', 'ề': 'e', 'ế': 'e', 'ệ': 'e', 'ể': 'e', 'ễ': 'e',
+        'ì': 'i', 'í': 'i', 'ị': 'i', 'ỉ': 'i', 'ĩ': 'i',
+        'ò': 'o', 'ó': 'o', 'ọ': 'o', 'ỏ': 'o', 'õ': 'o', 'ô': 'o', 'ồ': 'o', 'ố': 'o', 'ộ': 'o', 'ổ': 'o', 'ỗ': 'o', 'ơ': 'o', 'ờ': 'o', 'ớ': 'o', 'ợ': 'o', 'ở': 'o', 'ỡ': 'o',
+        'ù': 'u', 'ú': 'u', 'ụ': 'u', 'ủ': 'u', 'ũ': 'u', 'ư': 'u', 'ừ': 'u', 'ứ': 'u', 'ự': 'u', 'ử': 'u', 'ữ': 'u',
+        'ỳ': 'y', 'ý': 'y', 'ỵ': 'y', 'ỷ': 'y', 'ỹ': 'y',
+        'đ': 'd'
+    };
+    
+    // Convert to lowercase and replace Vietnamese characters
+    text = text.toLowerCase();
+    for (var char in map) {
+        text = text.replace(new RegExp(char, 'g'), map[char]);
+    }
+    
+    // Remove special characters and replace spaces with hyphens
+    text = text.replace(/[^a-z0-9\s-]/g, '');
+    text = text.replace(/\s+/g, '-');
+    text = text.replace(/-+/g, '-');
+    text = text.replace(/^-|-$/g, '');
+    
+    return text;
+}
+
+// Enhanced form validation
+$('#source-form').on('submit', function(e) {
+    var errors = [];
+    
+    // Validate title
+    var title = $('#title').val().trim();
+    if (title.length < 3) {
+        errors.push('Tên mã nguồn phải có ít nhất 3 ký tự');
+    }
+    
+    // Validate short description
+    var shortDesc = $('#short_description').val().trim();
+    if (shortDesc.length < 10) {
+        errors.push('Mô tả ngắn phải có ít nhất 10 ký tự');
+    }
+    
+    // Validate category
+    if ($('#catid').val() == '0') {
+        errors.push('Vui lòng chọn danh mục');
+    }
+    
+    // Validate download link for external type
+    var downloadType = $('#download_link_type').val();
+    if (downloadType === 'external') {
+        var downloadLink = $('#download_link').val().trim();
+        if (downloadLink === '') {
+            errors.push('Vui lòng nhập link download bên ngoài');
+        } else if (!isValidUrl(downloadLink)) {
+            errors.push('Link download không hợp lệ');
+        }
+    }
+    
+    // Validate fee amount for paid type
+    var feeType = $('#fee_type').val();
+    if (feeType === 'paid') {
+        var feeAmount = parseFloat($('#fee_amount').val());
+        if (isNaN(feeAmount) || feeAmount <= 0) {
+            errors.push('Vui lòng nhập số tiền hợp lệ');
+        }
+    }
+    
+    if (errors.length > 0) {
+        e.preventDefault();
+        var errorMsg = 'Vui lòng kiểm tra lại:\n\n' + errors.join('\n');
+        nukeviet.alert(errorMsg);
+        return false;
+    }
+});
+
+// URL validation helper function
+function isValidUrl(string) {
+    try {
+        new URL(string);
+        return true;
+    } catch (_) {
+        return false;
+    }
+}
 </script>
