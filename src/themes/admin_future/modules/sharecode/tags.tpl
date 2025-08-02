@@ -120,6 +120,7 @@
             <div class="modal-body">
                 <form action="{$smarty.const.NV_BASE_ADMINURL}index.php?{$smarty.const.NV_LANG_VARIABLE}={$smarty.const.NV_LANG_DATA}&{$smarty.const.NV_NAME_VARIABLE}={$MODULE_NAME}&{$smarty.const.NV_OP_VARIABLE}={$OP}" method="post" class="ajax-submit">
                     <input name="savetag" type="hidden" value="1">
+                    <input name="checkss" type="hidden" value="{$smarty.const.NV_CHECK_SESSION}">
                     <div class="mb-3">
                         <label for="element_mtag_mtitle" class="form-label">Nhập từ khóa (mỗi dòng một từ khóa):</label>
                         <textarea class="form-control" name="mtitle" id="element_mtag_mtitle" rows="5" maxlength="2000"></textarea>
@@ -143,6 +144,7 @@
             <div class="modal-body">
                 <form action="{$smarty.const.NV_BASE_ADMINURL}index.php?{$smarty.const.NV_LANG_VARIABLE}={$smarty.const.NV_LANG_DATA}&{$smarty.const.NV_NAME_VARIABLE}={$MODULE_NAME}&{$smarty.const.NV_OP_VARIABLE}={$OP}" method="post" class="ajax-submit">
                     <input name="savecat" type="hidden" value="1">
+                    <input name="checkss" type="hidden" value="{$smarty.const.NV_CHECK_SESSION}">
                     <input name="id" type="hidden" value="0">
                     <div class="row mb-3">
                         <label for="element_stag_name" class="col-12 col-sm-3 col-form-label text-sm-end">Tên tag <span class="text-danger">(*)</span></label>
@@ -223,7 +225,7 @@ $(function() {
             $.post('{$smarty.const.NV_BASE_ADMINURL}index.php?{$smarty.const.NV_LANG_VARIABLE}={$smarty.const.NV_LANG_DATA}&{$smarty.const.NV_NAME_VARIABLE}={$MODULE_NAME}&{$smarty.const.NV_OP_VARIABLE}={$OP}', {
                 loadEditTag: 1,
                 id: tid,
-                checkss: nv_md5('{$smarty.const.NV_CHECK_SESSION}')
+                checkss: '{$smarty.const.NV_CHECK_SESSION}'
             }, function(res) {
                 if (res.success) {
                     $('#element_stag_name').val(res.data.name);
@@ -249,7 +251,7 @@ $(function() {
         $.post('{$smarty.const.NV_BASE_ADMINURL}index.php?{$smarty.const.NV_LANG_VARIABLE}={$smarty.const.NV_LANG_DATA}&{$smarty.const.NV_NAME_VARIABLE}={$MODULE_NAME}&{$smarty.const.NV_OP_VARIABLE}={$OP}', {
             tagLinks: 1,
             id: tid,
-            checkss: nv_md5('{$smarty.const.NV_CHECK_SESSION}')
+            checkss: '{$smarty.const.NV_CHECK_SESSION}'
         }, function(res) {
             if (res.success) {
                 $('#mdTagLinks .modal-body').html(res.html);
@@ -268,7 +270,7 @@ $(function() {
             var tid = $(this).data('tid');
             $.post('{$smarty.const.NV_BASE_ADMINURL}index.php?{$smarty.const.NV_LANG_VARIABLE}={$smarty.const.NV_LANG_DATA}&{$smarty.const.NV_NAME_VARIABLE}={$MODULE_NAME}&{$smarty.const.NV_OP_VARIABLE}={$OP}', {
                 del_tid: tid,
-                checkss: nv_md5('{$smarty.const.NV_CHECK_SESSION}')
+                checkss: '{$smarty.const.NV_CHECK_SESSION}'
             }, function(res) {
                 if (res.success) {
                     location.reload();
@@ -297,7 +299,7 @@ $(function() {
         if (confirm('Bạn có chắc chắn muốn xóa ' + ids.length + ' từ khóa đã chọn?')) {
             $.post('{$smarty.const.NV_BASE_ADMINURL}index.php?{$smarty.const.NV_LANG_VARIABLE}={$smarty.const.NV_LANG_DATA}&{$smarty.const.NV_NAME_VARIABLE}={$MODULE_NAME}&{$smarty.const.NV_OP_VARIABLE}={$OP}', {
                 del_listid: ids.join(','),
-                checkss: nv_md5('{$smarty.const.NV_CHECK_SESSION}')
+                checkss: '{$smarty.const.NV_CHECK_SESSION}'
             }, function(res) {
                 if (res.success) {
                     location.reload();

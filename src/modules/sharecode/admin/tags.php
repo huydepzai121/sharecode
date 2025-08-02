@@ -94,6 +94,11 @@ if ($nv_Request->isset_request('savetag', 'post')) {
         'status' => 'error',
         'mess' => 'Error!!!',
     ];
+    
+    if (NV_CHECK_SESSION !== $checkss) {
+        $respon['mess'] = 'Wrong session!!!';
+        nv_jsonOutput($respon);
+    }
 
     $title = $nv_Request->get_textarea('mtitle', '', NV_ALLOWED_HTML_TAGS, true);
     $list_tag = explode('<br />', strip_tags($title, '<br>'));
@@ -108,10 +113,11 @@ if ($nv_Request->isset_request('savetag', 'post')) {
             $check_exists = $db->query('SELECT id FROM ' . NV_PREFIXLANG . '_' . $module_data . '_tags WHERE alias=' . $db->quote($alias))->fetchColumn();
             
             if (!$check_exists) {
+                $add_time = NV_CURRENTTIME;
                 $sth = $db->prepare('INSERT IGNORE INTO ' . NV_PREFIXLANG . '_' . $module_data . "_tags (name, alias, description, weight, status, add_time) VALUES (:name, :alias, '', 0, 1, :add_time)");
                 $sth->bindParam(':name', $name, PDO::PARAM_STR);
                 $sth->bindParam(':alias', $alias, PDO::PARAM_STR);
-                $sth->bindParam(':add_time', NV_CURRENTTIME, PDO::PARAM_INT);
+                $sth->bindParam(':add_time', $add_time, PDO::PARAM_INT);
                 $sth->execute();
                 $added[] = $name;
                 $aliases[] = $alias;
@@ -135,6 +141,13 @@ if ($nv_Request->isset_request('savetag', 'post')) {
 
 // Thêm tag hoặc sửa tag
 if ($nv_Request->isset_request('savecat', 'post')) {
+    if (NV_CHECK_SESSION !== $checkss) {
+        nv_jsonOutput([
+            'status' => 'error',
+            'mess' => 'Wrong session!!!'
+        ]);
+    }
+    
     $id = $nv_Request->get_int('id', 'post', 0);
     if (!empty($id)) {
         $num = $db->query('SELECT COUNT(*) FROM ' . NV_PREFIXLANG . '_' . $module_data . '_tags where id=' . $id)->fetchColumn();
@@ -180,8 +193,9 @@ if ($nv_Request->isset_request('savecat', 'post')) {
     $weight = $nv_Request->get_int('weight', 'post', 0);
 
     if (empty($id)) {
+        $add_time = NV_CURRENTTIME;
         $sth = $db->prepare('INSERT INTO ' . NV_PREFIXLANG . '_' . $module_data . '_tags (name, alias, description, weight, status, add_time) VALUES (:name, :alias, :description, :weight, 1, :add_time)');
-        $sth->bindParam(':add_time', NV_CURRENTTIME, PDO::PARAM_INT);
+        $sth->bindParam(':add_time', $add_time, PDO::PARAM_INT);
         $msg_lg = 'add_tags';
     } else {
         $sth = $db->prepare('UPDATE ' . NV_PREFIXLANG . '_' . $module_data . '_tags SET name = :name, alias = :alias, description = :description, weight = :weight WHERE id =' . $id);
