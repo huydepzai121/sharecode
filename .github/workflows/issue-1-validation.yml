@@ -1,0 +1,260 @@
+name: Issue #1 Validation
+
+# Validates fixes for GitHub issue #1
+# https://github.com/huydepzai121/sharecode/issues/1
+
+on:
+  push:
+    branches: [ master, dev_huy ]
+  pull_request:
+    branches: [ master ]
+  workflow_dispatch:
+    inputs:
+      test_type:
+        description: 'Type of test to run'
+        required: true
+        default: 'all'
+        type: choice
+        options:
+        - all
+        - categories
+        - sources
+        - tags
+        - logs
+
+jobs:
+  validate-issue-1-fixes:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: 8.3
+        extensions: mbstring, xml, ctype, json, mysql, pdo_mysql, gd
+
+    - name: Setup Node.js for frontend assets
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+
+    - name: Install npm dependencies
+      run: npm install
+
+    - name: Check Categories Page Issues
+      if: github.event.inputs.test_type == 'all' || github.event.inputs.test_type == 'categories'
+      run: |
+        echo "🔍 Checking Categories Page Issues from Issue #1..."
+        
+        CATEGORIES_FILE="src/admin/modules/sharecode/categories.php"
+        
+        if [ -f "$CATEGORIES_FILE" ]; then
+          echo "✅ Categories admin file exists"
+          
+          # Issue 1: Static link auto-fill
+          if grep -q "onchange\|oninput\|keyup" "$CATEGORIES_FILE" && grep -q "alias\|static" "$CATEGORIES_FILE"; then
+            echo "✅ Static link auto-fill functionality appears to be implemented"
+          else
+            echo "❌ Static link auto-fill needs implementation"
+            echo "::warning file=$CATEGORIES_FILE::Static link auto-fill functionality missing"
+          fi
+          
+          # Issue 2: Parent category removal check
+          if ! grep -q "parent\|pid" "$CATEGORIES_FILE"; then
+            echo "✅ Parent category option appears to be removed"
+          else
+            echo "⚠️ Parent category functionality still present - check if removal is needed"
+          fi
+          
+          # Issue 3: Order display removal
+          if ! grep -q "weight\|order.*display" "$CATEGORIES_FILE"; then
+            echo "✅ Order display appears to be removed from interface"
+          else
+            echo "⚠️ Order display still present - check if removal is needed"
+          fi
+          
+        else
+          echo "❌ Categories admin file not found: $CATEGORIES_FILE"
+          echo "::error file=$CATEGORIES_FILE::Categories admin file missing"
+        fi
+
+    - name: Check Sources Page Issues
+      if: github.event.inputs.test_type == 'all' || github.event.inputs.test_type == 'sources'
+      run: |
+        echo "🔍 Checking Sources Page Issues from Issue #1..."
+        
+        SOURCES_FILE="src/admin/modules/sharecode/sources.php"
+        
+        if [ -f "$SOURCES_FILE" ]; then
+          echo "✅ Sources admin file exists"
+          
+          # Issue 1: Avatar/background image field
+          if grep -q "avatar\|background.*image\|image.*field" "$SOURCES_FILE"; then
+            echo "✅ Avatar/background image field appears to be implemented"
+          else
+            echo "❌ Avatar/background image field needs implementation"
+            echo "::warning file=$SOURCES_FILE::Avatar/background image field missing"
+          fi
+          
+          # Issue 2: Auto-fill static link  
+          if grep -q "auto.*fill\|onchange.*alias" "$SOURCES_FILE"; then
+            echo "✅ Auto-fill static link functionality appears to be implemented"
+          else
+            echo "❌ Auto-fill static link needs implementation"
+            echo "::warning file=$SOURCES_FILE::Auto-fill static link functionality missing"
+          fi
+          
+          # Issue 5: Download link types alignment
+          if grep -q "download.*type\|link.*type" "$SOURCES_FILE"; then
+            echo "✅ Download link types appear to be implemented"
+          else
+            echo "❌ Download link types alignment needs implementation"
+            echo "::warning file=$SOURCES_FILE::Download link types missing"
+          fi
+          
+          # Issue 6: NukeViet file management
+          if grep -q "nv_upload\|file.*manager\|browse.*file" "$SOURCES_FILE"; then
+            echo "✅ NukeViet file management appears to be integrated"
+          else
+            echo "❌ NukeViet file management integration needs implementation"
+            echo "::warning file=$SOURCES_FILE::NukeViet file management integration missing"
+          fi
+          
+          # Issue 8: Select2 for keywords/tags
+          if grep -q "select2" "$SOURCES_FILE"; then
+            echo "✅ Select2 for keywords/tags appears to be implemented"
+          else
+            echo "❌ Select2 for keywords/tags needs implementation"
+            echo "::warning file=$SOURCES_FILE::Select2 implementation missing"
+          fi
+          
+          # Issue 9: Detailed description with editor
+          if grep -q "ckeditor\|editor\|wysiwyg" "$SOURCES_FILE"; then
+            echo "✅ Detailed description with editor appears to be implemented"
+          else
+            echo "❌ Detailed description with editor needs implementation"
+            echo "::warning file=$SOURCES_FILE::Editor implementation missing"
+          fi
+          
+        else
+          echo "❌ Sources admin file not found: $SOURCES_FILE"
+          echo "::error file=$SOURCES_FILE::Sources admin file missing"
+        fi
+
+    - name: Check Tag Management Issues
+      if: github.event.inputs.test_type == 'all' || github.event.inputs.test_type == 'tags'
+      run: |
+        echo "🔍 Checking Tag Management Issues from Issue #1..."
+        
+        TAGS_FILE="src/admin/modules/sharecode/tags.php"
+        
+        if [ -f "$TAGS_FILE" ]; then
+          echo "✅ Tags admin file exists"
+          
+          # Check for CRUD functionality
+          if grep -q "add\|insert" "$TAGS_FILE" && grep -q "edit\|update" "$TAGS_FILE" && grep -q "delete\|remove" "$TAGS_FILE"; then
+            echo "✅ Tag CRUD operations appear to be implemented"
+          else
+            echo "❌ Tag CRUD operations need full implementation"
+            echo "::warning file=$TAGS_FILE::Complete CRUD operations missing for tags"
+          fi
+          
+        else
+          echo "❌ Tags admin file not found: $TAGS_FILE"
+          echo "::error file=$TAGS_FILE::Tags management file missing - needs creation"
+        fi
+
+    - name: Check Logs Deletion Issues  
+      if: github.event.inputs.test_type == 'all' || github.event.inputs.test_type == 'logs'
+      run: |
+        echo "🔍 Checking Logs Deletion Issues from Issue #1..."
+        
+        LOGS_FILE="src/admin/modules/sharecode/logs.php"
+        
+        if [ -f "$LOGS_FILE" ]; then
+          echo "✅ Logs admin file exists"
+          
+          # Check for activity display
+          if grep -q "activity\|action\|log.*display" "$LOGS_FILE"; then
+            echo "✅ Log activity display appears to be implemented"
+          else
+            echo "❌ Log activity display needs implementation"
+            echo "::warning file=$LOGS_FILE::Log activity display missing"
+          fi
+          
+        else
+          echo "❌ Logs admin file not found: $LOGS_FILE"
+          echo "::error file=$LOGS_FILE::Logs management file missing"
+        fi
+
+    - name: Check JavaScript Dependencies
+      run: |
+        echo "🔍 Checking JavaScript dependencies for Issue #1 fixes..."
+        
+        # Check for Select2 in package.json or assets
+        if grep -q "select2" package.json 2>/dev/null || find src/assets/js -name "*select2*" 2>/dev/null | grep -q .; then
+          echo "✅ Select2 dependency found"
+        else
+          echo "❌ Select2 dependency missing - needed for keywords/tags functionality"
+          echo "::warning::Select2 needs to be added for improved tag/keyword selection"
+        fi
+        
+        # Check for file upload/manager scripts
+        if find src/assets/js -name "*upload*" -o -name "*file*manager*" 2>/dev/null | grep -q .; then
+          echo "✅ File management scripts found"
+        else
+          echo "⚠️ File management scripts may need enhancement for image uploads"
+        fi
+
+    - name: Validate Form Improvements
+      run: |
+        echo "🔍 Checking form validation improvements..."
+        
+        # Check for improved validation in ShareCode admin files
+        if find src/admin/modules/sharecode -name "*.php" -exec grep -l "validation\|validate\|required" {} \; 2>/dev/null | grep -q .; then
+          echo "✅ Form validation found in ShareCode admin files"
+        else
+          echo "❌ Form validation needs improvement as mentioned in Issue #1"
+          echo "::warning::Enhanced form validation and error messaging needed"
+        fi
+
+    - name: Generate Issue #1 Status Report
+      run: |
+        echo "# Issue #1 Validation Report" > issue-1-report.md
+        echo "**Generated:** $(date)" >> issue-1-report.md
+        echo "**Repository:** https://github.com/huydepzai121/sharecode" >> issue-1-report.md
+        echo "**Issue:** https://github.com/huydepzai121/sharecode/issues/1" >> issue-1-report.md
+        echo "" >> issue-1-report.md
+        echo "## Issues to Address:" >> issue-1-report.md
+        echo "### Categories Page:" >> issue-1-report.md
+        echo "- [ ] Static link auto-fill when entering category name" >> issue-1-report.md
+        echo "- [ ] Remove parent category option" >> issue-1-report.md
+        echo "- [ ] Remove order display from interface" >> issue-1-report.md
+        echo "" >> issue-1-report.md
+        echo "### Sources Page:" >> issue-1-report.md
+        echo "- [ ] Add avatar/background image field" >> issue-1-report.md
+        echo "- [ ] Auto-fill static link" >> issue-1-report.md
+        echo "- [ ] Move keywords field" >> issue-1-report.md
+        echo "- [ ] Rename description field" >> issue-1-report.md
+        echo "- [ ] Align download link types" >> issue-1-report.md
+        echo "- [ ] Use NukeViet file management for images" >> issue-1-report.md
+        echo "- [ ] Allow external source file links" >> issue-1-report.md
+        echo "- [ ] Use select2 for keywords/tags" >> issue-1-report.md
+        echo "- [ ] Add detailed description with editor" >> issue-1-report.md
+        echo "- [ ] Improve validation and error messaging" >> issue-1-report.md
+        echo "" >> issue-1-report.md
+        echo "### Tag Management:" >> issue-1-report.md
+        echo "- [ ] Fix non-functional tag management (add/edit/delete)" >> issue-1-report.md
+        echo "" >> issue-1-report.md
+        echo "### Logs:" >> issue-1-report.md
+        echo "- [ ] Fix logs deletion page showing no activity" >> issue-1-report.md
+        echo "" >> issue-1-report.md
+        echo "See workflow logs for detailed validation results." >> issue-1-report.md
+
+    - name: Upload Issue #1 Report
+      uses: actions/upload-artifact@v4
+      with:
+        name: issue-1-validation-report
+        path: issue-1-report.md

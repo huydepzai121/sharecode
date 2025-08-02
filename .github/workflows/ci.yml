@@ -1,0 +1,177 @@
+name: CI
+
+# This workflow addresses GitHub issue #1: ShareCode module functionality improvements
+# https://github.com/huydepzai121/sharecode/issues/1
+
+on:
+  push:
+    branches: [ master, dev_huy ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  php-tests:
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        php-version: [8.2, 8.3, 8.4]
+    
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: nukeviet_test
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: ${{ matrix.php-version }}
+        extensions: mbstring, xml, ctype, json, mysql, pdo_mysql, gd, zip, curl
+        coverage: xdebug
+
+    - name: Validate composer.json and composer.lock
+      run: composer validate --strict
+
+    - name: Cache Composer packages
+      id: composer-cache
+      uses: actions/cache@v4
+      with:
+        path: vendor
+        key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-php-
+
+    - name: Install dependencies
+      run: composer install --prefer-dist --no-progress
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    - name: Install npm dependencies
+      run: npm install
+
+    - name: Build CSS assets
+      run: |
+        npm run core-compile
+        npm run core-css-prefix
+        npm run core-css-rtl
+        npm run core-css-minify
+        npm run admin-compile
+        npm run admin-css-prefix
+        npm run admin-css-rtl
+
+    - name: Run PHP Syntax Check
+      run: find src/ -name "*.php" -exec php -l {} \;
+
+    - name: Run Codeception tests
+      run: |
+        # Setup test environment
+        cp .env.example .env
+        # Run unit tests only (requires less setup)
+        php vendor/bin/codecept run Unit --coverage --coverage-xml
+
+    - name: Upload coverage reports to Codecov
+      uses: codecov/codecov-action@v4
+      with:
+        file: ./tests/_output/coverage.xml
+        flags: unittests
+        name: codecov-umbrella
+        fail_ci_if_error: false
+
+  code-quality:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: 8.3
+        extensions: mbstring, xml, ctype, json
+
+    - name: Cache Composer packages
+      uses: actions/cache@v4
+      with:
+        path: vendor
+        key: ${{ runner.os }}-php-quality-${{ hashFiles('**/composer.lock') }}
+
+    - name: Install dependencies
+      run: composer install --prefer-dist --no-progress
+
+    - name: Run Rector (PHP code modernization)
+      run: php vendor/bin/rector process --dry-run
+
+  css-quality:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Run stylelint
+      run: npx stylelint "scss/**/*.scss"
+
+    - name: Build and verify CSS compilation
+      run: |
+        npm run core-compile
+        npm run admin-compile
+        # Verify CSS files were generated
+        test -f src/assets/css/core.d.css
+        test -f src/themes/admin_future/css/nv.style.css
+
+  security:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: 8.3
+
+    - name: Cache Composer packages
+      uses: actions/cache@v4
+      with:
+        path: vendor
+        key: ${{ runner.os }}-php-security-${{ hashFiles('**/composer.lock') }}
+
+    - name: Install dependencies
+      run: composer install --prefer-dist --no-progress
+
+    - name: Security audit
+      run: composer audit
+
+    - name: Check for common PHP security issues
+      run: |
+        # Check for potential security issues in PHP files
+        echo "Checking for eval() usage..."
+        ! grep -r "eval(" src/ --include="*.php" || (echo "Found eval() usage - security risk!" && exit 1)
+        
+        echo "Checking for exec() usage..."
+        ! grep -r "exec(" src/ --include="*.php" || (echo "Found exec() usage - review needed!" && exit 1)
+        
+        echo "Checking for system() usage..."
+        ! grep -r "system(" src/ --include="*.php" || (echo "Found system() usage - review needed!" && exit 1)
+        
+        echo "Security check completed successfully!"

@@ -1,0 +1,394 @@
+/**
+ * ShareCode Module CSS
+ * NukeViet Content Management System
+ */
+
+/* Category List */
+.sharecode-categories {
+    margin-bottom: 20px;
+}
+
+.sharecode-category-item {
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 15px;
+    margin-bottom: 10px;
+    background: #fff;
+    transition: all 0.3s ease;
+}
+
+.sharecode-category-item:hover {
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    border-color: #007bff;
+}
+
+.sharecode-category-title {
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 5px;
+}
+
+.sharecode-category-desc {
+    color: #666;
+    font-size: 14px;
+}
+
+/* Source List */
+.sharecode-sources {
+    margin-bottom: 20px;
+}
+
+.sharecode-source-item {
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 15px;
+    margin-bottom: 15px;
+    background: #fff;
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+}
+
+.sharecode-source-image {
+    flex-shrink: 0;
+    width: 120px;
+    height: 80px;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.sharecode-source-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.sharecode-source-content {
+    flex: 1;
+}
+
+.sharecode-source-title {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+
+.sharecode-source-title a {
+    color: #333;
+    text-decoration: none;
+}
+
+.sharecode-source-title a:hover {
+    color: #007bff;
+}
+
+.sharecode-source-desc {
+    color: #666;
+    font-size: 14px;
+    margin-bottom: 10px;
+    line-height: 1.5;
+}
+
+.sharecode-source-meta {
+    display: flex;
+    gap: 15px;
+    font-size: 13px;
+    color: #888;
+}
+
+.sharecode-source-actions {
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: flex-end;
+}
+
+.sharecode-price {
+    font-weight: bold;
+    color: #28a745;
+}
+
+.sharecode-price.paid {
+    color: #dc3545;
+}
+
+.sharecode-btn {
+    padding: 8px 16px;
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    text-align: center;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+}
+
+.sharecode-btn-primary {
+    background: #007bff;
+    color: white;
+}
+
+.sharecode-btn-primary:hover {
+    background: #0056b3;
+    color: white;
+}
+
+.sharecode-btn-success {
+    background: #28a745;
+    color: white;
+}
+
+.sharecode-btn-success:hover {
+    background: #1e7e34;
+    color: white;
+}
+
+.sharecode-btn-secondary {
+    background: #6c757d;
+    color: white;
+}
+
+.sharecode-btn-secondary:hover {
+    background: #545b62;
+    color: white;
+}
+
+/* Detail Page */
+.sharecode-detail {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.sharecode-detail-header {
+    border-bottom: 1px solid #eee;
+    padding-bottom: 15px;
+    margin-bottom: 20px;
+}
+
+.sharecode-detail-title {
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.sharecode-detail-meta {
+    display: flex;
+    gap: 20px;
+    font-size: 14px;
+    color: #666;
+}
+
+.sharecode-detail-image {
+    float: left;
+    margin: 0 20px 15px 0;
+    max-width: 300px;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.sharecode-detail-image img {
+    width: 100%;
+    height: auto;
+}
+
+.sharecode-detail-content {
+    line-height: 1.6;
+    color: #333;
+}
+
+.sharecode-tags {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid #eee;
+}
+
+.sharecode-tag {
+    display: inline-block;
+    background: #f8f9fa;
+    color: #495057;
+    padding: 4px 8px;
+    margin: 2px;
+    border-radius: 3px;
+    font-size: 12px;
+    text-decoration: none;
+}
+
+.sharecode-tag:hover {
+    background: #e9ecef;
+    color: #495057;
+}
+
+/* Download Section */
+.sharecode-download-section {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 5px;
+    padding: 20px;
+    margin: 20px 0;
+    text-align: center;
+}
+
+.sharecode-download-info {
+    margin-bottom: 15px;
+}
+
+.sharecode-download-price {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.sharecode-download-stats {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 15px;
+}
+
+/* Enhanced Price Display */
+.price-section {
+    margin: 15px 0;
+}
+
+.price-display {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 5px 0;
+}
+
+.price-label {
+    font-weight: 500;
+    color: #666;
+}
+
+.price-value {
+    font-weight: bold;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.price-display.free .price-value {
+    color: #28a745;
+}
+
+.price-display.paid .price-value {
+    color: #dc3545;
+}
+
+.price-display.contact .price-value {
+    color: #ffc107;
+}
+
+/* Contact Buttons */
+.contact-buttons {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.contact-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 15px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    border: 2px solid;
+}
+
+.contact-btn.email {
+    background-color: #007bff;
+    border-color: #007bff;
+    color: white;
+}
+
+.contact-btn.email:hover {
+    background-color: #0056b3;
+    border-color: #0056b3;
+    color: white;
+    text-decoration: none;
+}
+
+.contact-btn.phone {
+    background-color: #28a745;
+    border-color: #28a745;
+    color: white;
+}
+
+.contact-btn.phone:hover {
+    background-color: #1e7e34;
+    border-color: #1e7e34;
+    color: white;
+    text-decoration: none;
+}
+
+/* Reviews */
+.sharecode-reviews {
+    margin-top: 30px;
+}
+
+.sharecode-review-item {
+    border-bottom: 1px solid #eee;
+    padding: 15px 0;
+}
+
+.sharecode-review-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.sharecode-review-user {
+    font-weight: bold;
+    color: #333;
+}
+
+.sharecode-review-rating {
+    color: #ffc107;
+}
+
+.sharecode-review-comment {
+    color: #666;
+    line-height: 1.5;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .sharecode-source-item {
+        flex-direction: column;
+    }
+    
+    .sharecode-source-image {
+        width: 100%;
+        height: 150px;
+    }
+    
+    .sharecode-source-actions {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .sharecode-detail-image {
+        float: none;
+        margin: 0 0 15px 0;
+        max-width: 100%;
+    }
+    
+    .sharecode-source-meta {
+        flex-direction: column;
+        gap: 5px;
+    }
+}
