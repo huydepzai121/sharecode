@@ -95,7 +95,6 @@
                                             <tr>
                                                 <td><a href="{$account.view_url}">
                                                     <b>{$account.username}</b></a>
-                                                    <p>{$account.url_config}</p>
                                                 </td>
                                                 <td>{$account.full_name}</td>
                                                 <td>{$account.email}</td>
