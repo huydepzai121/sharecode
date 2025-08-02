@@ -1,0 +1,41 @@
+{
+    "info": {
+        "name": "ShareCode: Mã nguồn mới nhất",
+        "author": "VINADES.,JSC",
+        "website": "https://vinades.vn",
+        "description": "Hiển thị danh sách mã nguồn mới nhất từ module ShareCode"
+    },
+    "config": {
+        "numrow": "5",
+        "catid": "0",
+        "show_image": "1"
+    },
+    "datafunction": "nv_block_config_sharecode_latest",
+    "submitfunction": "nv_block_config_sharecode_latest_submit",
+    "i18n": {
+        "vi": {
+            "language": {
+                "numrow": "Số lượng hiển thị",
+                "category": "Danh mục",
+                "all_categories": "Tất cả danh mục",
+                "show_image": "Hiển thị hình ảnh",
+                "show_image_note": "Hiển thị hình ảnh thumbnail cho mỗi mã nguồn"
+            },
+            "info": {
+                "name": "ShareCode: Mã nguồn mới nhất"
+            }
+        },
+        "en": {
+            "language": {
+                "numrow": "Number of items to display",
+                "category": "Category",
+                "all_categories": "All categories",
+                "show_image": "Show image",
+                "show_image_note": "Display thumbnail image for each source code"
+            },
+            "info": {
+                "name": "ShareCode: Latest Sources"
+            }
+        }
+    }
+}
