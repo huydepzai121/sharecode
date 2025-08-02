@@ -1,0 +1,139 @@
+name: Development Checks
+
+on:
+  push:
+    branches: [ dev_huy, develop, feature/* ]
+  pull_request:
+    branches: [ dev_huy, master ]
+
+jobs:
+  quick-checks:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: 8.3
+        extensions: mbstring, xml, ctype, json
+
+    - name: PHP Syntax Check
+      run: find src/ -name "*.php" -exec php -l {} \;
+
+    - name: Check for basic security issues
+      run: |
+        echo "Checking for basic security patterns..."
+        
+        # Check for SQL injection patterns
+        echo "Checking for potential SQL injection..."
+        ! grep -r "\$_[GP]" src/ --include="*.php" | grep -i "select\|insert\|update\|delete" || echo "Warning: Found potential SQL injection patterns"
+        
+        # Check for XSS patterns
+        echo "Checking for potential XSS..."
+        ! grep -r "echo.*\$_[GP]" src/ --include="*.php" || echo "Warning: Found potential XSS patterns"
+        
+        echo "Basic security check completed"
+
+    - name: Check file permissions and structure
+      run: |
+        echo "Checking file structure..."
+        
+        # Check for sensitive files that shouldn't be committed
+        if [ -f "src/config.php" ]; then
+          echo "Warning: config.php should not be committed"
+        fi
+        
+        if [ -f "src/.env" ]; then
+          echo "Warning: .env should not be committed"
+        fi
+        
+        # Check for required directories
+        test -d "src/data/config" || echo "Warning: src/data/config directory missing"
+        test -d "src/uploads" || echo "Warning: src/uploads directory missing"
+        
+        echo "File structure check completed"
+
+  css-build-check:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Check SCSS syntax
+      run: npx sass --check scss/
+
+    - name: Build development CSS
+      run: |
+        npm run core-compile
+        npm run admin-compile
+
+    - name: Verify CSS output
+      run: |
+        # Check if CSS files were generated correctly
+        ls -la src/assets/css/
+        ls -la src/themes/admin_future/css/
+        
+        # Basic CSS validation
+        if command -v css-validator &> /dev/null; then
+          css-validator src/assets/css/core.d.css || echo "CSS validation warnings found"
+        fi
+
+  composer-check:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: 8.3
+
+    - name: Validate composer files
+      run: |
+        composer validate --strict
+        composer check-platform-reqs
+
+    - name: Check for outdated packages
+      run: |
+        composer install --no-dev
+        composer outdated --direct || true
+
+  modernization-check:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: 8.3
+
+    - name: Install dependencies
+      run: composer install --prefer-dist --no-progress
+
+    - name: Run Rector dry-run
+      run: php vendor/bin/rector process --dry-run --no-progress-bar
+
+    - name: Check PHP compatibility
+      run: |
+        echo "Checking for deprecated PHP features..."
+        
+        # Check for deprecated features
+        ! grep -r "mysql_" src/ --include="*.php" || echo "Warning: Found deprecated mysql_ functions"
+        ! grep -r "ereg" src/ --include="*.php" || echo "Warning: Found deprecated ereg functions"
+        ! grep -r "split(" src/ --include="*.php" || echo "Warning: Found deprecated split() function"
+        
+        echo "PHP compatibility check completed"
