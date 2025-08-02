@@ -521,11 +521,30 @@ if ($id > 0 || $action == 'add' || $action == 'edit') {
     $category_options = nv_admin_sharecode_get_category_options($form_data['catid'] ?? 0);
     $tpl->assign('CATEGORY_OPTIONS', $category_options);
     
-    $all_tags = nv_admin_sharecode_get_all_tags();
-            foreach ($all_tags as &$tag) {
-                $tag['checked'] = in_array($tag['id'], $current_tag_ids) ? true : false;
-            }
-            $tpl->assign('TAGS', $all_tags);
+    // Get available tags for select2
+    $available_tags = [];
+    $current_tag_ids = [];
+    
+    // Get current source tags if editing
+    if ($id > 0) {
+        $sql = "SELECT tag_id FROM " . NV_PREFIXLANG . "_" . $module_data . "_source_tags WHERE source_id=" . $id;
+        $result = $db->query($sql);
+        while ($row = $result->fetch()) {
+            $current_tag_ids[] = $row['tag_id'];
+        }
+    }
+    
+    // Get all available tags
+    $sql = "SELECT id, name FROM " . NV_PREFIXLANG . "_" . $module_data . "_tags ORDER BY name ASC";
+    $result = $db->query($sql);
+    while ($row = $result->fetch()) {
+        $available_tags[] = [
+            'name' => $row['name'],
+            'selected' => in_array($row['id'], $current_tag_ids)
+        ];
+    }
+    
+    $tpl->assign('AVAILABLE_TAGS', $available_tags);
 
     // Error messages
     if (!empty($error)) {

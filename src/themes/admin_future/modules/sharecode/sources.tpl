@@ -236,24 +236,6 @@
                         </div>
                     </div>
 
-                    {if isset($TAGS) and !empty($TAGS)}
-                    <div class="mb-3">
-                        <label class="form-label">Tags liên quan</label>
-                        <div class="row">
-                            {foreach from=$TAGS item=tag}
-                            <div class="col-md-4 col-sm-6">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" name="tag_ids[]" id="tag_{$tag.id}" value="{$tag.id}"{if $tag.checked} checked{/if}>
-                                    <label class="form-check-label" for="tag_{$tag.id}">
-                                        {$tag.name}
-                                    </label>
-                                </div>
-                            </div>
-                            {/foreach}
-                        </div>
-                        <small class="form-text text-muted">Chọn các tags phù hợp với mã nguồn</small>
-                    </div>
-                    {/if}
 
                     <div class="mb-3">
                         <label for="status" class="form-label">Trạng thái</label>
