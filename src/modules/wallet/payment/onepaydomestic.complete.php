@@ -47,7 +47,7 @@ if (strlen($SECURE_SECRET) > 0 and $_GET["vpc_TxnResponseCode"] != "7" and $_GET
 }
 
 if ($hashValidated != "CORRECT") {
-    $error = $lang_module['pay_error_checkhash'];
+    $error = $nv_Lang->getModule('pay_error_checkhash');
 } else {
     $amount = null2unknown($_GET["vpc_Amount"]); // So tien thanh toan
     $orderInfo = null2unknown($_GET["vpc_OrderInfo"]); // Ma hoa don (ID dat hang)

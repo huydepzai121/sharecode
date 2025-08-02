@@ -161,7 +161,7 @@
 <script type="text/javascript">
 function nv_clear_logs(days) {
     if (confirm('Bạn có chắc chắn muốn xóa tất cả log cũ hơn ' + days + ' ngày?')) {
-        window.location.href = '{NV_BASE_ADMINURL}index.php?{NV_LANG_VARIABLE}={NV_LANG_DATA}&{NV_NAME_VARIABLE}={MODULE_NAME}&{NV_OP_VARIABLE}={OP}&action=clear_logs&days=' + days + '&confirm=' + nv_md5('clear_logs' + '{NV_CHECK_SESSION}');
+        window.location.href = '{NV_BASE_ADMINURL}index.php?{NV_LANG_VARIABLE}={NV_LANG_DATA}&{NV_NAME_VARIABLE}={MODULE_NAME}&{NV_OP_VARIABLE}={OP}&action=clear_logs&days=' + days + '&confirm=' + nv_md5_check('clear_logs' + '{NV_CHECK_SESSION}');
     }
 }
 </script>

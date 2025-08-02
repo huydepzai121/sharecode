@@ -68,7 +68,7 @@ function nv_wallet_money_in($userid, $money_unit, $money, $note_creat = '')
  */
 function nv_wallet_exchange($userid, $money_unit, $moneyexchange, $moneysub, $totalmoneyexchangebefor)
 {
-    global $db, $db_config, $global_config, $module_data, $nv_Lang, $module_name;
+    global $db, $db_config, $global_config, $module_data, $module_name, $nv_Lang;
 
     // Trừ tiền trước khi quy đổi
     $check = $db->exec("UPDATE " . $db_config['prefix'] . "_" . $module_data . "_money SET

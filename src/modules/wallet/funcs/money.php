@@ -15,10 +15,9 @@ if (!defined('NV_IS_USER')) {
     $redirect = nv_url_rewrite(NV_BASE_SITEURL . "index.php?" . NV_LANG_VARIABLE . "=" . NV_LANG_DATA . "&" . NV_NAME_VARIABLE . "=" . $module_name . "&" . NV_OP_VARIABLE . "=" . $op, true);
     nv_redirect_location(NV_BASE_SITEURL . "index.php?" . NV_NAME_VARIABLE . "=users&" . NV_OP_VARIABLE . "=login&nv_redirect=" . nv_redirect_encrypt($redirect));
 }
-$page_url = NV_BASE_SITEURL . "index.php?" . NV_LANG_VARIABLE . "=" . NV_LANG_DATA . "&amp;" . NV_NAME_VARIABLE . "=" . $module_name . "&amp;" . NV_OP_VARIABLE . "=" . $op;
-$canonicalUrl = getCanonicalUrl($page_url);
+$page_url = $base_url = NV_BASE_SITEURL . "index.php?" . NV_LANG_VARIABLE . "=" . NV_LANG_DATA . "&amp;" . NV_NAME_VARIABLE . "=" . $module_name . "&amp;" . NV_OP_VARIABLE . "=" . $op;
 
-$page_title = $lang_module['money'];
+$page_title = $nv_Lang->getModule('money');
 
 $array = array();
 $sql = "SELECT * FROM " . $db_config['prefix'] . "_" . $module_data . "_money WHERE userid=" . $user_info['userid'];
@@ -39,10 +38,67 @@ if ($result->rowCount()) {
         $array[] = array("money_unit" => $row['money_unit'], "detail" => $arr_temp);
     }
 
-    $contents = nv_wallet_acountuser($array);
+    $page = 1;
+    if (isset($array_op[1]) and preg_match('/^page\-([0-9]+)$/', $array_op[1], $m)) {
+        $page = intval($m[1]);
+    }
+    if ($page < 1 or $page > 9999999999) {
+        $page = 1;
+    }
+
+    if ($page > 1) {
+        $page_url .= '/page-' . $page;
+    }
+    $canonicalUrl = getCanonicalUrl($page_url);
+
+    $per_page = 30;
+
+    $db->sqlreset();
+    $db->from($db_config['prefix'] . "_" . $module_data . "_transaction");
+    $db->where("userid = " . $user_info['userid']);
+
+    $db->select('COUNT(*)');
+    $result = $db->query($db->sql());
+    $all_page = $result->fetchColumn();
+
+    betweenURLs($page, ceil($all_page/$per_page), $base_url, '/page-', $prevPage, $nextPage);
+
+    $db->select('*');
+    $db->order('created_time DESC');
+    $db->limit($per_page);
+    $db->offset(($page - 1) * $per_page);
+
+    $result = $db->query($db->sql());
+
+    $arrayHistory = [];
+    while ($row = $result->fetch()) {
+        $detail = json_decode($row['detail_money'], true);
+        $row['status'] = empty($row['order_id']) ? ($row['status'] == 1 ? '+' : '-') : '';
+        if ($row['status'] == '+') {
+            $total = floatval($detail['money_total']) + floatval($row['money_net']);
+        } else {
+            $total = floatval($detail['money_total']) - floatval($row['money_net']);
+        }
+        $money_total1 = "<span class='badge gradient-1 badge-warning'>" . number_format($detail['money_total'], 0, ',', '.') . "</span>";
+        $money_total2 = "<span class='badge gradient-2 badge-danger'>" . number_format($row['money_net'], 0, ',', '.') . "</span>";
+        $money_total3 = "<span class='badge gradient-3 badge-success'>" . number_format($total, 0, ',', '.') . "</span>";
+        $row['detail'] = $money_total1 . ' ' . $row['status'] . ' ' . $money_total2 . ' = ' . $money_total3;
+        unset($detail);
+        if (!empty($row['order_id'])) {
+            $row['transaction_code'] = sprintf('WP%010s', $row['id']);
+        } else {
+            $row['transaction_code'] = sprintf('GD%010s', $row['id']);
+        }
+        $row['transaction_status'] = isset($global_array_transaction_status[$row['transaction_status']]) ? $global_array_transaction_status[$row['transaction_status']] : 'N/A';
+        $arrayHistory[$row['id']] = $row;
+    }
+
+    $generate_page = nv_alias_page($page_title, $base_url, $all_page, $per_page, $page);
+
+    $contents = nv_wallet_acountuser($array, $arrayHistory, $generate_page, $page, $per_page);
 } else {
     $redirect = nv_url_rewrite(NV_BASE_SITEURL . "index.php?" . NV_LANG_VARIABLE . "=" . NV_LANG_DATA . "&" . NV_NAME_VARIABLE . "=" . $module_name, true);
-    $contents = nv_theme_alert($lang_module['no_account'], $lang_module['no_account1'], 'info', $redirect);
+    $contents = nv_theme_alert($nv_Lang->getModule('no_account'), $nv_Lang->getModule('no_account1'), 'info', $redirect);
 }
 
 include NV_ROOTDIR . '/includes/header.php';

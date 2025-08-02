@@ -136,7 +136,7 @@
 <script type="text/javascript">
 function nv_del_category(id) {
     if (confirm('Bạn có chắc chắn muốn xóa danh mục này?')) {
-        window.location.href = '{$BASE_URL}&action=delete&id=' + id + '&confirm=' + nv_md5(id + '{$smarty.const.NV_CHECK_SESSION}');
+        window.location.href = '{$BASE_URL}&action=delete&id=' + id + '&confirm=' + nv_md5_check(id + '{$smarty.const.NV_CHECK_SESSION}');
     }
 }
 </script>

@@ -40,19 +40,36 @@ function redict_link($lang_view, $lang_back, $nv_redirect)
  * @param mixed $payport_content
  * @return
  */
-function nv_theme_wallet_main($url_checkout, $payport_content)
+function nv_theme_wallet_main($url_checkout, $payport_content, $get_info, $infobank)
 {
-    global $global_config, $module_name, $lang_module, $module_config, $module_info, $op;
+    global $global_config, $module_name, $module_config, $module_info, $op, $user_info, $nv_Lang;
 
     $xtpl = new XTemplate($op . ".tpl", NV_ROOTDIR . "/themes/" . $module_info['template'] . "/modules/" . $module_info['module_theme']);
     $xtpl->assign('LANG', \NukeViet\Core\Language::$lang_module);
     $xtpl->assign('module_file', $module_info['module_theme']);
     $xtpl->assign('NV_BASE_SITEURL', NV_BASE_SITEURL);
     $xtpl->assign('TEMPLATE', $module_info['template']);
-
+    $xtpl->assign('INFO_BANK', $infobank);
+    $xtpl->assign('URL_TEMPLATE', '/themes/' . $module_info['template']);
+    $xtpl->assign('USERNAME', $user_info['username']);
     if (!empty($payport_content)) {
         $xtpl->assign('PAYPORT_CONTENT', $payport_content);
         $xtpl->parse('main.payport_content');
+    }
+
+    if (!empty($get_info)) {
+        $arr_bg = ['gradient-7', 'gradient-9', 'gradient-2', 'gradient-1', 'gradient-5'];
+        foreach ($get_info as $k => $v) {
+            $v['class'] = $arr_bg[$k];
+            $xtpl->assign('VALUE', $v);
+            if ($v['bank_name'] != 'MoMo_Logo.png') {
+                $xtpl->parse('main.payment.list_money.loop.show_note');
+            } else {
+                $xtpl->parse('main.payment.list_money.loop.show_note1');
+            }
+            $xtpl->parse('main.payment.list_money.loop');
+        }
+        $xtpl->parse('main.payment.list_money');
     }
 
     $flag = false;
@@ -101,7 +118,7 @@ function nv_theme_wallet_main($url_checkout, $payport_content)
  */
 function nv_theme_wallet_recharge($row_payment, $post, $array_money_unit)
 {
-    global $global_config, $module_name, $lang_module, $lang_global, $module_config, $module_info, $op, $module_captcha, $payment_config, $nv_Cache, $array_banks, $is_vietqr, $nv_Lang;
+    global $global_config, $module_name, $module_config, $module_info, $op, $module_captcha, $payment_config, $nv_Cache, $array_banks, $is_vietqr, $nv_Lang;
 
     $xtpl = new XTemplate($op . ".tpl", NV_ROOTDIR . "/themes/" . $module_info['template'] . "/modules/" . $module_info['module_theme']);
     $xtpl->assign('LANG', \NukeViet\Core\Language::$lang_module);
@@ -277,13 +294,13 @@ function nv_theme_wallet_recharge($row_payment, $post, $array_money_unit)
         $xtpl->parse('main.recaptcha3');
     } elseif ($module_captcha == 'recaptcha' and $global_config['recaptcha_ver'] == 2) {
         // Nếu dùng reCaptcha v2
-        $xtpl->assign('N_CAPTCHA', \NukeViet\Core\Language::$lang_global['securitycode1']);
+        $xtpl->assign('N_CAPTCHA', $nv_Lang->getGlobal('securitycode1'));
         $xtpl->assign('RECAPTCHA_ELEMENT', 'recaptcha' . nv_genpass(8));
         $xtpl->parse('main.recaptcha');
     } elseif ($module_captcha == 'captcha') {
         $xtpl->assign('GFX_WIDTH', NV_GFX_WIDTH);
         $xtpl->assign('GFX_HEIGHT', NV_GFX_HEIGHT);
-        $xtpl->assign('CAPTCHA_REFRESH', \NukeViet\Core\Language::$lang_global['captcharefresh']);
+        $xtpl->assign('CAPTCHA_REFRESH', $nv_Lang->getGlobal('captcharefresh'));
         $xtpl->assign('CAPTCHA_REFR_SRC', NV_STATIC_URL . NV_ASSETS_DIR . '/images/refresh.png');
         $xtpl->assign('NV_GFX_NUM', NV_GFX_NUM);
         $xtpl->parse('main.captcha');
@@ -303,10 +320,9 @@ function nv_theme_wallet_recharge($row_payment, $post, $array_money_unit)
  * @param mixed $arr_money_user
  * @return
  */
-function nv_wallet_acountuser($arr_money_user)
+function nv_wallet_acountuser($arr_money_user, $arrayHistory, $generate_page, $page, $per_page)
 {
-    global $global_config, $module_name, $lang_module, $lang_global, $module_config, $module_info, $op, $nv_Lang;
-
+    global $global_config, $module_name, $module_config, $module_info, $op, $nv_Lang;
     $xtpl = new XTemplate($op . ".tpl", NV_ROOTDIR . "/themes/" . $module_info['template'] . "/modules/" . $module_info['module_theme']);
     $xtpl->assign('LANG', \NukeViet\Core\Language::$lang_module);
 
@@ -322,6 +338,23 @@ function nv_wallet_acountuser($arr_money_user)
         $xtpl->assign('ROW', $arr_money_user_i);
         $xtpl->parse('main.loop');
     }
+
+    $i = ($page - 1) * $per_page;
+    foreach ($arrayHistory as $row) {
+        $i++;
+        $xtpl->assign('STT', $i);
+        $row['created_time'] = date("d/m/Y H:i", $row['created_time']);
+        $row['money_total'] = get_display_money($row['money_total']);
+        $row['money_net'] = get_display_money($row['money_net']);
+        $xtpl->assign('ROW', $row);
+        $xtpl->parse('main.loop_history');
+
+    }
+
+    if (!empty($generate_page)) {
+        $xtpl->assign('GENERATE_PAGE', $generate_page);
+        $xtpl->parse('main.generate_page');
+    }
     $xtpl->parse('main');
     return $xtpl->text('main');
 }
@@ -334,7 +367,7 @@ function nv_wallet_acountuser($arr_money_user)
  */
 function nv_wallet_money_sys($arr_money_sys)
 {
-    global $global_config, $module_name, $lang_module, $lang_global, $module_config, $module_info, $op, $nv_Lang;
+    global $global_config, $module_name, $module_config, $module_info, $op, $nv_Lang;
 
     $xtpl = new XTemplate($op . ".tpl", NV_ROOTDIR . "/themes/" . $module_info['template'] . "/modules/" . $module_info['module_theme']);
     $xtpl->assign('LANG', \NukeViet\Core\Language::$lang_module);
@@ -367,7 +400,7 @@ function nv_wallet_money_sys($arr_money_sys)
  */
 function nv_wallet_history_exchange($array, $generate_page, $page, $per_page)
 {
-    global $module_name, $lang_module, $lang_global, $module_info, $op, $global_array_transaction_status, $nv_Lang;
+    global $module_name, $module_info, $op, $global_array_transaction_status, $nv_Lang;
 
     $xtpl = new XTemplate($op . ".tpl", NV_ROOTDIR . "/themes/" . $module_info['template'] . "/modules/" . $module_info['module_theme']);
     $xtpl->assign('LANG', \NukeViet\Core\Language::$lang_module);
@@ -384,11 +417,9 @@ function nv_wallet_history_exchange($array, $generate_page, $page, $per_page)
     foreach ($array as $row) {
         $i++;
         $xtpl->assign('STT', $i);
-
         $row['created_time'] = date("d/m/Y H:i", $row['created_time']);
         $row['money_total'] = get_display_money($row['money_total']);
         $row['money_net'] = get_display_money($row['money_net']);
-        $row['status'] = empty($row['order_id']) ? ($row['status'] == 1 ? '+' : '-') : '';
         $row['transaction_status'] = isset($global_array_transaction_status[$row['transaction_status']]) ? $global_array_transaction_status[$row['transaction_status']] : 'N/A';
 
         $xtpl->assign('ROW', $row);
@@ -413,12 +444,12 @@ function nv_wallet_history_exchange($array, $generate_page, $page, $per_page)
  */
 function nv_theme_wallet_pay_gamebank($row_payment, $post, $error)
 {
-    global $global_config, $module_name, $lang_module, $lang_global, $module_config, $module_info, $op, $nv_Lang;
+    global $global_config, $module_name, $module_config, $module_info, $op, $nv_Lang;
 
     if (empty($row_payment['bodytext'])) {
-        $note_pay = sprintf($nv_Lang->getModule('note_pay'), $row_payment['domain']);
+        $nv_Lang->setModule('note_pay', $row_payment['domain']);
     } else {
-        $note_pay = $row_payment['bodytext'];
+        $nv_Lang->setModule('note_pay', $row_payment['bodytext']);
     }
     $xtpl = new XTemplate("gamebank.tpl", NV_ROOTDIR . "/themes/" . $module_info['template'] . "/modules/" . $module_info['module_theme']);
     $xtpl->assign('LANG', \NukeViet\Core\Language::$lang_module);
@@ -428,11 +459,10 @@ function nv_theme_wallet_pay_gamebank($row_payment, $post, $error)
     $xtpl->assign('GFX_WIDTH', NV_GFX_WIDTH);
     $xtpl->assign('GFX_HEIGHT', NV_GFX_HEIGHT);
     $xtpl->assign('NV_BASE_SITEURL', NV_BASE_SITEURL);
-    $xtpl->assign('CAPTCHA_REFRESH', \NukeViet\Core\Language::$lang_global['captcharefresh']);
+    $xtpl->assign('CAPTCHA_REFRESH', $nv_Lang->getGlobal('captcharefresh'));
     $xtpl->assign('CAPTCHA_REFR_SRC', NV_BASE_SITEURL . NV_ASSETS_DIR . "/images/refresh.png");
     $xtpl->assign('NV_GFX_NUM', NV_GFX_NUM);
     $xtpl->assign('DATA', $post);
-    $xtpl->assign('NOTE_PAY', $note_pay);
     if (!empty($error)) {
         $xtpl->assign('ERROR', $error);
         $xtpl->parse('main.error');
@@ -452,7 +482,7 @@ function nv_theme_wallet_pay_gamebank($row_payment, $post, $error)
  */
 function nv_theme_sms($smsConfig_keyword, $smsConfig_port, $smsConfig_prefix)
 {
-    global $global_config, $module_name, $user_info, $lang_module, $module_config, $module_info, $op, $nv_Lang;
+    global $global_config, $module_name, $user_info, $module_config, $module_info, $op, $nv_Lang;
 
     $xtpl = new XTemplate("sms.tpl", NV_ROOTDIR . "/themes/" . $module_info['template'] . "/modules/" . $module_info['module_theme']);
     $xtpl->assign('LANG', \NukeViet\Core\Language::$lang_module);
@@ -471,7 +501,7 @@ function nv_theme_sms($smsConfig_keyword, $smsConfig_port, $smsConfig_prefix)
  */
 function nv_theme_wallet_pay($url_checkout, $payport_content, $order_info, $money_info)
 {
-    global $global_config, $module_name, $lang_module, $module_config, $module_info, $op, $nv_Lang;
+    global $global_config, $module_name, $module_config, $module_info, $op, $nv_Lang;
 
     $xtpl = new XTemplate($op . ".tpl", NV_ROOTDIR . "/themes/" . $module_info['template'] . "/modules/" . $module_info['module_theme']);
     $xtpl->assign('LANG', \NukeViet\Core\Language::$lang_module);
@@ -541,7 +571,7 @@ function nv_theme_wallet_pay($url_checkout, $payport_content, $order_info, $mone
  */
 function nv_theme_wallet_atm_pay($order_info, $row_payment, $post, $error)
 {
-    global $global_config, $lang_module, $lang_global, $module_info, $module_config, $module_name, $module_captcha, $is_vietqr, $payment_config, $array_banks, $money_net;
+    global $global_config, $module_info, $module_config, $module_name, $module_captcha, $is_vietqr, $payment_config, $array_banks, $money_net, $nv_Lang;
 
     $xtpl = new XTemplate('atm_pay.tpl', NV_ROOTDIR . "/themes/" . $module_info['template'] . "/modules/" . $module_info['module_theme']);
     $xtpl->assign('LANG', \NukeViet\Core\Language::$lang_module);
@@ -555,7 +585,7 @@ function nv_theme_wallet_atm_pay($order_info, $row_payment, $post, $error)
     $xtpl->assign('MONEY_NET', $money_net);
     $xtpl->assign('DATA', $post);
 
-    $order_info['code'] = vsprintf('DH%010s', [$order_info['id']]);
+    $order_info['code'] = sprintf('DH%010s', $order_info['id']);
     $order_info['money_amount'] = get_display_money($order_info['money_amount']);
     $xtpl->assign('ORDER', $order_info);
 
@@ -614,18 +644,34 @@ function nv_theme_wallet_atm_pay($order_info, $row_payment, $post, $error)
         $xtpl->parse('main.recaptcha3');
     } elseif ($module_captcha == 'recaptcha' and $global_config['recaptcha_ver'] == 2) {
         // Nếu dùng reCaptcha v2
-        $xtpl->assign('N_CAPTCHA', \NukeViet\Core\Language::$lang_global['securitycode1']);
+        $xtpl->assign('N_CAPTCHA', $nv_Lang->getGlobal('securitycode1'));
         $xtpl->assign('RECAPTCHA_ELEMENT', 'recaptcha' . nv_genpass(8));
         $xtpl->parse('main.recaptcha');
     } elseif ($module_captcha == 'captcha') {
         $xtpl->assign('GFX_WIDTH', NV_GFX_WIDTH);
         $xtpl->assign('GFX_HEIGHT', NV_GFX_HEIGHT);
-        $xtpl->assign('CAPTCHA_REFRESH', \NukeViet\Core\Language::$lang_global['captcharefresh']);
+        $xtpl->assign('CAPTCHA_REFRESH', $nv_Lang->getGlobal('captcharefresh'));
         $xtpl->assign('CAPTCHA_REFR_SRC', NV_STATIC_URL . NV_ASSETS_DIR . '/images/refresh.png');
         $xtpl->assign('NV_GFX_NUM', NV_GFX_NUM);
         $xtpl->parse('main.captcha');
     }
 
+    if (!empty($error)) {
+        $xtpl->assign('ERROR', $error);
+        $xtpl->parse('main.error');
+    }
+
+    $xtpl->parse('main');
+    return $xtpl->text('main');
+}
+
+function nv_add_transaction() {
+    global $global_config, $module_info, $module_config, $module_name, $module_captcha, $is_vietqr, $payment_config, $array_banks, $money_net, $nv_Lang;
+
+    $xtpl = new XTemplate('add_transaction.tpl', NV_ROOTDIR . "/themes/" . $module_info['template'] . "/modules/" . $module_info['module_theme']);
+    $xtpl->assign('LANG', \NukeViet\Core\Language::$lang_module);
+    $xtpl->assign('NV_LANG_VARIABLE', NV_LANG_VARIABLE);
+    $xtpl->assign('NV_BASE_SITEURL', NV_BASE_SITEURL);
     if (!empty($error)) {
         $xtpl->assign('ERROR', $error);
         $xtpl->parse('main.error');

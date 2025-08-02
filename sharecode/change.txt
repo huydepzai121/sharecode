@@ -1,3 +1,6 @@
+# 01/08/2025 by Lâm:
+ALTER TABLE `nv5_users` ADD `url_config` VARCHAR(255) NOT NULL DEFAULT '' AFTER `language`, ADD INDEX (`url_config`);
+
 -- ShareCode Module SQL Changes
 -- Thêm các câu lệnh SQL cần thiết cho module ShareCode
 INSERT INTO `nv4_config` (`lang`, `module`, `config_name`, `config_value`) VALUES ('', '', 'sharecode', '0');

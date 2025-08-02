@@ -223,7 +223,7 @@ $(function() {
             $.post('{$smarty.const.NV_BASE_ADMINURL}index.php?{$smarty.const.NV_LANG_VARIABLE}={$smarty.const.NV_LANG_DATA}&{$smarty.const.NV_NAME_VARIABLE}={$MODULE_NAME}&{$smarty.const.NV_OP_VARIABLE}={$OP}', {
                 loadEditTag: 1,
                 id: tid,
-                checkss: nv_md5('{$smarty.const.NV_CHECK_SESSION}')
+                checkss: nv_md5_check('{$smarty.const.NV_CHECK_SESSION}')
             }, function(res) {
                 if (res.success) {
                     $('#element_stag_name').val(res.data.name);
@@ -249,7 +249,7 @@ $(function() {
         $.post('{$smarty.const.NV_BASE_ADMINURL}index.php?{$smarty.const.NV_LANG_VARIABLE}={$smarty.const.NV_LANG_DATA}&{$smarty.const.NV_NAME_VARIABLE}={$MODULE_NAME}&{$smarty.const.NV_OP_VARIABLE}={$OP}', {
             tagLinks: 1,
             id: tid,
-            checkss: nv_md5('{$smarty.const.NV_CHECK_SESSION}')
+            checkss: nv_md5_check('{$smarty.const.NV_CHECK_SESSION}')
         }, function(res) {
             if (res.success) {
                 $('#mdTagLinks .modal-body').html(res.html);
@@ -268,7 +268,7 @@ $(function() {
             var tid = $(this).data('tid');
             $.post('{$smarty.const.NV_BASE_ADMINURL}index.php?{$smarty.const.NV_LANG_VARIABLE}={$smarty.const.NV_LANG_DATA}&{$smarty.const.NV_NAME_VARIABLE}={$MODULE_NAME}&{$smarty.const.NV_OP_VARIABLE}={$OP}', {
                 del_tid: tid,
-                checkss: nv_md5('{$smarty.const.NV_CHECK_SESSION}')
+                checkss: nv_md5_check('{$smarty.const.NV_CHECK_SESSION}')
             }, function(res) {
                 if (res.success) {
                     location.reload();
@@ -297,7 +297,7 @@ $(function() {
         if (confirm('Bạn có chắc chắn muốn xóa ' + ids.length + ' từ khóa đã chọn?')) {
             $.post('{$smarty.const.NV_BASE_ADMINURL}index.php?{$smarty.const.NV_LANG_VARIABLE}={$smarty.const.NV_LANG_DATA}&{$smarty.const.NV_NAME_VARIABLE}={$MODULE_NAME}&{$smarty.const.NV_OP_VARIABLE}={$OP}', {
                 del_listid: ids.join(','),
-                checkss: nv_md5('{$smarty.const.NV_CHECK_SESSION}')
+                checkss: nv_md5_check('{$smarty.const.NV_CHECK_SESSION}')
             }, function(res) {
                 if (res.success) {
                     location.reload();

@@ -22,7 +22,7 @@ $module_version = [
     'virtual' => 1, // 1:0 => Co cho phep ao hao module hay khong
     'version' => '2.0.00', // Phien ban cua modle
     'date' => 'Saturday, January 18, 2025 12:00:00 PM GMT+07:00', // Ngay phat hanh phien ban
-    'author' => 'VINADES.,JSC <contact@vinades.vn>', // Tac gia
+    'author' => 'Nguyễn Lâm <lamnv@vinades.vn>', // Tac gia
     'note' => 'Module marketplace chia sẻ mã nguồn với hệ thống thanh toán và giỏ hàng', // Ghi chu
     'uploads_dir' => [
         $module_upload,

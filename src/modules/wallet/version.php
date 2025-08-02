@@ -13,13 +13,20 @@ if (!defined('NV_MAINFILE'))
 
 $module_version = array(
     "name" => "Wallet",
-    "modfuncs" => "main,pay,complete,money,exchange,historyexchange,recharge",
-    "submenu" => "main,money,exchange,historyexchange",
+    "modfuncs" => "main,pay,complete,money,exchange,historyexchange,recharge, manager_info, manager_money",
+    "submenu" => "main,money,exchange,historyexchange, manager_info, manager_money",
     "is_sysmod" => 1,
     "virtual" => 1,
     'version' => '4.5.02',
     'date' => 'Saturday, September 24, 2022 15:00:00 GMT+07:00',
     "author" => "VINADES (contact@vinades.vn)",
     "uploads_dir" => array($module_name),
-    "note" => "Quản lý tiền thành viên"
+    "note" => "Quản lý tiền thành viên",
+    'uploads_dir' => [
+        $module_upload,
+        $module_upload . '/wellet',
+    ],
+    'files_dir' => [
+        $module_upload . '/wellet'
+    ],
 );

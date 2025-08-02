@@ -13,7 +13,10 @@ if (!defined('NV_IS_MOD_WALLET')) {
 
 $page_title = $module_info['site_title'];
 $key_words = $module_info['keywords'];
-
+if (!defined('NV_IS_USER')) {
+    $redirect = nv_url_rewrite(NV_BASE_SITEURL . "index.php?" . NV_LANG_VARIABLE . "=" . NV_LANG_DATA . "&" . NV_NAME_VARIABLE . "=" . $module_name . "&" . NV_OP_VARIABLE . "=" . $op, true);
+    nv_redirect_location(NV_BASE_SITEURL . "index.php?" . NV_NAME_VARIABLE . "=users&" . NV_OP_VARIABLE . "=login&nv_redirect=" . nv_redirect_encrypt($redirect));
+}
 $url_checkout = [];
 $page_url = NV_BASE_SITEURL . "index.php?" . NV_LANG_VARIABLE . "=" . NV_LANG_DATA . "&amp;" . NV_NAME_VARIABLE . "=" . $module_name;
 $canonicalUrl = getCanonicalUrl($page_url);
@@ -83,7 +86,10 @@ foreach ($array_replace as $index => $value) {
     $payport_content = str_replace('[' . $index . ']', $value, $payport_content);
 }
 
-$contents = nv_theme_wallet_main($url_checkout, $payport_content);
+$get_info = $db->query("SELECT * FROM nv5_wallet_bank_info")->fetchAll();
+
+$infobank = $get_info[0];
+$contents = nv_theme_wallet_main($url_checkout, $payport_content, $get_info, $infobank);
 
 include NV_ROOTDIR . '/includes/header.php';
 echo nv_site_theme($contents);
