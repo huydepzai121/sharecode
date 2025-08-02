@@ -640,6 +640,7 @@ $(document).ready(function() {
     }
 });
 
+{literal}
 // Function to extract tags from content
 function extractTagsFromContent(content) {
     if (!content || content.length < 10) return [];
@@ -680,6 +681,7 @@ function extractTagsFromContent(content) {
     
     return tags.slice(0, 8); // Limit to 8 auto-generated tags
 }
+{/literal}
 
 // Toggle download fields based on type
 function toggleDownloadFields() {
@@ -709,6 +711,7 @@ function nv_select_file(file_path, field_id) {
     }
 }
 
+{literal}
 // Vietnamese alias creation function
 function nv_create_alias(text) {
     if (!text) return '';
@@ -738,6 +741,7 @@ function nv_create_alias(text) {
     
     return text;
 }
+{/literal}
 
 // Enhanced form validation
 $('#source-form').on('submit', function(e) {
