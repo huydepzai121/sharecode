@@ -42,11 +42,7 @@
                                         <small class="form-text text-muted">Từ 1 đến 100</small>
                                     </div>
                                     
-                                    <div class="mb-3">
-                                        <label for="cache_time" class="form-label">Thời gian cache (giây)</label>
-                                        <input type="number" class="form-control" name="cache_time" id="cache_time" value="{CONFIG.cache_time}" min="0">
-                                        <small class="form-text text-muted">0 = không cache</small>
-                                    </div>
+
                                 </div>
                             </div>
                             
@@ -167,10 +163,10 @@
                     </div>
                     
                     <div class="text-center">
-                        <button type="submit" class="btn btn-primary btn-lg" name="save_config">
+                        <button type="submit" class="btn btn-primary" name="save_config">
                             <i class="fa fa-save"></i> Lưu cấu hình
                         </button>
-                        <a href="{NV_BASE_ADMINURL}index.php?{NV_LANG_VARIABLE}={NV_LANG_DATA}&{NV_NAME_VARIABLE}={MODULE_NAME}" class="btn btn-secondary btn-lg">
+                        <a href="{NV_BASE_ADMINURL}index.php?{NV_LANG_VARIABLE}={NV_LANG_DATA}&{NV_NAME_VARIABLE}={MODULE_NAME}" class="btn btn-secondary">
                             <i class="fa fa-arrow-left"></i> Quay lại
                         </a>
                     </div>

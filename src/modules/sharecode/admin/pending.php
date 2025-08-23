@@ -43,7 +43,7 @@ if ($action == 'approve' && $id > 0) {
     $checksess = $nv_Request->get_title('checksess', 'post', '');
     $note = $nv_Request->get_textarea('note', 'post', '');
     
-    if ($checksess == md5($id . NV_CHECK_SESSION)) {
+    if ($checksess == NV_CHECK_SESSION) {
         // Lấy thông tin source
         $sql = "SELECT * FROM " . NV_PREFIXLANG . "_" . $module_data . "_sources WHERE id=" . $id . " AND status=0";
         $source = $db->query($sql)->fetch();
@@ -53,22 +53,13 @@ if ($action == 'approve' && $id > 0) {
                 $db->beginTransaction();
                 
                 // Cập nhật status
-                $sql_update = "UPDATE " . NV_PREFIXLANG . "_" . $module_data . "_sources 
-                              SET status=1, update_time=" . NV_CURRENTTIME . "
+                $sql_update = "UPDATE " . NV_PREFIXLANG . "_" . $module_data . "_sources
+                              SET status=1, edit_time=" . NV_CURRENTTIME . "
                               WHERE id=" . $id;
                 $db->exec($sql_update);
                 
                 // Thêm thông báo cho user
                 if ($source['userid'] > 0) {
-                    $notification_title = 'Sản phẩm được phê duyệt';
-                    $notification_content = 'Sản phẩm "' . $source['title'] . '" đã được phê duyệt và xuất bản.';
-                    if (!empty($note)) {
-                        $notification_content .= ' Ghi chú: ' . $note;
-                    }
-                    $detail_url = nv_url_rewrite(NV_BASE_SITEURL . 'index.php?' . NV_LANG_VARIABLE . '=' . NV_LANG_DATA . '&' . NV_NAME_VARIABLE . '=' . $module_name . '&' . NV_OP_VARIABLE . '=detail&alias=' . $source['alias'], true);
-                    
-                    nv_sharecode_add_notification($source['userid'], 'source_approved', $notification_title, $notification_content, $source['id'], $detail_url);
-                    
                     // Gửi email thông báo
                     $sql_user = "SELECT email, username FROM " . NV_USERS_GLOBALTABLE . " WHERE userid=" . $source['userid'];
                     $user_info = $db->query($sql_user)->fetch();
@@ -122,7 +113,7 @@ if ($action == 'reject' && $id > 0) {
     $checksess = $nv_Request->get_title('checksess', 'post', '');
     $note = $nv_Request->get_textarea('note', 'post', '');
     
-    if ($checksess == md5($id . NV_CHECK_SESSION)) {
+    if ($checksess == NV_CHECK_SESSION) {
         // Lấy thông tin source
         $sql = "SELECT * FROM " . NV_PREFIXLANG . "_" . $module_data . "_sources WHERE id=" . $id . " AND status=0";
         $source = $db->query($sql)->fetch();
@@ -139,14 +130,6 @@ if ($action == 'reject' && $id > 0) {
                 
                 // Thêm thông báo cho user
                 if ($source['userid'] > 0) {
-                    $notification_title = 'Sản phẩm bị từ chối';
-                    $notification_content = 'Sản phẩm "' . $source['title'] . '" không được phê duyệt.';
-                    if (!empty($note)) {
-                        $notification_content .= ' Lý do: ' . $note;
-                    }
-                    
-                    nv_sharecode_add_notification($source['userid'], 'source_rejected', $notification_title, $notification_content, $source['id']);
-                    
                     // Gửi email thông báo
                     $sql_user = "SELECT email, username FROM " . NV_USERS_GLOBALTABLE . " WHERE userid=" . $source['userid'];
                     $user_info = $db->query($sql_user)->fetch();
@@ -200,33 +183,33 @@ if ($action == 'list') {
     $offset = ($page - 1) * $per_page;
     
     // Build WHERE conditions
-    $where_conditions = ['status = 0'];
+    $where_conditions = ['s.status = 0'];
     $search_params = [];
     
     if (!empty($array_search['q'])) {
-        $where_conditions[] = "(title LIKE :q OR description LIKE :q OR keywords LIKE :q)";
+        $where_conditions[] = "(s.title LIKE :q OR s.description LIKE :q OR s.keywords LIKE :q)";
         $search_params['q'] = '%' . $array_search['q'] . '%';
     }
     
     if ($array_search['catid'] > 0) {
-        $where_conditions[] = "catid = :catid";
+        $where_conditions[] = "s.catid = :catid";
         $search_params['catid'] = $array_search['catid'];
     }
     
     if ($array_search['userid'] > 0) {
-        $where_conditions[] = "userid = :userid";
+        $where_conditions[] = "s.userid = :userid";
         $search_params['userid'] = $array_search['userid'];
     }
     
     if (!empty($array_search['fee_type'])) {
-        $where_conditions[] = "fee_type = :fee_type";
+        $where_conditions[] = "s.fee_type = :fee_type";
         $search_params['fee_type'] = $array_search['fee_type'];
     }
     
     $where_clause = implode(' AND ', $where_conditions);
     
     // Get total count
-    $sql_count = "SELECT COUNT(*) FROM " . NV_PREFIXLANG . "_" . $module_data . "_sources WHERE " . $where_clause;
+    $sql_count = "SELECT COUNT(*) FROM " . NV_PREFIXLANG . "_" . $module_data . "_sources s WHERE " . $where_clause;
     $stmt_count = $db->prepare($sql_count);
     foreach ($search_params as $key => $value) {
         $stmt_count->bindValue(':' . $key, $value);
@@ -295,7 +278,7 @@ if ($action == 'list') {
     $tpl->assign('START_ITEM', $start_item);
     $tpl->assign('END_ITEM', $end_item);
     $tpl->assign('BASE_URL', $base_url);
-    $tpl->assign('CHECKSESS', md5(NV_CHECK_SESSION));
+    $tpl->assign('NV_CHECK_SESSION', NV_CHECK_SESSION);
 }
 
 // Hiển thị template

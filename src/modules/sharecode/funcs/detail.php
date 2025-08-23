@@ -12,7 +12,7 @@
 if (!defined('NV_IS_MOD_SHARECODE')) {
     exit('Stop!!!');
 }
-
+use NukeViet\Api\DoApi;
 
 // Lấy alias từ URL path theo cấu trúc NukeViet 
 $alias = '';
@@ -92,8 +92,10 @@ while ($row = $result_tags->fetch()) {
 // Xử lý hình ảnh
 if (!empty($source['image']) && file_exists(NV_UPLOADS_REAL_DIR . '/' . $module_upload . '/' . $source['image'])) {
     $source['image_url'] = NV_BASE_SITEURL . NV_UPLOADS_DIR . '/' . $module_upload . '/' . $source['image'];
+} elseif (!empty($source['avatar']) && file_exists(NV_ROOTDIR . $source['avatar'])) {
+    $source['image_url'] = NV_BASE_SITEURL . ltrim($source['avatar'], '/');
 } else {
-    $source['image_url'] = NV_BASE_SITEURL . 'themes/default/images/no-image.png';
+    $source['image_url'] = NV_BASE_SITEURL . 'themes/default/images/no_image.gif';
 }
 
 // Format dữ liệu
@@ -104,17 +106,17 @@ switch ($source['fee_type']) {
     case 'free':
         $source['price_text'] = 'Miễn phí';
         $source['price_class'] = 'free';
-        $source['price_icon'] = 'fa-gift';
+        $source['price_icon'] = 'fa fa-gift';
         break;
     case 'contact':
         $source['price_text'] = 'Có phí, liên hệ để biết giá';
         $source['price_class'] = 'contact';
-        $source['price_icon'] = 'fa-phone';
+        $source['price_icon'] = 'fa fa-phone';
         break;
     default:
         $source['price_text'] = number_format($source['fee_amount']) . ' VNĐ';
         $source['price_class'] = 'paid';
-        $source['price_icon'] = 'fa-money';
+        $source['price_icon'] = 'fa fa-money';
 }
 
 // Tạo links với nv_url_rewrite - sử dụng cấu trúc URL chuẩn NukeViet
@@ -161,18 +163,24 @@ if (!defined('NV_IS_USER')) {
             $can_download = true;
             
             // Lấy thông tin số dư wallet qua nv_local_api
-            $balance_result = nv_local_api('WalletGetBalance', [
-                'userid' => $user_info['userid'],
-                'currency' => 'VND'
-            ], '', 'wallet');
+            // $balance_result = nv_local_api('WalletGetBalance', [
+            //     'userid' => $user_info['userid'],
+            //     'currency' => 'VND'
+            // ], '', 'wallet');
+            $api = new DoApi(API_WALLET_URL, API_WALLET_KEY, API_WALLET_SECRET);
+            $api->setModule('wallet')
+                ->setLang(NV_LANG_DATA)
+                ->setAction('GetUserBalance')
+                ->setData([
+                    'userid' => $user_info['userid'],
+                    'currency' => 'VND'
+                ]);
+            $balance_result = $api->execute();
 
-            // Debug để xem kết quả trả về
             if (!is_array($balance_result)) {
-                // Nếu trả về string, có thể là JSON
                 if (is_string($balance_result)) {
                     $balance_result = json_decode($balance_result, true);
                 }
-                // Nếu vẫn không phải array, tạo default
                 if (!is_array($balance_result)) {
                     $balance_result = ['status' => 'error', 'message' => 'Invalid API response'];
                 }
@@ -204,11 +212,19 @@ if ($nv_Request->isset_request('get_download_token', 'post')) {
     if (!defined('NV_IS_USER')) {
         nv_jsonOutput(['status' => 'error', 'message' => 'Vui lòng đăng nhập']);
     }
-    
+
     $source_id = $nv_Request->get_int('source_id', 'post', 0);
-    
-    if ($source_id <= 0 || $source_id != $source['id']) {
+
+    if ($source_id <= 0) {
         nv_jsonOutput(['status' => 'error', 'message' => 'Source ID không hợp lệ']);
+    }
+
+    // Lấy thông tin source từ database
+    $sql = "SELECT * FROM " . NV_PREFIXLANG . "_" . $module_data . "_sources WHERE id=" . $source_id;
+    $source_info = $db->query($sql)->fetch();
+
+    if (!$source_info) {
+        nv_jsonOutput(['status' => 'error', 'message' => 'Mã nguồn không tồn tại']);
     }
     
     // Kiểm tra đã mua chưa
@@ -220,38 +236,23 @@ if ($nv_Request->isset_request('get_download_token', 'post')) {
         nv_jsonOutput(['status' => 'error', 'message' => 'Bạn chưa mua mã nguồn này']);
     }
     
-    // Kiểm tra file/link có tồn tại không
-    if ($source['download_link_type'] == 'external') {
-        if (empty($source['download_link'])) {
-            nv_jsonOutput(['status' => 'error', 'message' => 'Link tải xuống không hợp lệ']);
-        }
-        $download_url = $source['download_link'];
-    } else {
-        if (empty($source['file_path'])) {
-            nv_jsonOutput(['status' => 'error', 'message' => 'File mã nguồn chưa được upload']);
-        }
-        $file_path = NV_UPLOADS_REAL_DIR . '/' . $module_upload . '/' . $source['file_path'];
-        if (!file_exists($file_path)) {
-            nv_jsonOutput(['status' => 'error', 'message' => 'File mã nguồn không tồn tại']);
-        }
-        
-        // Tạo download URL với token bảo mật
-        $token = md5($source_id . $user_info['userid'] . $global_config['sitekey'] . date('Ymd'));
-        $download_url = NV_BASE_SITEURL . 'index.php?' . NV_LANG_VARIABLE . '=' . NV_LANG_DATA . '&' . NV_NAME_VARIABLE . '=' . $module_name . '&' . NV_OP_VARIABLE . '=download&id=' . $source_id . '&token=' . $token;
+    // Kiểm tra link tải xuống
+    if (empty($source_info['download_link'])) {
+        nv_jsonOutput(['status' => 'error', 'message' => 'Link tải xuống không hợp lệ hoặc chưa được cấu hình']);
     }
+
+    $download_url = $source_info['download_link'];
     
     // Cập nhật thống kê download
-    $sql_update = "UPDATE " . NV_PREFIXLANG . "_" . $module_data . "_sources 
-            SET num_download = num_download + 1, last_download = " . NV_CURRENTTIME . "
+    $sql_update = "UPDATE " . NV_PREFIXLANG . "_" . $module_data . "_sources
+            SET num_download = num_download + 1
             WHERE id = " . $source_id;
     $db->query($sql_update);
     
     // Ghi log download
     $log_data = json_encode([
-        'download_type' => 'direct',
-        'link_type' => $source['download_link_type'],
-        'download_url' => $source['download_link_type'] == 'external' ? $source['download_link'] : $source['file_path'],
-        'file_name' => $source['download_link_type'] == 'external' ? '' : basename($source['file_path']),
+        'download_type' => 'external_link',
+        'download_url' => $source_info['download_link'],
         'user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? ''
     ]);
     
@@ -333,7 +334,11 @@ if ($nv_Request->isset_request('submit_review', 'post')) {
             // Gửi email thông báo nếu được cấu hình
             if (!empty($module_config['email_notify_new_review'])) {
                 // Lấy email admin
-                $sql_admin = "SELECT email, first_name, last_name FROM " . NV_USERS_GLOBALTABLE . " WHERE level=1 AND active=1 LIMIT 1";
+                $sql_admin = "SELECT u.email, u.first_name, u.last_name
+                              FROM " . NV_AUTHORS_GLOBALTABLE . " a
+                              JOIN " . NV_USERS_GLOBALTABLE . " u ON a.admin_id = u.userid
+                              WHERE a.lev = 1 AND a.is_suspend = 0 AND u.active = 1
+                              LIMIT 1";
                 $admin_info = $db->query($sql_admin)->fetch();
                 
                 if ($admin_info) {
@@ -424,14 +429,27 @@ if ($nv_Request->isset_request('process_payment', 'post')) {
         
         // Nếu có phí thì trừ tiền từ wallet
         if ($amount > 0) {
-            $deduct_result = nv_local_api('WalletDeductBalance', [
-                'userid' => $user_info['userid'],
-                'amount' => $amount,
-                'currency' => 'VND',
-                'description' => 'Mua mã nguồn: ' . $source['title'],
-                'module_ref' => 'sharecode',
-                'ref_id' => $source['id']
-            ], '', 'wallet');
+            // $deduct_result = nv_local_api('WalletDeductBalance', [
+            //     'userid' => $user_info['userid'],
+            //     'amount' => $amount,
+            //     'currency' => 'VND',
+            //     'description' => 'Mua mã nguồn: ' . $source['title'],
+            //     'module_ref' => 'sharecode',
+            //     'ref_id' => $source['id']
+            // ], '', 'wallet');
+            $api = new DoApi(API_WALLET_URL, API_WALLET_KEY, API_WALLET_SECRET);
+            $api->setModule('wallet')
+                ->setLang(NV_LANG_DATA)
+                ->setAction('DeductBalance')
+                ->setData([
+                    'userid' => $user_info['userid'],
+                    'amount' => $amount,
+                    'currency' => 'VND',
+                    'description' => 'Mua mã nguồn: ' . $source['title'],
+                    'reference_type' => 'sharecode_purchase',
+                    'reference_id' => $source['id']
+                ]);
+            $deduct_result = $api->execute();
 
             // Xử lý kết quả API
             if (!is_array($deduct_result)) {
@@ -444,7 +462,11 @@ if ($nv_Request->isset_request('process_payment', 'post')) {
             }
 
             if (!isset($deduct_result['status']) || $deduct_result['status'] !== 'success') {
-                throw new Exception('Không thể trừ tiền từ wallet: ' . ($deduct_result['message'] ?? 'Unknown error'));
+                pr($deduct_result);
+                nv_jsonOutput([
+                    'status' => 'error',
+                    'message' => 'Không thể trừ tiền từ wallet: ' . ($deduct_result['message'] ?? 'Unknown error')
+                ]);
             }
         }
         
@@ -474,11 +496,13 @@ if ($nv_Request->isset_request('process_payment', 'post')) {
             " . $db->quote($log_data) . "
         )";
         $db->query($sql_log);
-        
+
+        nv_sharecode_send_purchase_success_email($user_info, $source, $purchase_id, $amount, $transaction_id);
+
         $db->commit();
-        
+
         nv_jsonOutput([
-            'status' => 'success', 
+            'status' => 'success',
             'message' => 'Thanh toán thành công!',
             'data' => [
                 'transaction_id' => $transaction_id,
@@ -643,8 +667,10 @@ while ($row = $result->fetch()) {
     // Xử lý hình ảnh
     if (!empty($row['image']) && file_exists(NV_UPLOADS_REAL_DIR . '/' . $module_upload . '/' . $row['image'])) {
         $row['image_url'] = NV_BASE_SITEURL . NV_UPLOADS_DIR . '/' . $module_upload . '/' . $row['image'];
+    } elseif (!empty($row['avatar']) && file_exists(NV_ROOTDIR . $row['avatar'])) {
+        $row['image_url'] = NV_BASE_SITEURL . ltrim($row['avatar'], '/');
     } else {
-        $row['image_url'] = NV_BASE_SITEURL . 'themes/default/images/no-image.png';
+        $row['image_url'] = NV_BASE_SITEURL . 'themes/default/images/no_image.gif';
     }
     
     $related_sources[] = $row;

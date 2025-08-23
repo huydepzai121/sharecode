@@ -31,12 +31,11 @@ $default_config = [
     'require_login_paid' => 1,
     'auto_approve_reviews' => 0,
     'max_file_size' => 50, // MB
-    'allowed_extensions' => 'zip,rar,7z,tar,gz',
+    'allowed_extensions' => 'zip,rar,7z,tar,gz,doc,docx,pdf,txt',
     'watermark_enable' => 0,
     'watermark_text' => $global_config['site_name'],
     'email_notify_new_source' => 1,
-    'email_notify_new_review' => 1,
-    'cache_time' => 3600
+    'email_notify_new_review' => 1
 ];
 
 // Merge với cấu hình hiện tại
@@ -63,7 +62,6 @@ if ($nv_Request->isset_request('save_config', 'post')) {
         $new_config['watermark_text'] = $nv_Request->get_title('watermark_text', 'post', '');
         $new_config['email_notify_new_source'] = $nv_Request->get_int('email_notify_new_source', 'post', 0);
         $new_config['email_notify_new_review'] = $nv_Request->get_int('email_notify_new_review', 'post', 0);
-        $new_config['cache_time'] = $nv_Request->get_int('cache_time', 'post', 3600);
 
         // Validate
         if ($new_config['items_per_page'] < 1 || $new_config['items_per_page'] > 100) {
@@ -76,10 +74,6 @@ if ($nv_Request->isset_request('save_config', 'post')) {
 
         if (empty($new_config['allowed_extensions'])) {
             $error[] = 'Phần mở rộng file không được để trống';
-        }
-
-        if ($new_config['cache_time'] < 0) {
-            $error[] = 'Thời gian cache không được âm';
         }
 
         if (empty($error)) {

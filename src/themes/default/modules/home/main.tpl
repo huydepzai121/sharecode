@@ -24,10 +24,10 @@
                                 <input type="hidden" name="{NV_OP_VARIABLE}" value="main" />
                                 
                                 <div class="input-group input-group-lg">
-                                    <input type="text" name="q" class="form-control search-input" placeholder="Tìm kiếm mã nguồn..." />
+                                    <input type="text" name="q" class="form-control search-input" placeholder="Tìm kiếm mã nguồn..." autocomplete="off" />
                                     <span class="input-group-btn">
-                                        <button class="btn btn-search" type="submit">
-                                            <i class="fa fa-search"></i> Tìm kiếm
+                                        <button class="btn btn-search" type="submit" aria-label="Tìm kiếm">
+                                            <i class="fa fa-search" aria-hidden="true"></i> Tìm kiếm
                                         </button>
                                     </span>
                                 </div>
@@ -105,13 +105,13 @@
                 <div class="row category-grid">
                     <!-- BEGIN: category -->
                     <div class="col-xs-24 col-sm-8 col-md-4" style="margin-bottom: 20px;">
-                        <a href="{CATEGORY.link}" class="category-card">
+                        <a href="{CATEGORY.link}" class="category-card" aria-label="{CATEGORY.title} - {CATEGORY.total_sources} sản phẩm">
                             <div class="category-item-simple">
                                 <div class="category-icon-simple">
-                                    <i class="fa fa-code"></i>
+                                    <i class="fa fa-code" aria-hidden="true"></i>
                                 </div>
                                 <h4 class="category-title-simple">{CATEGORY.title}</h4>
-                                <p class="category-count-simple">{CATEGORY.total_sources}</p>
+                                <p class="category-count-simple">{CATEGORY.total_sources} sản phẩm</p>
                             </div>
                         </a>
                     </div>
@@ -132,9 +132,9 @@
                 <p class="section-subtitle">Những source code được yêu thích nhất</p>
             </div>
             
-            <div class="row">
+            <div class="row products-grid">
                 <!-- BEGIN: source -->
-                <div class="col-xs-24 col-sm-12 col-md-6" style="margin-bottom: 30px;">
+                <div class="col-xs-24 col-sm-12 col-md-6 col-lg-6 product-col">
                     <div class="product-card-wrapper">
                         <div class="product-card">
                             <!-- BEGIN: discount -->
@@ -151,8 +151,8 @@
                                 </div>
                                 <!-- END: no_image -->
                                 <div class="image-overlay">
-                                    <a href="{SOURCE.link}" class="btn btn-white btn-sm">
-                                        <i class="fa fa-eye"></i> Xem chi tiết
+                                    <a href="{SOURCE.link}" class="btn btn-white btn-sm" aria-label="Xem chi tiết {SOURCE.title}">
+                                        <i class="fa fa-eye" aria-hidden="true"></i> Xem chi tiết
                                     </a>
                                 </div>
                             </div>
@@ -184,17 +184,9 @@
                                 </div>
                                 
                                 <div class="product-actions">
-                                    <a href="{SOURCE.link}" class="btn btn-primary btn-block btn-buy">
-                                        <i class="fa fa-shopping-cart"></i> Mua ngay
+                                    <a href="{SOURCE.link}" class="btn btn-primary btn-block btn-buy" aria-label="Mua {SOURCE.title}">
+                                        <i class="fa fa-shopping-cart" aria-hidden="true"></i> Mua ngay
                                     </a>
-                                    <div class="action-buttons">
-                                        <button class="btn-action btn-favorite">
-                                            <i class="fa fa-heart-o"></i>
-                                        </button>
-                                        <button class="btn-action btn-download">
-                                            <i class="fa fa-download"></i>
-                                        </button>
-                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -222,8 +214,8 @@
                         <p class="cta-description">
                             Chia sẻ mã nguồn của bạn với cộng đồng và kiếm thu nhập từ các dự án coding của mình.
                         </p>
-                        <a href="{NV_BASE_SITEURL}index.php?{NV_LANG_VARIABLE}={NV_LANG_DATA}&{NV_NAME_VARIABLE}=sharecode&{NV_OP_VARIABLE}=submit" class="btn btn-cta btn-lg">
-                            <i class="fa fa-upload"></i> Đăng mã nguồn ngay
+                        <a href="{NV_BASE_SITEURL}index.php?{NV_LANG_VARIABLE}={NV_LANG_DATA}&{NV_NAME_VARIABLE}=sharecode&{NV_OP_VARIABLE}=submit" class="btn btn-cta btn-lg" aria-label="Đăng mã nguồn của bạn">
+                            <i class="fa fa-upload" aria-hidden="true"></i> Đăng mã nguồn ngay
                         </a>
                     </div>
                 </div>

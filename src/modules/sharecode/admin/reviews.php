@@ -22,7 +22,7 @@ $per_page = 20;
 
 // Xử lý xóa review
 if ($action == 'delete' && $id > 0) {
-    if ($nv_Request->get_title('confirm', 'get', '') == md5($id . NV_CHECK_SESSION)) {
+    if ($nv_Request->get_title('confirm', 'get', '') == NV_CHECK_SESSION) {
         $sql = "DELETE FROM " . NV_PREFIXLANG . "_" . $module_data . "_reviews WHERE id=" . $id;
         if ($db->exec($sql)) {
             nv_jsonOutput([
@@ -156,6 +156,9 @@ foreach ($status_options as $value => $text) {
 // Reviews list
 if (!empty($reviews)) {
     foreach ($reviews as $review) {
+        // Assign REVIEW trước khi parse
+        $xtpl->assign('REVIEW', $review);
+
         // Xử lý template cho status
         if ($review['status']) {
             $xtpl->parse('main.reviews.review.approved');
@@ -165,7 +168,6 @@ if (!empty($reviews)) {
             $xtpl->parse('main.reviews.review.approve_btn');
         }
 
-        $xtpl->assign('REVIEW', $review);
         $xtpl->parse('main.reviews.review');
     }
     $xtpl->parse('main.reviews');

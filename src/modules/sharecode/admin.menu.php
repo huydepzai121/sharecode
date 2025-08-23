@@ -20,4 +20,6 @@ $submenu['reviews'] = 'Quản lý đánh giá';
 $submenu['logs'] = 'Nhật ký hoạt động';
 $submenu['config'] = 'Cấu hình';
 $submenu['tags'] = 'Quản lý tags';
+$submenu['keywords'] = 'Quản lý từ khóa';
 $submenu['pending'] = 'Duyệt mã nguồn';
+$submenu['payments'] = 'Quản lý đơn hàng';

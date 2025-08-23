@@ -35,9 +35,17 @@ $array_mod_title[] = [
     'link' => nv_url_rewrite($base_url, true)
 ];
 
-// Kiểm tra quyền download - CHỈ cho phép download nếu đã mua
-if (!defined('NV_IS_USER')) {
-    nv_info_die('Lỗi', 'Lỗi', 'Vui lòng đăng nhập để tải mã nguồn', 403);
+// Kiểm tra quyền download theo cấu hình
+if ($source['fee_type'] == 'free') {
+    // Mã nguồn miễn phí - kiểm tra cấu hình allow_guest_download
+    if (!$module_config[$module_name]['allow_guest_download'] && !defined('NV_IS_USER')) {
+        nv_info_die('Lỗi', 'Lỗi', 'Vui lòng đăng nhập để tải mã nguồn', 403);
+    }
+} else {
+    // Mã nguồn có phí - kiểm tra cấu hình require_login_paid
+    if ($module_config[$module_name]['require_login_paid'] && !defined('NV_IS_USER')) {
+        nv_info_die('Lỗi', 'Lỗi', 'Vui lòng đăng nhập để tải mã nguồn có phí', 403);
+    }
 }
 
 // Kiểm tra đã mua chưa (cho cả miễn phí và có phí)

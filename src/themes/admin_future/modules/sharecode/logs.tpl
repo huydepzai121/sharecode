@@ -110,6 +110,7 @@
                                 <th>Mô tả</th>
                                 <th width="100">IP</th>
                                 <th width="140">Thời gian</th>
+                                <th width="80">Thao tác</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -136,6 +137,11 @@
                                 <td>
                                     <small>{LOG.created_time_format}</small>
                                 </td>
+                                <td>
+                                    <button type="button" class="btn btn-sm btn-danger" onclick="nv_delete_log({LOG.id});" title="Xóa log này">
+                                        <i class="fa fa-trash"></i>
+                                    </button>
+                                </td>
                             </tr>
                             <!-- END: log -->
                         </tbody>
@@ -161,7 +167,78 @@
 <script type="text/javascript">
 function nv_clear_logs(days) {
     if (confirm('Bạn có chắc chắn muốn xóa tất cả log cũ hơn ' + days + ' ngày?')) {
-        window.location.href = '{NV_BASE_ADMINURL}index.php?{NV_LANG_VARIABLE}={NV_LANG_DATA}&{NV_NAME_VARIABLE}={MODULE_NAME}&{NV_OP_VARIABLE}={OP}&action=clear_logs&days=' + days + '&confirm=' + nv_md5('clear_logs' + '{NV_CHECK_SESSION}');
+        var confirmToken = btoa('clear_logs' + '{NV_CHECK_SESSION}').replace(/[^a-zA-Z0-9]/g, '').substring(0, 32);
+
+        // Hiển thị loading
+        var btn = document.querySelector('.btn.btn-warning.dropdown-toggle');
+        var originalText = btn.innerHTML;
+        btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Đang xóa...';
+        btn.disabled = true;
+
+        $.ajax({
+            url: location.href,
+            type: 'POST',
+            data: {
+                action: 'clear_logs',
+                days: days,
+                confirm: confirmToken
+            },
+            dataType: 'json',
+            success: function(response) {
+                if (response.status === 'success') {
+                    nukeviet.toast(response.mess, 'success');
+                    setTimeout(function() {
+                        location.reload();
+                    }, 1000);
+                } else {
+                    nukeviet.toast(response.mess || 'Không thể xóa log', 'error');
+                }
+            },
+            error: function(xhr, status, error) {
+                nukeviet.toast('Có lỗi xảy ra: ' + error, 'error');
+            },
+            complete: function() {
+                // Khôi phục nút
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        });
+    }
+}
+
+function nv_delete_log(logId) {
+    if (confirm('Bạn có chắc chắn muốn xóa log này?')) {
+        var btn = event.target.closest('button');
+        var originalText = btn.innerHTML;
+        btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i>';
+        btn.disabled = true;
+
+        $.ajax({
+            url: location.href,
+            type: 'POST',
+            data: {
+                action: 'delete',
+                id: logId
+            },
+            dataType: 'json',
+            success: function(response) {
+                if (response.status === 'success') {
+                    nukeviet.toast(response.mess || 'Đã xóa log thành công', 'success');
+                    setTimeout(function() {
+                        location.reload();
+                    }, 1000);
+                } else {
+                    nukeviet.toast(response.mess || 'Không thể xóa log', 'error');
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                }
+            },
+            error: function(xhr, status, error) {
+                nukeviet.toast('Có lỗi xảy ra: ' + error, 'error');
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        });
     }
 }
 </script>
