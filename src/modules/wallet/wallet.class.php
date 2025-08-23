@@ -43,7 +43,7 @@ class nukeviet_wallet
      */
     public function __construct()
     {
-        global $lang_global, $db, $nv_Cache;
+        global $db, $nv_Cache, $nv_Lang;
 
         $lang_module = array();
         $lang_file = NV_ROOTDIR . "/modules/wallet/language/" . NV_LANG_DATA . ".php";
@@ -78,7 +78,7 @@ class nukeviet_wallet
         }
         $arg_list = func_get_args();
         unset($arg_list[0]);
-        return vsprintf($this->language[$key], $arg_list);
+        return sprintf($this->language[$key], $arg_list);
     }
 
     /**

@@ -17,7 +17,7 @@ if (!defined('NV_IS_USER')) {
 }
 
 $page_url = $base_url = NV_BASE_SITEURL . "index.php?" . NV_LANG_VARIABLE . "=" . NV_LANG_DATA . "&amp;" . NV_NAME_VARIABLE . "=" . $module_name . "&amp;" . NV_OP_VARIABLE . "=" . $op;
-$page_title = $lang_module['historyexchange'];
+$page_title = $nv_Lang->getModule('historyexchange');
 $page = 1;
 if (isset($array_op[1]) and preg_match('/^page\-([0-9]+)$/', $array_op[1], $m)) {
     $page = intval($m[1]);
@@ -53,10 +53,21 @@ $result = $db->query($db->sql());
 $array = array();
 while ($row = $result->fetch()) {
     if (!empty($row['order_id'])) {
-        $row['transaction_code'] = vsprintf('WP%010s', [$row['id']]);
+        $row['transaction_code'] = sprintf('WP%010s', $row['id']);
     } else {
-        $row['transaction_code'] = vsprintf('GD%010s', [$row['id']]);
+        $row['transaction_code'] = sprintf('GD%010s', $row['id']);
     }
+    $detail = json_decode($row['detail_money'], true);
+    $row['status'] = empty($row['order_id']) ? ($row['status'] == 1 ? '+' : '-') : '';
+    if ($row['status'] == '+') {
+        $total = floatval($detail['money_total']) + floatval($row['money_net']);
+    } else {
+        $total = floatval($detail['money_total']) - floatval($row['money_net']);
+    }
+    $money_total1 = "<span class='badge gradient-1 badge-warning'>" . number_format($detail['money_total'], 0, ',', '.') . "</span>";
+    $money_total2 = "<span class='badge gradient-2 badge-danger'>" . number_format($row['money_net'], 0, ',', '.') . "</span>";
+    $money_total3 = "<span class='badge gradient-3 badge-success'>" . number_format($total, 0, ',', '.') . "</span>";
+    $row['detail'] = $money_total1 . ' ' . $row['status'] . ' ' . $money_total2 . ' = ' . $money_total3;
     $array[$row['id']] = $row;
 }
 

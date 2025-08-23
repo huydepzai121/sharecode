@@ -45,7 +45,7 @@ if ($CardChargingResponse->m_Status == 1) {
     $post['customer_name'] = $user_info['username'];
     $post['customer_email'] = $user_info['email'];
     $post['customer_phone'] = $post['customer_address'] = $post['customer_info'] = '';
-    $post['transaction_info'] = sprintf($lang_module['payment_vnpt_ok'], $array_provider[$post['provider']], $post['pin']);
+    $post['transaction_info'] = sprintf($nv_Lang->getModule('payment_vnpt_ok'), $array_provider[$post['provider']], $post['pin']);
 
     // Phí cho nhà cung cấp
     $post['money_discount'] = 0;
@@ -70,7 +70,7 @@ if ($CardChargingResponse->m_Status == 1) {
 
     nv_wallet_money_in($user_info['userid'], $post['money_unit'], $post['money_net']);
 
-    $contents = "<div style='text-align:center;font-weight:bold'>" . sprintf($lang_module['naptienthanhcong'], number_format($post['money_net'], 0, " ", ",")) . "</div>";
+    $contents = "<div style='text-align:center;font-weight:bold'>" . sprintf($nv_Lang->getModule('naptienthanhcong'), number_format($post['money_net'], 0, " ", ",")) . "</div>";
     $contents .= "<meta http-equiv=\"refresh\" content=\"5;URL=" . nv_url_rewrite(NV_BASE_SITEURL . "index.php?" . NV_LANG_VARIABLE . "=" . NV_LANG_DATA . "&amp;" . NV_NAME_VARIABLE . "=" . $module_name . "&amp;" . NV_OP_VARIABLE . "=money", true) . "\" />";
 
     include NV_ROOTDIR . '/includes/header.php';

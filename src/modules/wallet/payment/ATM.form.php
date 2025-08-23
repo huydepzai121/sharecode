@@ -24,18 +24,18 @@ $post['atm_to_account'] = '';
 $post['transaction_data'] = '';
 
 if (empty($post['atm_sendbank'])) {
-    $atm_error = $lang_module['atm_error_sendbank'];
+    $atm_error = $nv_Lang->getModule('atm_error_sendbank');
 } elseif (empty($post['atm_fracc'])) {
-    $atm_error = $lang_module['atm_error_fracc'];
+    $atm_error = $nv_Lang->getModule('atm_error_fracc');
 } elseif (empty($post['atm_toacc'])) {
-    $atm_error = $lang_module['atm_error_toacc'];
+    $atm_error = $nv_Lang->getModule('atm_error_toacc');
 } elseif (empty($post['atm_recvbank'])) {
-    $atm_error = $lang_module['atm_error_recvbank'];
+    $atm_error = $nv_Lang->getModule('atm_error_recvbank');
 }
 
 // Kiểm tra điều kiện gọi API VietQR
 if (!isset($payment_config['acq_id'][$post['atm_acq']])) {
-    $vietrq_error = $lang_module['atm_vietqr_error_acq'];
+    $vietrq_error = $nv_Lang->getModule('atm_vietqr_error_acq');
 } elseif ($is_vietqr) {
     $post['atm_to_bank'] = $array_banks[$payment_config['acq_id'][$post['atm_acq']]]['name'];
     $post['atm_to_name'] = $payment_config['account_name'][$post['atm_acq']];
@@ -77,7 +77,7 @@ if (isset($_FILES['atm_filedepute']) and is_uploaded_file($_FILES['atm_filedeput
         }
         nv_deletefile($upload_info['name']);
     } else {
-        $atm_error = $lang_module['atm_error_recvbank'];
+        $atm_error = $nv_Lang->getModule('atm_error_recvbank');
     }
 } else {
     // Lấy từ request
@@ -110,7 +110,7 @@ if (isset($_FILES['atm_filebill']) and is_uploaded_file($_FILES['atm_filebill'][
         }
         nv_deletefile($upload_info['name']);
     } else {
-        $atm_error = $lang_module['atm_error_recvbank'];
+        $atm_error = $nv_Lang->getModule('atm_error_recvbank');
     }
 } else {
     // Lấy từ request

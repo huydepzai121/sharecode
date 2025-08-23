@@ -45,5 +45,9 @@ nv_add_hook($module_name, 'get_module_admin_theme', $priority, function ($vars) 
         return $new_theme;
     }
 
+    if (($module_info['module_file'] ?? '') == 'wallet' and in_array($op, ['main', 'add_bank_info', 'transaction'])) {
+        return $new_theme;
+    }
+
     return 'admin_default';
 });

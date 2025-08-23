@@ -99,14 +99,17 @@ if ($nv_Request->isset_request('btnsubmit', 'post')) {
                 created_time, status, money_unit, money_total, money_net, money_discount,
                 money_revenue, userid, adminid, customer_id, customer_name, customer_email, customer_phone,
                 customer_address, customer_info, transaction_id, transaction_status, transaction_time,
-                transaction_info, transaction_data, payment, tokenkey)
+                transaction_info, transaction_data, payment, tokenkey, detail_money)
             VALUES (
                 :created_time, :status, :money_unit, :money_total, :money_net, :money_discount,
                 :money_revenue, :userid, :adminid, :customer_id, :customer_name, :customer_email, :customer_phone,
                 :customer_address, :customer_info, :transaction_id, :transaction_status, :transaction_time,
-                :transaction_info, :transaction_data, :payment, :tokenkey
+                :transaction_info, :transaction_data, :payment, :tokenkey, :detail_money
             )');
-
+            // Chi tiết tài khoản tại lúc thực hiện giao dịch
+            $_sql = 'SELECT * FROM ' . $db_config['prefix'] . '_' . $module_data . '_money WHERE userid = ' . $row['userid'] . ' AND money_unit=' . $db->quote($row['money_unit']);
+            $_query = $db->query($_sql)->fetch();
+            $row['detail_money'] = json_encode($_query);
             $stmt->bindParam(':created_time', $row['created_time'], PDO::PARAM_INT);
             $stmt->bindParam(':status', $row['status'], PDO::PARAM_INT);
             $stmt->bindParam(':money_unit', $row['money_unit'], PDO::PARAM_STR);
@@ -128,6 +131,7 @@ if ($nv_Request->isset_request('btnsubmit', 'post')) {
             $stmt->bindParam(':money_net', $row['money_net'], PDO::PARAM_STR);
             $stmt->bindParam(':money_discount', $row['money_discount'], PDO::PARAM_STR);
             $stmt->bindParam(':money_revenue', $row['money_revenue'], PDO::PARAM_STR);
+            $stmt->bindParam(':detail_money', $row['detail_money'], PDO::PARAM_STR);
             $stmt->bindParam(':customer_info', $row['customer_info'], PDO::PARAM_STR, strlen($row['customer_info']));
             $stmt->bindParam(':transaction_info', $row['transaction_info'], PDO::PARAM_STR, strlen($row['transaction_info']));
 
@@ -136,7 +140,12 @@ if ($nv_Request->isset_request('btnsubmit', 'post')) {
                 $message = '';
                 //nếu xác nhận đã thanh toán thì cập nhật số tiền vào tài khoản
                 if ($row['transaction_status'] == 4) {
-                    update_money($row['userid'], $row['money_total'], 4, 0, 1, $row['money_unit']);
+                    update_money($row['userid'], $row['money_total'], $row['money_unit'], 4, 0, 1);
+                    $title = "Thông báo";
+                    $messages = "Hệ thống thực hiện +" . number_format($row['money_total'], 0, '.', ',') . " VND vào tài khoản của bạn, lý do: " . $row['transaction_info'];
+                    $add_time = NV_CURRENTTIME;
+                    $sql = "INSERT INTO " . NV_PREFIXLANG . "_log_message (userid, title, messages, addtime) VALUES(". $row['userid'] . "," . $db->quote($title) . ", " . $db->quote($messages) . "," . $add_time . ")";
+                    $db->query($sql);
                     $message = sprintf($nv_Lang->getModule('email_transaction_message'), $row['money_total']);
                 } else {
                     $message = sprintf($nv_Lang->getModule('email_transaction_message1'), $row['money_total']);

@@ -29,7 +29,7 @@ $responseData['orderid'] = intval(str_replace('GD', '', str_replace('WP', '', $r
 $responseData['transaction_time'] = NV_CURRENTTIME;
 
 if ($responseData['orderid'] < 0 or $responseData['orderid'] > 9999999999) {
-    $error = $lang_module['transition_no_exists'];
+    $error = $nv_Lang->getModule('transition_no_exists');
 } else {
     /*
      * Xác định giao dịch đã lưu trước trong CSDL
@@ -41,7 +41,7 @@ if ($responseData['orderid'] < 0 or $responseData['orderid'] > 9999999999) {
     $__order_info = $stmt->fetch();
 
     if (empty($__order_info)) {
-        $error = $lang_module['transition_no_exists'];
+        $error = $nv_Lang->getModule('transition_no_exists');
     } else {
         // Tính lại checksum để đối chiếu
         $checksum_str = $request_data['code'] . $request_data['money'] . $request_data['unit'] . $request_data['info'] . $__order_info['tokenkey'];

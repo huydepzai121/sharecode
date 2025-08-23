@@ -18,10 +18,10 @@
             </div>
             <div class="card-body">
                 <form method="get" action="{NV_BASE_ADMINURL}index.php">
-                    <input type="hidden" name="{NV_LANG_VARIABLE}" value="{NV_LANG_DATA}"/>
-                    <input type="hidden" name="{NV_NAME_VARIABLE}" value="{MODULE_NAME}"/>
-                    <input type="hidden" name="{NV_OP_VARIABLE}" value="{OP}"/>
-                    
+                    <input type="hidden" name="{NV_LANG_VARIABLE}" value="{NV_LANG_DATA}" />
+                    <input type="hidden" name="{NV_NAME_VARIABLE}" value="{MODULE_NAME}" />
+                    <input type="hidden" name="{NV_OP_VARIABLE}" value="{OP}" />
+
                     <div class="row">
                         <div class="col-md-2">
                             <div class="mb-3">
@@ -29,7 +29,8 @@
                                 <select class="form-select" name="action_filter" id="action_filter">
                                     <option value="">-- Tất cả --</option>
                                     <!-- BEGIN: action_option -->
-                                    <option value="{ACTION_OPTION.value}" {ACTION_OPTION.selected}>{ACTION_OPTION.text}</option>
+                                    <option value="{ACTION_OPTION.value}" {ACTION_OPTION.selected}>{ACTION_OPTION.text}
+                                    </option>
                                     <!-- END: action_option -->
                                 </select>
                             </div>
@@ -37,13 +38,15 @@
                         <div class="col-md-2">
                             <div class="mb-3">
                                 <label for="user_filter" class="form-label">Người dùng</label>
-                                <input type="text" class="form-control" name="user_filter" id="user_filter" value="{USER_FILTER}" placeholder="Tên người dùng">
+                                <input type="text" class="form-control" name="user_filter" id="user_filter"
+                                    value="{USER_FILTER}" placeholder="Tên người dùng">
                             </div>
                         </div>
                         <div class="col-md-2">
                             <div class="mb-3">
                                 <label for="from_date" class="form-label">Từ ngày</label>
-                                <input type="date" class="form-control" name="from_date" id="from_date" value="{FROM_DATE}">
+                                <input type="date" class="form-control" name="from_date" id="from_date"
+                                    value="{FROM_DATE}">
                             </div>
                         </div>
                         <div class="col-md-2">
@@ -66,7 +69,8 @@
                             <div class="mb-3">
                                 <label class="form-label">&nbsp;</label>
                                 <div>
-                                    <a href="{NV_BASE_ADMINURL}index.php?{NV_LANG_VARIABLE}={NV_LANG_DATA}&{NV_NAME_VARIABLE}={MODULE_NAME}&{NV_OP_VARIABLE}={OP}" class="btn btn-secondary">
+                                    <a href="{NV_BASE_ADMINURL}index.php?{NV_LANG_VARIABLE}={NV_LANG_DATA}&{NV_NAME_VARIABLE}={MODULE_NAME}&{NV_OP_VARIABLE}={OP}"
+                                        class="btn btn-secondary">
                                         <i class="fa fa-refresh"></i> Làm mới
                                     </a>
                                 </div>
@@ -92,9 +96,12 @@
                         <i class="fa fa-trash"></i> Xóa log cũ
                     </button>
                     <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="javascript:void(0);" onclick="nv_clear_logs(7);">Xóa log > 7 ngày</a></li>
-                        <li><a class="dropdown-item" href="javascript:void(0);" onclick="nv_clear_logs(30);">Xóa log > 30 ngày</a></li>
-                        <li><a class="dropdown-item" href="javascript:void(0);" onclick="nv_clear_logs(90);">Xóa log > 90 ngày</a></li>
+                        <li><a class="dropdown-item" href="javascript:void(0);" onclick="nv_clear_logs(7);">Xóa log > 7
+                                ngày</a></li>
+                        <li><a class="dropdown-item" href="javascript:void(0);" onclick="nv_clear_logs(30);">Xóa log >
+                                30 ngày</a></li>
+                        <li><a class="dropdown-item" href="javascript:void(0);" onclick="nv_clear_logs(90);">Xóa log >
+                                90 ngày</a></li>
                     </ul>
                 </div>
             </div>
@@ -138,7 +145,8 @@
                                     <small>{LOG.created_time_format}</small>
                                 </td>
                                 <td>
-                                    <button type="button" class="btn btn-sm btn-danger" onclick="nv_delete_log({LOG.id});" title="Xóa log này">
+                                    <button type="button" class="btn btn-sm btn-danger"
+                                        onclick="nv_delete_log({LOG.id});" title="Xóa log này">
                                         <i class="fa fa-trash"></i>
                                     </button>
                                 </td>
@@ -147,13 +155,13 @@
                         </tbody>
                     </table>
                 </div>
-                
+
                 <!-- Pagination -->
                 <div class="text-center mt-3">
                     {GENERATE_PAGE}
                 </div>
                 <!-- END: logs -->
-                
+
                 <!-- BEGIN: no_logs -->
                 <div class="alert alert-info">
                     <i class="fa fa-info-circle"></i> Chưa có nhật ký hoạt động nào.
@@ -165,81 +173,83 @@
 </div>
 
 <script type="text/javascript">
-function nv_clear_logs(days) {
-    if (confirm('Bạn có chắc chắn muốn xóa tất cả log cũ hơn ' + days + ' ngày?')) {
-        var confirmToken = btoa('clear_logs' + '{NV_CHECK_SESSION}').replace(/[^a-zA-Z0-9]/g, '').substring(0, 32);
+    function nv_clear_logs(days) {
+        if (confirm('Bạn có chắc chắn muốn xóa tất cả log cũ hơn ' + days + ' ngày?')) {
 
-        // Hiển thị loading
-        var btn = document.querySelector('.btn.btn-warning.dropdown-toggle');
-        var originalText = btn.innerHTML;
-        btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Đang xóa...';
-        btn.disabled = true;
+            var confirmToken = btoa('clear_logs' + '{NV_CHECK_SESSION}').replace(/[^a-zA-Z0-9]/g, '').substring(0, 32);
 
-        $.ajax({
-            url: location.href,
-            type: 'POST',
-            data: {
-                action: 'clear_logs',
-                days: days,
-                confirm: confirmToken
-            },
-            dataType: 'json',
-            success: function(response) {
-                if (response.status === 'success') {
-                    nukeviet.toast(response.mess, 'success');
-                    setTimeout(function() {
-                        location.reload();
-                    }, 1000);
-                } else {
-                    nukeviet.toast(response.mess || 'Không thể xóa log', 'error');
-                }
-            },
-            error: function(xhr, status, error) {
-                nukeviet.toast('Có lỗi xảy ra: ' + error, 'error');
-            },
-            complete: function() {
-                // Khôi phục nút
-                btn.innerHTML = originalText;
-                btn.disabled = false;
-            }
-        });
-    }
-}
+            // Hiển thị loading
+            var btn = document.querySelector('.btn.btn-warning.dropdown-toggle');
+            var originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Đang xóa...';
+            btn.disabled = true;
 
-function nv_delete_log(logId) {
-    if (confirm('Bạn có chắc chắn muốn xóa log này?')) {
-        var btn = event.target.closest('button');
-        var originalText = btn.innerHTML;
-        btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i>';
-        btn.disabled = true;
-
-        $.ajax({
-            url: location.href,
-            type: 'POST',
-            data: {
-                action: 'delete',
-                id: logId
-            },
-            dataType: 'json',
-            success: function(response) {
-                if (response.status === 'success') {
-                    nukeviet.toast(response.mess || 'Đã xóa log thành công', 'success');
-                    setTimeout(function() {
-                        location.reload();
-                    }, 1000);
-                } else {
-                    nukeviet.toast(response.mess || 'Không thể xóa log', 'error');
+            $.ajax({
+                url: location.href,
+                type: 'POST',
+                data: {
+                    action: 'clear_logs',
+                    days: days,
+                    confirm: confirmToken
+                },
+                dataType: 'json',
+                success: function (response) {
+                    if (response.status === 'success') {
+                        nukeviet.toast(response.mess, 'success');
+                        setTimeout(function () {
+                            location.reload();
+                        }, 1000);
+                    } else {
+                        nukeviet.toast(response.mess || 'Không thể xóa log', 'error');
+                    }
+                },
+                error: function (xhr, status, error) {
+                    nukeviet.toast('Có lỗi xảy ra: ' + error, 'error');
+                },
+                complete: function () {
+                    // Khôi phục nút
                     btn.innerHTML = originalText;
                     btn.disabled = false;
                 }
-            },
-            error: function(xhr, status, error) {
-                nukeviet.toast('Có lỗi xảy ra: ' + error, 'error');
-                btn.innerHTML = originalText;
-                btn.disabled = false;
-            }
-        });
+            });
+        }
     }
-}
+
+    function nv_delete_log(logId) {
+        if (confirm('Bạn có chắc chắn muốn xóa log này?')) {
+            var btn = event.target.closest('button');
+            var originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i>';
+            btn.disabled = true;
+
+            $.ajax({
+                url: location.href,
+                type: 'POST',
+                data: {
+                    action: 'delete',
+                    id: logId
+                },
+                dataType: 'json',
+                success: function (response) {
+                    if (response.status === 'success') {
+                        nukeviet.toast(response.mess || 'Đã xóa log thành công', 'success');
+                        setTimeout(function () {
+                            location.reload();
+                        }, 1000);
+                    } else {
+                        nukeviet.toast(response.mess || 'Không thể xóa log', 'error');
+                        btn.innerHTML = originalText;
+                        btn.disabled = false;
+                    }
+                },
+                error: function (xhr, status, error) {
+                    nukeviet.toast('Có lỗi xảy ra: ' + error, 'error');
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                }
+            });
+            window.location.href = '{NV_BASE_ADMINURL}index.php?{NV_LANG_VARIABLE}={NV_LANG_DATA}&{NV_NAME_VARIABLE}={MODULE_NAME}&{NV_OP_VARIABLE}={OP}&action=clear_logs&days=' + days + '&confirm=' + nv_md5_check('clear_logs' + '{NV_CHECK_SESSION}');
+        }
+    }
 </script>
 <!-- END: main -->

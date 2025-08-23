@@ -50,8 +50,8 @@ if (!empty($payment_config['vnp_IPIPN'])) {
                 }
                 if (!empty($emails)) {
                     $link = NV_MY_DOMAIN . NV_BASE_ADMINURL . 'index.php?' . NV_LANG_VARIABLE . '=' . NV_LANG_DATA . '&amp;' . NV_NAME_VARIABLE . '=' . $module_name . '&amp;' . NV_OP_VARIABLE . '=ipn-logs';
-                    $message = sprintf($lang_module['email_ipn_alert_c'], $payment, NV_CLIENT_IP, nv_date('H:i:s d/m/Y', NV_CURRENTTIME), NV_USER_AGENT, $link, $link);
-                    nv_sendmail([$global_config['site_name'], $global_config['site_email']], $emails, $lang_module['email_ipn_alert_s'], $message);
+                    $message = sprintf($nv_Lang->getModule('email_ipn_alert_c'), $payment, NV_CLIENT_IP, nv_date('H:i:s d/m/Y', NV_CURRENTTIME), NV_USER_AGENT, $link, $link);
+                    nv_sendmail([$global_config['site_name'], $global_config['site_email']], $emails, $nv_Lang->getModule('email_ipn_alert_s'), $message);
                 }
             }
         } catch (Exception $exp) {
