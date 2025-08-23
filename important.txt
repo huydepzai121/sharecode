@@ -1,8 +1,0 @@
-{
-  "rule": {
-    "text": "Mark as \"completed\" when ready.",
-    "completed": false
-  },
-  "status": "pending",
-  "lastUpdated": "2025-08-20T07:46:53.794Z"
-}
