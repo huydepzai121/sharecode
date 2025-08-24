@@ -320,6 +320,74 @@ function nv_theme_sharecode_main($stats = [], $popular_tags = [])
 }
 
 /**
+ * nv_theme_sharecode_category_view()
+ * Render trang danh sách theo danh mục
+ */
+function nv_theme_sharecode_category_view($category, $sources, $total_sources, $generate_page, $base_url, $sort_links = [], $subcategories = [])
+{
+    global $module_file, $global_config, $lang_module, $module_name;
+
+    $xtpl = new XTemplate('category.tpl', NV_ROOTDIR . '/themes/' . $global_config['site_theme'] . '/modules/' . $module_file);
+
+    $xtpl->assign('LANG', $lang_module);
+    $xtpl->assign('MODULE_NAME', $module_name);
+    $xtpl->assign('CATEGORY', $category);
+    $xtpl->assign('SOURCES', $sources);
+    $xtpl->assign('TOTAL_SOURCES', number_format($total_sources));
+    $xtpl->assign('GENERATE_PAGE', $generate_page);
+    $xtpl->assign('BASE_URL', $base_url);
+    $xtpl->assign('NV_LANG_VARIABLE', NV_LANG_VARIABLE);
+    $xtpl->assign('NV_LANG_DATA', NV_LANG_DATA);
+    $xtpl->assign('NV_NAME_VARIABLE', NV_NAME_VARIABLE);
+
+    // Sources
+    if (!empty($sources)) {
+        foreach ($sources as $source) {
+            $xtpl->assign('SOURCE', $source);
+
+            // Price display
+            if (isset($source['fee_type']) && $source['fee_type'] == 'free') {
+                $xtpl->parse('main.sources.source.free_price');
+            } else {
+                $xtpl->parse('main.sources.source.paid_price');
+            }
+
+            // Rating
+            if (isset($source['avg_rating']) && $source['avg_rating'] > 0) {
+                $xtpl->parse('main.sources.source.rating');
+            }
+
+            $xtpl->parse('main.sources.source');
+        }
+        $xtpl->parse('main.sources');
+    } else {
+        $xtpl->parse('main.no_sources');
+    }
+
+    // Sort links
+    if (!empty($sort_links)) {
+        foreach ($sort_links as $sort_key => $sort_data) {
+            $xtpl->assign('SORT', $sort_data);
+            if ($sort_data['active']) {
+                $xtpl->parse('main.sort_links.sort.active');
+            } else {
+                $xtpl->parse('main.sort_links.sort.inactive');
+            }
+            $xtpl->parse('main.sort_links.sort');
+        }
+        $xtpl->parse('main.sort_links');
+    }
+
+    // Pagination
+    if (!empty($generate_page)) {
+        $xtpl->parse('main.pagination');
+    }
+
+    $xtpl->parse('main');
+    return $xtpl->text('main');
+}
+
+/**
  * nv_theme_sharecode_category()
  * Render trang danh mục mã nguồn
  */
@@ -673,25 +741,40 @@ function nv_theme_sharecode_author($author_info, $sources, $categories, $sort_op
  * nv_theme_sharecode_submit()
  * Theme function for submit page
  */
-function nv_theme_sharecode_submit($categories, $errors = [])
+function nv_theme_sharecode_submit($categories, $available_keywords = [], $available_tags = [], $form_data = [], $errors = [])
 {
     global $module_file, $lang_module, $module_name, $nv_Request, $global_config;
 
     $xtpl = new XTemplate('submit.tpl', NV_ROOTDIR . '/themes/' . $global_config['site_theme'] . '/modules/' . $module_file);
 
-    // Get posted data for form retention
-    $data = [
-        'title' => $nv_Request->get_textarea('title', 'post', ''),
-        'catid' => $nv_Request->get_int('catid', 'post', 0),
-        'description' => $nv_Request->get_textarea('description', 'post', ''),
-        'demo_link' => $nv_Request->get_textarea('demo_link', 'post', ''),
-        'fee_type' => $nv_Request->get_string('fee_type', 'post', 'free'),
-        'fee_amount' => $nv_Request->get_float('fee_amount', 'post', 0),
-        'keywords' => $nv_Request->get_textarea('keywords', 'post', ''),
-        'tags' => $nv_Request->get_textarea('tags', 'post', ''),
-        'download_link_type' => $nv_Request->get_string('download_link_type', 'post', 'file'),
-        'download_link' => $nv_Request->get_textarea('download_link', 'post', '')
-    ];
+    // Use provided form data or get from request
+    if (empty($form_data)) {
+        $data = [
+            'title' => $nv_Request->get_textarea('title', 'post', ''),
+            'alias' => $nv_Request->get_title('alias', 'post', ''),
+            'catid' => $nv_Request->get_int('catid', 'post', 0),
+            'description' => $nv_Request->get_textarea('description', 'post', ''),
+            'content' => $nv_Request->get_editor('content', 'post', ''),
+            'demo_link' => $nv_Request->get_textarea('demo_link', 'post', ''),
+            'external_source_link' => $nv_Request->get_textarea('external_source_link', 'post', ''),
+            'fee_type' => $nv_Request->get_string('fee_type', 'post', 'free'),
+            'fee_amount' => $nv_Request->get_float('fee_amount', 'post', 0),
+            'keywords' => $nv_Request->get_textarea('keywords', 'post', ''),
+            'tags' => $nv_Request->get_textarea('tags', 'post', ''),
+            'download_link_type' => $nv_Request->get_string('download_link_type', 'post', 'external'),
+            'download_link' => $nv_Request->get_textarea('download_link', 'post', ''),
+            'contact_phone' => $nv_Request->get_title('contact_phone', 'post', ''),
+            'contact_email' => $nv_Request->get_title('contact_email', 'post', ''),
+            'contact_skype' => $nv_Request->get_title('contact_skype', 'post', ''),
+            'contact_telegram' => $nv_Request->get_title('contact_telegram', 'post', ''),
+            'contact_zalo' => $nv_Request->get_title('contact_zalo', 'post', ''),
+            'contact_facebook' => $nv_Request->get_title('contact_facebook', 'post', ''),
+            'contact_website' => $nv_Request->get_title('contact_website', 'post', ''),
+            'contact_address' => $nv_Request->get_textarea('contact_address', 'post', '')
+        ];
+    } else {
+        $data = $form_data;
+    }
 
     $xtpl->assign('DATA', $data);
 
@@ -710,6 +793,14 @@ function nv_theme_sharecode_submit($categories, $errors = [])
         $xtpl->assign('CATEGORY', $category);
         $xtpl->parse('main.category');
     }
+
+    // Available keywords for select2
+    $keywords_json = json_encode($available_keywords);
+    $xtpl->assign('AVAILABLE_KEYWORDS_JSON', $keywords_json);
+
+    // Available tags for select2
+    $tags_json = json_encode($available_tags);
+    $xtpl->assign('AVAILABLE_TAGS_JSON', $tags_json);
 
     // Radio button checks
     $xtpl->assign('CHECKED_FREE', $data['fee_type'] == 'free' ? 'checked' : '');

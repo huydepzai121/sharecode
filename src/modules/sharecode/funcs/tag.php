@@ -100,11 +100,13 @@ while ($row = $result->fetch()) {
             $row['price_badge'] = 'warning';
     }
     
-    // Xử lý hình ảnh
+    // Xử lý hình ảnh từ database
     if (!empty($row['image']) && file_exists(NV_UPLOADS_REAL_DIR . '/' . $module_upload . '/' . $row['image'])) {
         $row['image_url'] = NV_BASE_SITEURL . NV_UPLOADS_DIR . '/' . $module_upload . '/' . $row['image'];
+    } elseif (!empty($row['avatar']) && file_exists(NV_ROOTDIR . $row['avatar'])) {
+        $row['image_url'] = NV_BASE_SITEURL . ltrim($row['avatar'], '/');
     } else {
-        $row['image_url'] = NV_BASE_SITEURL . 'themes/default/images/no-image.png';
+        $row['image_url'] = NV_BASE_SITEURL . 'themes/default/images/no_image.gif';
     }
     
     // Tạo link chi tiết với cấu trúc URL chuẩn NukeViet
@@ -125,7 +127,10 @@ $generate_page = nv_alias_page($page_title, $base_url, $total_sources, $per_page
 
 // SEO
 $page_title = 'Tag: ' . $tag['name'] . ' - ' . $module_info['custom_title'];
-$key_words = $tag['name'] . ', ' . $tag['keywords'] . ', ' . $module_info['keywords'];
+$key_words = $tag['name'] . ', ' . $module_info['keywords'];
+if (!empty($tag['keywords'])) {
+    $key_words = $tag['name'] . ', ' . $tag['keywords'] . ', ' . $module_info['keywords'];
+}
 $description = 'Danh sách mã nguồn có tag: ' . $tag['name'];
 
 // Breadcrumb
@@ -179,7 +184,7 @@ if (file_exists(NV_ROOTDIR . '/themes/' . $global_config['module_theme'] . '/mod
     include_once NV_ROOTDIR . '/themes/' . $global_config['module_theme'] . '/modules/sharecode/theme.php';
 }
 
-$contents = nv_theme_sharecode_tag_view($tag, $sources, $total_sources, $generate_page, $base_url);
+$contents = nv_theme_sharecode_tag($tag, $sources, $related_tags, $sort_links, $sort, $generate_page, $total_sources);
 
 include NV_ROOTDIR . '/includes/header.php';
 echo nv_site_theme($contents);

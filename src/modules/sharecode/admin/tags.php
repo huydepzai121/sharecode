@@ -17,6 +17,12 @@ $page_title = 'Quản lý Tags';
 
 $checkss = $nv_Request->get_string('checkss', 'post', '');
 
+// Cập nhật count cho tất cả tags
+if ($nv_Request->get_string('action', 'get', '') == 'update_count') {
+    nv_admin_sharecode_update_all_tags_count();
+    nv_redirect_location(NV_BASE_ADMINURL . 'index.php?' . NV_LANG_VARIABLE . '=' . NV_LANG_DATA . '&' . NV_NAME_VARIABLE . '=' . $module_name . '&' . NV_OP_VARIABLE . '=' . $op . '&updated=1');
+}
+
 // Xóa các liên kết
 if ($nv_Request->isset_request('tagsIdDel', 'post')) {
     $tid = $nv_Request->get_int('id', 'post', 0);
@@ -94,6 +100,11 @@ if ($nv_Request->isset_request('savetag', 'post')) {
         'status' => 'error',
         'mess' => 'Error!!!',
     ];
+    
+    if (NV_CHECK_SESSION !== $checkss) {
+        $respon['mess'] = 'Wrong session!!!';
+        nv_jsonOutput($respon);
+    }
 
     $title = $nv_Request->get_textarea('mtitle', '', NV_ALLOWED_HTML_TAGS, true);
     $list_tag = explode('<br />', strip_tags($title, '<br>'));
@@ -108,10 +119,11 @@ if ($nv_Request->isset_request('savetag', 'post')) {
             $check_exists = $db->query('SELECT id FROM ' . NV_PREFIXLANG . '_' . $module_data . '_tags WHERE alias=' . $db->quote($alias))->fetchColumn();
             
             if (!$check_exists) {
+                $add_time = NV_CURRENTTIME;
                 $sth = $db->prepare('INSERT IGNORE INTO ' . NV_PREFIXLANG . '_' . $module_data . "_tags (name, alias, description, weight, status, add_time) VALUES (:name, :alias, '', 0, 1, :add_time)");
                 $sth->bindParam(':name', $name, PDO::PARAM_STR);
                 $sth->bindParam(':alias', $alias, PDO::PARAM_STR);
-                $sth->bindParam(':add_time', NV_CURRENTTIME, PDO::PARAM_INT);
+                $sth->bindParam(':add_time', $add_time, PDO::PARAM_INT);
                 $sth->execute();
                 $added[] = $name;
                 $aliases[] = $alias;
@@ -135,6 +147,13 @@ if ($nv_Request->isset_request('savetag', 'post')) {
 
 // Thêm tag hoặc sửa tag
 if ($nv_Request->isset_request('savecat', 'post')) {
+    if (NV_CHECK_SESSION !== $checkss) {
+        nv_jsonOutput([
+            'status' => 'error',
+            'mess' => 'Wrong session!!!'
+        ]);
+    }
+    
     $id = $nv_Request->get_int('id', 'post', 0);
     if (!empty($id)) {
         $num = $db->query('SELECT COUNT(*) FROM ' . NV_PREFIXLANG . '_' . $module_data . '_tags where id=' . $id)->fetchColumn();
@@ -180,11 +199,12 @@ if ($nv_Request->isset_request('savecat', 'post')) {
     $weight = $nv_Request->get_int('weight', 'post', 0);
 
     if (empty($id)) {
+        $add_time = NV_CURRENTTIME;
         $sth = $db->prepare('INSERT INTO ' . NV_PREFIXLANG . '_' . $module_data . '_tags (name, alias, description, weight, status, add_time) VALUES (:name, :alias, :description, :weight, 1, :add_time)');
-        $sth->bindParam(':add_time', NV_CURRENTTIME, PDO::PARAM_INT);
+        $sth->bindParam(':add_time', $add_time, PDO::PARAM_INT);
         $msg_lg = 'add_tags';
     } else {
-        $sth = $db->prepare('UPDATE ' . NV_PREFIXLANG . '_' . $module_data . '_tags SET name = :name, alias = :alias, description = :description, weight = :weight WHERE id =' . $id);
+        $sth = $db->prepare('UPDATE ' . NV_PREFIXLANG . '_' . $module_data . '_tags SET name = :name, alias = :alias, description = :description, weight = :weight, edit_time=' . NV_CURRENTTIME . ' WHERE id =' . $id);
         $msg_lg = 'edit_tags';
     }
 
@@ -239,18 +259,51 @@ if ($nv_Request->isset_request('tagLinks', 'post')) {
         $array[] = $row;
     }
 
-    $html = '<div class="table-responsive">';
-    $html .= '<table class="table table-striped table-hover">';
-    $html .= '<thead><tr><th>ID</th><th>Tiêu đề</th><th>Thao tác</th></tr></thead>';
-    $html .= '<tbody>';
-    foreach ($array as $row) {
+    if (empty($array)) {
+        $html = '<div class="alert alert-info text-center">';
+        $html .= '<i class="fa fa-info-circle fa-2x mb-3"></i><br>';
+        $html .= '<strong>Chưa có mã nguồn nào sử dụng tag này</strong><br>';
+        $html .= '<small class="text-muted">Tag này chưa được liên kết với bất kỳ mã nguồn nào.</small>';
+        $html .= '</div>';
+    } else {
+        $html = '<div class="alert alert-success mb-3">';
+        $html .= '<i class="fa fa-check-circle"></i> ';
+        $html .= '<strong>Tìm thấy ' . count($array) . ' mã nguồn</strong> đang sử dụng tag này';
+        $html .= '</div>';
+
+        $html .= '<div class="table-responsive">';
+        $html .= '<table class="table table-striped table-hover">';
+        $html .= '<thead class="thead-light">';
         $html .= '<tr>';
-        $html .= '<td>' . $row['source_id'] . '</td>';
-        $html .= '<td><a href="' . $row['url'] . '" target="_blank">' . $row['title'] . '</a></td>';
-        $html .= '<td><button class="btn btn-danger btn-sm" onclick="removeTagLink(' . $tid . ', ' . $row['source_id'] . ')">Xóa</button></td>';
+        $html .= '<th width="60" class="text-center"><i class="fa fa-hashtag"></i> ID</th>';
+        $html .= '<th><i class="fa fa-file-code-o"></i> Tên mã nguồn</th>';
+        $html .= '<th width="120" class="text-center"><i class="fa fa-cogs"></i> Thao tác</th>';
         $html .= '</tr>';
+        $html .= '</thead>';
+        $html .= '<tbody>';
+
+        foreach ($array as $row) {
+            $html .= '<tr>';
+            $html .= '<td class="text-center"><span class="badge text-primary">' . $row['source_id'] . '</span></td>';
+            $html .= '<td>';
+            $html .= '<a href="' . $row['url'] . '" target="_blank" class="text-primary" title="Xem chi tiết mã nguồn">';
+            $html .= '<i class="fa fa-external-link"></i> ' . nv_clean60($row['title'], 60);
+            $html .= '</a>';
+            $html .= '</td>';
+            $html .= '<td class="text-center">';
+            $html .= '<button class="btn btn-danger btn-sm" onclick="removeTagLink(' . $tid . ', ' . $row['source_id'] . ')" title="Xóa liên kết">';
+            $html .= '<i class="fa fa-unlink"></i> Xóa';
+            $html .= '</button>';
+            $html .= '</td>';
+            $html .= '</tr>';
+        }
+        $html .= '</tbody></table></div>';
+
+        $html .= '<div class="alert alert-warning mt-3">';
+        $html .= '<i class="fa fa-warning"></i> ';
+        $html .= '<strong>Lưu ý:</strong> Việc xóa liên kết sẽ loại bỏ tag khỏi mã nguồn tương ứng.';
+        $html .= '</div>';
     }
-    $html .= '</tbody></table></div>';
 
     $respon['success'] = 1;
     $respon['html'] = $html;
@@ -339,6 +392,8 @@ while ($row = $sth->fetch()) {
     }
     
     $row['num_sources'] = $row['total_sources'];
+    $row['has_sources'] = $row['total_sources'] > 0;
+    $row['no_sources'] = $row['total_sources'] == 0;
     $array[] = $row;
 }
 $sth->closeCursor();

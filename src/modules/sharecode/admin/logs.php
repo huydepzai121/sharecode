@@ -19,21 +19,57 @@ $action = $nv_Request->get_title('action', 'get', '');
 $page = $nv_Request->get_int('page', 'get', 1);
 $per_page = 50;
 
-// Xử lý xóa log
-if ($action == 'clear_logs') {
-    if ($nv_Request->get_title('confirm', 'get', '') == md5('clear_logs' . NV_CHECK_SESSION)) {
-        $days = $nv_Request->get_int('days', 'get', 30);
-        $time_limit = NV_CURRENTTIME - ($days * 24 * 3600);
-        
-        $sql = "DELETE FROM " . NV_PREFIXLANG . "_" . $module_data . "_logs WHERE created_time < " . $time_limit;
-        $deleted = $db->exec($sql);
-        
-        nv_jsonOutput([
-            'status' => 'success',
-            'mess' => 'Đã xóa ' . $deleted . ' bản ghi log cũ'
-        ]);
+// Xử lý AJAX requests
+if ($nv_Request->isset_request('action', 'post')) {
+    $ajax_action = $nv_Request->get_title('action', 'post', '');
+
+    // Xử lý xóa log cũ
+    if ($ajax_action == 'clear_logs') {
+        $confirm_token = $nv_Request->get_title('confirm', 'post', '');
+        $expected_token = substr(str_replace(['/', '+', '='], '', base64_encode('clear_logs' . NV_CHECK_SESSION)), 0, 32);
+
+        if ($confirm_token == $expected_token || $confirm_token == md5('clear_logs' . NV_CHECK_SESSION)) {
+            $days = $nv_Request->get_int('days', 'post', 30);
+            $time_limit = NV_CURRENTTIME - ($days * 24 * 3600);
+
+            $sql = "DELETE FROM " . NV_PREFIXLANG . "_" . $module_data . "_logs WHERE log_time < " . $time_limit;
+            $deleted = $db->exec($sql);
+
+            nv_jsonOutput([
+                'status' => 'success',
+                'mess' => 'Đã xóa ' . $deleted . ' bản ghi log cũ'
+            ]);
+        } else {
+            nv_jsonOutput([
+                'status' => 'error',
+                'mess' => 'Token xác thực không hợp lệ'
+            ]);
+        }
     }
-    nv_redirect_location(NV_BASE_ADMINURL . 'index.php?' . NV_LANG_VARIABLE . '=' . NV_LANG_DATA . '&' . NV_NAME_VARIABLE . '=' . $module_name . '&' . NV_OP_VARIABLE . '=' . $op);
+
+    // Xử lý xóa log riêng lẻ
+    if ($ajax_action == 'delete') {
+        $log_id = $nv_Request->get_int('id', 'post', 0);
+        if ($log_id > 0) {
+            $sql = "DELETE FROM " . NV_PREFIXLANG . "_" . $module_data . "_logs WHERE id = " . $log_id;
+            if ($db->exec($sql)) {
+                nv_jsonOutput([
+                    'status' => 'success',
+                    'mess' => 'Đã xóa log thành công'
+                ]);
+            } else {
+                nv_jsonOutput([
+                    'status' => 'error',
+                    'mess' => 'Có lỗi xảy ra khi xóa log'
+                ]);
+            }
+        } else {
+            nv_jsonOutput([
+                'status' => 'error',
+                'mess' => 'ID log không hợp lệ'
+            ]);
+        }
+    }
 }
 
 // Lọc dữ liệu

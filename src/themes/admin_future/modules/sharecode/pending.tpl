@@ -270,7 +270,7 @@ $(document).ready(function() {
         var note = $('#approveNote').val();
         
         $.post('{$BASE_URL}&action=approve&id=' + currentSourceId, {
-            checksess: '{$CHECKSESS}' + currentSourceId,
+            checksess: '{$smarty.const.NV_CHECK_SESSION}',
             note: note
         }, function(response) {
             if (response.status === 'OK') {
@@ -279,12 +279,12 @@ $(document).ready(function() {
                     $(this).remove();
                     updateCounts();
                 });
-                toastr.success(response.mess);
+                nukeviet.toast(response.mess || 'Phê duyệt thành công', 'success');
             } else {
-                toastr.error(response.mess);
+                nukeviet.toast(response.mess || 'Có lỗi xảy ra khi phê duyệt', 'error');
             }
         }, 'json').fail(function() {
-            toastr.error('Có lỗi xảy ra khi kết nối với máy chủ');
+            nukeviet.toast('Có lỗi xảy ra khi kết nối với máy chủ', 'error');
         });
     };
     
@@ -299,12 +299,12 @@ $(document).ready(function() {
         var note = $('#rejectNote').val();
         
         if (!note.trim()) {
-            toastr.error('Vui lòng nhập lý do từ chối');
+            nukeviet.toast('Vui lòng nhập lý do từ chối', 'error');
             return;
         }
         
         $.post('{$BASE_URL}&action=reject&id=' + currentSourceId, {
-            checksess: '{$CHECKSESS}' + currentSourceId,
+            checksess: '{$smarty.const.NV_CHECK_SESSION}',
             note: note
         }, function(response) {
             if (response.status === 'OK') {
@@ -313,12 +313,12 @@ $(document).ready(function() {
                     $(this).remove();
                     updateCounts();
                 });
-                toastr.success(response.mess);
+                nukeviet.toast(response.mess || 'Từ chối thành công', 'success');
             } else {
-                toastr.error(response.mess);
+                nukeviet.toast(response.mess || 'Có lỗi xảy ra khi từ chối', 'error');
             }
         }, 'json').fail(function() {
-            toastr.error('Có lỗi xảy ra khi kết nối với máy chủ');
+            nukeviet.toast('Có lỗi xảy ra khi kết nối với máy chủ', 'error');
         });
     };
     
@@ -329,7 +329,7 @@ $(document).ready(function() {
         }).get();
         
         if (selected.length === 0) {
-            toastr.warning('Vui lòng chọn ít nhất một sản phẩm');
+            nukeviet.toast('Vui lòng chọn ít nhất một sản phẩm', 'warning');
             return;
         }
         
@@ -339,7 +339,7 @@ $(document).ready(function() {
             
             selected.forEach(function(id) {
                 $.post('{$BASE_URL}&action=approve&id=' + id, {
-                    checksess: '{$CHECKSESS}' + id,
+                    checksess: '{$smarty.const.NV_CHECK_SESSION}',
                     note: 'Phê duyệt hàng loạt'
                 }, function(response) {
                     completed++;
@@ -350,7 +350,7 @@ $(document).ready(function() {
                     }
                     
                     if (completed === total) {
-                        toastr.success('Đã hoàn thành xử lý hàng loạt');
+                        nukeviet.toast('Đã hoàn thành xử lý hàng loạt', 'success');
                         updateCounts();
                         $('#check-all').prop('checked', false);
                     }
@@ -365,7 +365,7 @@ $(document).ready(function() {
         }).get();
         
         if (selected.length === 0) {
-            toastr.warning('Vui lòng chọn ít nhất một sản phẩm');
+            nukeviet.toast('Vui lòng chọn ít nhất một sản phẩm', 'warning');
             return;
         }
         
@@ -378,7 +378,7 @@ $(document).ready(function() {
             
             selected.forEach(function(id) {
                 $.post('{$BASE_URL}&action=reject&id=' + id, {
-                    checksess: '{$CHECKSESS}' + id,
+                    checksess: '{$smarty.const.NV_CHECK_SESSION}',
                     note: reason
                 }, function(response) {
                     completed++;
@@ -389,7 +389,7 @@ $(document).ready(function() {
                     }
                     
                     if (completed === total) {
-                        toastr.success('Đã hoàn thành xử lý hàng loạt');
+                        nukeviet.toast('Đã hoàn thành xử lý hàng loạt', 'success');
                         updateCounts();
                         $('#check-all').prop('checked', false);
                     }

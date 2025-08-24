@@ -21,7 +21,7 @@ $sort = $nv_Request->get_title('sort', 'get', 'latest');
 $page = $nv_Request->get_int('page', 'get', 1);
 
 // Pagination
-$per_page = 20;
+$per_page = !empty($module_config[$module_name]['items_per_page']) ? intval($module_config[$module_name]['items_per_page']) : 12;
 $offset = ($page - 1) * $per_page;
 
 // Build SQL conditions - use direct SQL escaping for simplicity
@@ -55,16 +55,15 @@ $order_by = isset($order_map[$sort]) ? $order_map[$sort] : $order_map['latest'];
 $count_sql = "SELECT COUNT(s.id) FROM " . NV_PREFIXLANG . "_" . $module_data . "_sources s";
 $count_sql .= " WHERE " . implode(' AND ', $where_conditions);
 $total_sources = $db->query($count_sql)->fetchColumn();
-
 // Get sources
 $sources = [];
 if ($total_sources > 0) {
-    $sql = "SELECT s.*, c.title as category_title, c.alias as category_alias 
+    $sql = "SELECT s.*, c.title as category_title, c.alias as category_alias
             FROM " . NV_PREFIXLANG . "_" . $module_data . "_sources s
             LEFT JOIN " . NV_PREFIXLANG . "_" . $module_data . "_categories c ON s.catid = c.id
             WHERE " . implode(' AND ', $where_conditions) . "
             ORDER BY " . $order_by . "
-            LIMIT " . $per_page . " OFFSET " . $offset;
+            LIMIT " . intval($offset) . ", " . intval($per_page);
 
     $result = $db->query($sql);
     
@@ -96,8 +95,10 @@ if ($total_sources > 0) {
         // Image URL
         if (!empty($row['image']) && file_exists(NV_UPLOADS_REAL_DIR . '/' . $module_upload . '/' . $row['image'])) {
             $row['image_url'] = NV_BASE_SITEURL . NV_UPLOADS_DIR . '/' . $module_upload . '/' . $row['image'];
+        } elseif (!empty($row['avatar']) && file_exists(NV_ROOTDIR . $row['avatar'])) {
+            $row['image_url'] = NV_BASE_SITEURL . ltrim($row['avatar'], '/');
         } else {
-            $row['image_url'] = NV_BASE_SITEURL . 'themes/default/images/no-image.png';
+            $row['image_url'] = NV_BASE_SITEURL . 'themes/default/images/no_image.gif';
         }
         
         // Default values for missing fields
@@ -116,7 +117,6 @@ while ($cat_row = $cat_result->fetch()) {
     $categories[] = $cat_row;
 }
 
-// Pagination with URL rewriting
 $base_url = NV_BASE_SITEURL . 'index.php?' . NV_LANG_VARIABLE . '=' . NV_LANG_DATA . '&' . NV_NAME_VARIABLE . '=' . $module_name;
 if (!empty($q)) $base_url .= '&q=' . urlencode($q);
 if ($category > 0) $base_url .= '&category=' . $category;
@@ -125,7 +125,7 @@ if (!empty($sort)) $base_url .= '&sort=' . urlencode($sort);
 
 $base_url = nv_url_rewrite($base_url, true);
 
-$generate_page = nv_alias_page($page_title, $base_url, $total_sources, $per_page, $page);
+$generate_page = nv_generate_page($base_url, $total_sources, $per_page, $page);
 
 // Page info
 $page_title = $module_info['site_title'];

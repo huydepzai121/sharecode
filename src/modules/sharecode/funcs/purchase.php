@@ -182,8 +182,8 @@ try {
         " . $db->quote($log_data['details']) . "
     )";
     $db->query($sql);
-    
-    $db->query('COMMIT');
+    nv_sharecode_send_purchase_success_email($user_info, $source, $purchase_id, $amount, $wallet_result['transaction']['transaction_id']);
+
     
     // Trả về kết quả thành công
     nv_jsonOutput([

@@ -1,28 +1,4 @@
 <!-- BEGIN: main -->
-<div class="marketplace-header">
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col-xs-24 col-md-16">
-                <h1 class="category-title">
-                    <i class="fa fa-tag"></i> {TAG.name}
-                    <span class="item-count">({TOTAL_SOURCES} sản phẩm)</span>
-                </h1>
-                <!-- BEGIN: tag_description -->
-                <p class="category-description">{TAG.description}</p>
-                <!-- END: tag_description -->
-            </div>
-            <div class="col-xs-24 col-md-8 text-right">
-                <div class="category-stats">
-                    <div class="stat-item">
-                        <span class="stat-number">{TOTAL_SOURCES}</span>
-                        <span class="stat-label">Sản phẩm</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
 <!-- BEGIN: related_tags -->
 <div class="related-tags-section">
     <div class="container-fluid">
@@ -79,30 +55,17 @@
                             <img src="{SOURCE.image_url}" alt="{SOURCE.title}" class="img-responsive">
                             <div class="product-overlay">
                                 <div class="overlay-buttons">
-                                    <button class="btn btn-overlay btn-preview" data-id="{SOURCE.id}">
-                                        <i class="fa fa-eye"></i> Xem trước
-                                    </button>
                                     <button class="btn btn-overlay btn-quick-view" data-id="{SOURCE.id}">
                                         <i class="fa fa-search-plus"></i> Chi tiết
                                     </button>
                                 </div>
                             </div>
                         </a>
-                        <!-- BEGIN: free_price -->
-                        <div class="product-badge badge-free">
-                            <i class="fa fa-gift"></i> MIỄN PHÍ
-                        </div>
-                        <!-- END: free_price -->
                         <!-- BEGIN: contact_price -->
                         <div class="product-badge badge-contact">
                             <i class="fa fa-phone"></i> LIÊN HỆ
                         </div>
                         <!-- END: contact_price -->
-                        <!-- BEGIN: paid_price -->
-                        <div class="product-badge badge-price">
-                            {SOURCE.price_text}
-                        </div>
-                        <!-- END: paid_price -->
                     </div>
                     
                     <div class="product-info">
@@ -125,15 +88,13 @@
                         <div class="product-stats">
                             <div class="stat-item">
                                 <i class="fa fa-download"></i>
-                                <span>{SOURCE.num_download}</span>
+                                <span class="stat-number">{SOURCE.num_download}</span>
+                                <span class="stat-label">Tải về</span>
                             </div>
                             <div class="stat-item">
                                 <i class="fa fa-eye"></i>
-                                <span>{SOURCE.num_view}</span>
-                            </div>
-                            <div class="stat-item">
-                                <i class="fa fa-clock-o"></i>
-                                <span>{SOURCE.add_time_format}</span>
+                                <span class="stat-number">{SOURCE.num_view}</span>
+                                <span class="stat-label">Lượt xem</span>
                             </div>
                         </div>
                         
@@ -145,7 +106,7 @@
                         
                         <div class="product-actions">
                             <!-- BEGIN: free_price -->
-                            <a href="{SOURCE.link}" class="btn btn-primary btn-block btn-download">
+                            <a href="{SOURCE.link}" class="btn-download">
                                 <i class="fa fa-download"></i> Tải miễn phí
                             </a>
                             <!-- END: free_price -->
@@ -156,14 +117,8 @@
                             <!-- END: contact_price -->
                             <!-- BEGIN: paid_price -->
                             <div class="price-actions">
-                                <div class="price-display">
-                                    <span class="price-amount">{SOURCE.price_text}</span>
-                                </div>
                                 <button class="btn btn-success btn-buy" data-id="{SOURCE.id}" data-price="{SOURCE.fee_amount}">
                                     <i class="fa fa-shopping-cart"></i> Mua ngay
-                                </button>
-                                <button class="btn btn-outline btn-cart" data-id="{SOURCE.id}">
-                                    <i class="fa fa-cart-plus"></i>
                                 </button>
                             </div>
                             <!-- END: paid_price -->

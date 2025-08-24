@@ -63,7 +63,17 @@ if (($cache = $nv_Cache->getItem('home', $cache_file, 300)) != false) {
                     $view['price_class'] = 'text-warning';
             }
             $view['link'] = NV_BASE_SITEURL . $module_sharecode . '/detail/' . $view['alias'];
-            
+
+            // Xử lý hình ảnh từ database
+            $module_upload = $module_sharecode;
+            if (!empty($view['image']) && file_exists(NV_UPLOADS_REAL_DIR . '/' . $module_upload . '/' . $view['image'])) {
+                $view['image_url'] = NV_BASE_SITEURL . NV_UPLOADS_DIR . '/' . $module_upload . '/' . $view['image'];
+            } elseif (!empty($view['avatar']) && file_exists(NV_ROOTDIR . $view['avatar'])) {
+                $view['image_url'] = NV_BASE_SITEURL . ltrim($view['avatar'], '/');
+            } else {
+                $view['image_url'] = NV_BASE_SITEURL . 'themes/default/images/no_image.gif';
+            }
+
             $array_data[$view['id']] = $view;
         }
     }
@@ -184,9 +194,14 @@ if (($cache = $nv_Cache->getItem('home', $cache_file, 300)) != false) {
                 $view['category_title'] = 'Khác';
             }
             
-            // Thêm hình ảnh mặc định nếu chưa có
-            if (empty($view['image_url'])) {
-                $view['image_url'] = NV_BASE_SITEURL . 'themes/default/images/no_image.jpg';
+            // Xử lý hình ảnh từ database
+            $module_upload = $module_sharecode;
+            if (!empty($view['image']) && file_exists(NV_UPLOADS_REAL_DIR . '/' . $module_upload . '/' . $view['image'])) {
+                $view['image_url'] = NV_BASE_SITEURL . NV_UPLOADS_DIR . '/' . $module_upload . '/' . $view['image'];
+            } elseif (!empty($view['avatar']) && file_exists(NV_ROOTDIR . $view['avatar'])) {
+                $view['image_url'] = NV_BASE_SITEURL . ltrim($view['avatar'], '/');
+            } else {
+                $view['image_url'] = NV_BASE_SITEURL . 'themes/default/images/no_image.gif';
             }
             
             $array_popular_sources[$view['id']] = $view;

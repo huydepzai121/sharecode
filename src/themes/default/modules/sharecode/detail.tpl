@@ -718,7 +718,6 @@ function downloadFile(sourceId) {
         dataType: 'json',
         success: function(response) {
             if (response.status === 'success') {
-                // Tạo download URL và tự động download
                 var downloadUrl = response.download_url;
                 window.location.href = downloadUrl;
             } else {

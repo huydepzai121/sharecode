@@ -23,18 +23,38 @@ if (!defined('NV_IS_USER') && empty($module_config['allow_guest_submit'])) {
 // Xử lý submit form
 if ($nv_Request->isset_request('submit_product', 'post')) {
     $title = $nv_Request->get_textarea('title', 'post', '');
+    $alias = $nv_Request->get_title('alias', 'post', '');
     $catid = $nv_Request->get_int('catid', 'post', 0);
     $description = $nv_Request->get_textarea('description', 'post', '');
+    $content = $nv_Request->get_editor('content', 'post', '');
     $demo_link = $nv_Request->get_textarea('demo_link', 'post', '');
+    $external_source_link = $nv_Request->get_textarea('external_source_link', 'post', '');
     $fee_type = $nv_Request->get_string('fee_type', 'post', 'free');
     $fee_amount = $nv_Request->get_float('fee_amount', 'post', 0);
-    $keywords = $nv_Request->get_textarea('keywords', 'post', '');
-    $tags = $nv_Request->get_textarea('tags', 'post', '');
-    $download_link_type = $nv_Request->get_string('download_link_type', 'post', 'file');
+    $keywords = $nv_Request->get_array('keywords', 'post', []); // Array of keywords from select2
+    $tags = $nv_Request->get_array('tags', 'post', []); // Array of tag names from select2
+    $download_link_type = $nv_Request->get_string('download_link_type', 'post', 'external');
     $download_link = $nv_Request->get_textarea('download_link', 'post', '');
+
+    // Thông tin liên hệ
+    $contact_phone = $nv_Request->get_title('contact_phone', 'post', '');
+    $contact_email = $nv_Request->get_title('contact_email', 'post', '');
+    $contact_skype = $nv_Request->get_title('contact_skype', 'post', '');
+    $contact_telegram = $nv_Request->get_title('contact_telegram', 'post', '');
+    $contact_zalo = $nv_Request->get_title('contact_zalo', 'post', '');
+    $contact_facebook = $nv_Request->get_title('contact_facebook', 'post', '');
+    $contact_website = $nv_Request->get_title('contact_website', 'post', '');
+    $contact_address = $nv_Request->get_textarea('contact_address', 'post', '');
     
     $errors = [];
     
+    // Tạo alias tự động nếu không có
+    if (empty($alias)) {
+        $alias = change_alias($title);
+    } else {
+        $alias = change_alias($alias);
+    }
+
     // Validation
     if (empty($title)) {
         $errors[] = 'Vui lòng nhập tiêu đề sản phẩm';
@@ -43,10 +63,25 @@ if ($nv_Request->isset_request('submit_product', 'post')) {
         $errors[] = 'Vui lòng chọn danh mục';
     }
     if (empty($description)) {
-        $errors[] = 'Vui lòng nhập mô tả sản phẩm';
+        $errors[] = 'Vui lòng nhập mô tả ngắn sản phẩm';
+    }
+    if (empty($content)) {
+        $errors[] = 'Vui lòng nhập mô tả chi tiết sản phẩm';
     }
     if ($fee_type == 'paid' && $fee_amount <= 0) {
         $errors[] = 'Vui lòng nhập giá bán hợp lệ';
+    }
+    if ($download_link_type == 'external' && empty($download_link)) {
+        $errors[] = 'Vui lòng nhập link tải xuống';
+    }
+
+    // Kiểm tra alias trùng
+    if (!empty($alias)) {
+        $sql = "SELECT id FROM " . NV_PREFIXLANG . "_" . $module_data . "_sources WHERE alias=" . $db->quote($alias);
+        $existing_id = $db->query($sql)->fetchColumn();
+        if ($existing_id) {
+            $alias = $alias . '-' . time();
+        }
     }
     if ($download_link_type == 'external' && empty($download_link)) {
         $errors[] = 'Vui lòng nhập link tải xuống';
@@ -81,23 +116,38 @@ if ($nv_Request->isset_request('submit_product', 'post')) {
             // Xác định thông tin user
             $submit_userid = defined('NV_IS_USER') ? $user_info['userid'] : 0;
             $submit_username = defined('NV_IS_USER') ? $user_info['username'] : 'Guest';
-            
+
+            // Chuyển keywords array thành string để lưu database
+            $keywords_string = is_array($keywords) ? implode(', ', $keywords) : $keywords;
+
             // Insert sản phẩm với trạng thái chờ duyệt
             $sql_insert = "INSERT INTO " . NV_PREFIXLANG . "_" . $module_data . "_sources (
-                title, alias, catid, description, demo_link, keywords, 
+                title, alias, catid, description, content, demo_link, external_source_link, keywords,
                 fee_type, fee_amount, download_link_type, download_link,
+                contact_phone, contact_email, contact_skype, contact_telegram,
+                contact_zalo, contact_facebook, contact_website, contact_address,
                 userid, username, add_time, status
             ) VALUES (
                 " . $db->quote($title) . ",
                 " . $db->quote($alias) . ",
                 " . $catid . ",
                 " . $db->quote($description) . ",
+                " . $db->quote($content) . ",
                 " . $db->quote($demo_link) . ",
-                " . $db->quote($keywords) . ",
+                " . $db->quote($external_source_link) . ",
+                " . $db->quote($keywords_string) . ",
                 " . $db->quote($fee_type) . ",
                 " . $fee_amount . ",
                 " . $db->quote($download_link_type) . ",
                 " . $db->quote($download_link) . ",
+                " . $db->quote($contact_phone) . ",
+                " . $db->quote($contact_email) . ",
+                " . $db->quote($contact_skype) . ",
+                " . $db->quote($contact_telegram) . ",
+                " . $db->quote($contact_zalo) . ",
+                " . $db->quote($contact_facebook) . ",
+                " . $db->quote($contact_website) . ",
+                " . $db->quote($contact_address) . ",
                 " . $submit_userid . ",
                 " . $db->quote($submit_username) . ",
                 " . NV_CURRENTTIME . ",
@@ -107,9 +157,9 @@ if ($nv_Request->isset_request('submit_product', 'post')) {
             if ($db->exec($sql_insert)) {
                 $source_id = $db->lastInsertId();
                 // Xử lý tags
-                if (!empty($tags)) {
-                    $tag_array = array_map('trim', explode(',', $tags));
-                    foreach ($tag_array as $tag_name) {
+                if (!empty($tags) && is_array($tags)) {
+                    foreach ($tags as $tag_name) {
+                        $tag_name = trim($tag_name);
                         if (!empty($tag_name)) {
                             $tag_alias = change_alias($tag_name);
                             
@@ -141,7 +191,11 @@ if ($nv_Request->isset_request('submit_product', 'post')) {
                 
                 if (!empty($module_config['email_notify_new_source'])) {
                     // Lấy email admin
-                    $sql_admin = "SELECT email, first_name, last_name FROM " . NV_USERS_GLOBALTABLE . " WHERE level=1 AND active=1 LIMIT 1";
+                    $sql_admin = "SELECT u.email, u.first_name, u.last_name
+                                  FROM " . NV_AUTHORS_GLOBALTABLE . " a
+                                  JOIN " . NV_USERS_GLOBALTABLE . " u ON a.admin_id = u.userid
+                                  WHERE a.lev = 1 AND a.is_suspend = 0 AND u.active = 1
+                                  LIMIT 1";
                     $admin_info_notify = $db->query($sql_admin)->fetch();
                     
                     if ($admin_info_notify) {
@@ -191,18 +245,123 @@ $page_title = 'Đăng bán sản phẩm';
 $key_words = 'đăng bán, sản phẩm, sharecode';
 $description = 'Đăng bán sản phẩm lên website';
 
-// Lấy danh sách categories
-$categories = [];
-$sql_cats = "SELECT * FROM " . NV_PREFIXLANG . "_" . $module_data . "_categories WHERE status=1 ORDER BY weight ASC";
-$result_cats = $db->query($sql_cats);
-while ($row = $result_cats->fetch()) {
-    $categories[] = $row;
+// Chuẩn bị dữ liệu form
+$form_data = [
+    'title' => '',
+    'alias' => '',
+    'catid' => 0,
+    'description' => '',
+    'content' => '',
+    'demo_link' => '',
+    'external_source_link' => '',
+    'keywords' => '',
+    'tags' => '',
+    'fee_type' => 'free',
+    'fee_amount' => 0,
+    'download_link_type' => 'external',
+    'download_link' => '',
+    'contact_phone' => '',
+    'contact_email' => '',
+    'contact_skype' => '',
+    'contact_telegram' => '',
+    'contact_zalo' => '',
+    'contact_facebook' => '',
+    'contact_website' => '',
+    'contact_address' => ''
+];
+
+// Nếu có dữ liệu POST (khi có lỗi), giữ lại dữ liệu đã nhập
+if ($nv_Request->isset_request('submit_product', 'post')) {
+    $form_data['title'] = $nv_Request->get_textarea('title', 'post', '');
+    $form_data['alias'] = $nv_Request->get_title('alias', 'post', '');
+    $form_data['catid'] = $nv_Request->get_int('catid', 'post', 0);
+    $form_data['description'] = $nv_Request->get_textarea('description', 'post', '');
+    $form_data['content'] = $nv_Request->get_editor('content', 'post', '');
+    $form_data['demo_link'] = $nv_Request->get_textarea('demo_link', 'post', '');
+    $form_data['external_source_link'] = $nv_Request->get_textarea('external_source_link', 'post', '');
+    $form_data['keywords'] = $nv_Request->get_array('keywords', 'post', []);
+    $form_data['tags'] = $nv_Request->get_array('tags', 'post', []);
+    $form_data['fee_type'] = $nv_Request->get_string('fee_type', 'post', 'free');
+    $form_data['fee_amount'] = $nv_Request->get_float('fee_amount', 'post', 0);
+    $form_data['download_link_type'] = $nv_Request->get_string('download_link_type', 'post', 'external');
+    $form_data['download_link'] = $nv_Request->get_textarea('download_link', 'post', '');
+    $form_data['contact_phone'] = $nv_Request->get_title('contact_phone', 'post', '');
+    $form_data['contact_email'] = $nv_Request->get_title('contact_email', 'post', '');
+    $form_data['contact_skype'] = $nv_Request->get_title('contact_skype', 'post', '');
+    $form_data['contact_telegram'] = $nv_Request->get_title('contact_telegram', 'post', '');
+    $form_data['contact_zalo'] = $nv_Request->get_title('contact_zalo', 'post', '');
+    $form_data['contact_facebook'] = $nv_Request->get_title('contact_facebook', 'post', '');
+    $form_data['contact_website'] = $nv_Request->get_title('contact_website', 'post', '');
+    $form_data['contact_address'] = $nv_Request->get_textarea('contact_address', 'post', '');
 }
 
-// Initialize errors array
-$errors = [];
+// Lấy danh sách categories theo cấu trúc cây
+function nv_submit_get_all_categories() {
+    global $db, $module_data;
 
-$contents = nv_theme_sharecode_submit($categories, $errors);
+    $sql = "SELECT * FROM " . NV_PREFIXLANG . "_" . $module_data . "_categories
+            WHERE status=1 ORDER BY parentid ASC, weight ASC";
+    $result = $db->query($sql);
+
+    $categories = [];
+    while ($row = $result->fetch()) {
+        $categories[$row['parentid']][] = $row;
+    }
+
+    return $categories;
+}
+
+function nv_submit_build_category_tree($categories, $parent_id = 0, $level = 0) {
+    $tree = [];
+
+    if (isset($categories[$parent_id])) {
+        foreach ($categories[$parent_id] as $category) {
+            $category['level'] = $level;
+            $category['level_prefix'] = str_repeat('├── ', $level); // Tree-like prefix
+            $tree[] = $category;
+
+            $children = nv_submit_build_category_tree($categories, $category['id'], $level + 1);
+            if (!empty($children)) {
+                $tree = array_merge($tree, $children);
+            }
+        }
+    }
+
+    return $tree;
+}
+
+// Lấy danh sách categories theo cấu trúc cây
+$categories_raw = nv_submit_get_all_categories();
+$categories = nv_submit_build_category_tree($categories_raw);
+
+// Lấy danh sách keywords cho select2
+$available_keywords = [];
+$sql = "SELECT id, name FROM " . NV_PREFIXLANG . "_" . $module_data . "_keywords WHERE status=1 ORDER BY name ASC";
+$result = $db->query($sql);
+while ($row_keyword = $result->fetch()) {
+    $available_keywords[] = [
+        'id' => $row_keyword['id'],
+        'name' => $row_keyword['name']
+    ];
+}
+
+// Lấy danh sách tags cho select2
+$available_tags = [];
+$sql = "SELECT id, name FROM " . NV_PREFIXLANG . "_" . $module_data . "_tags WHERE status=1 ORDER BY name ASC";
+$result = $db->query($sql);
+while ($row_tag = $result->fetch()) {
+    $available_tags[] = [
+        'id' => $row_tag['id'],
+        'name' => $row_tag['name']
+    ];
+}
+
+// Initialize errors array if not set
+if (!isset($errors)) {
+    $errors = [];
+}
+
+$contents = nv_theme_sharecode_submit($categories, $available_keywords, $available_tags, $form_data, $errors);
 
 include NV_ROOTDIR . '/includes/header.php';
 echo nv_site_theme($contents);

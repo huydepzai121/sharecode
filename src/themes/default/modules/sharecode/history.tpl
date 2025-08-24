@@ -68,7 +68,7 @@
                         <i class="fa fa-shopping-cart fa-5x text-muted"></i>
                         <h3>Chưa có mã nguồn nào</h3>
                         <p class="text-muted">Bạn chưa mua mã nguồn nào. Hãy khám phá và tìm kiếm những mã nguồn phù hợp!</p>
-                        <a href="{MODULE_URL}" class="btn btn-primary btn-lg">
+                        <a href="{MODULE_URL}" class="btn btn-primary">
                             <i class="fa fa-search"></i> Khám phá ngay
                         </a>
                     </div>

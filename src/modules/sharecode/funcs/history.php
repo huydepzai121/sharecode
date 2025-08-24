@@ -42,38 +42,23 @@ if ($nv_Request->isset_request('get_download_token', 'post')) {
         nv_jsonOutput(['status' => 'error', 'message' => 'Bạn chưa mua mã nguồn này']);
     }
     
-    // Tạo download URL
-    if ($source['download_link_type'] == 'external') {
-        if (empty($source['download_link'])) {
-            nv_jsonOutput(['status' => 'error', 'message' => 'Link tải xuống không hợp lệ']);
-        }
-        $download_url = $source['download_link'];
-    } else {
-        if (empty($source['file_path'])) {
-            nv_jsonOutput(['status' => 'error', 'message' => 'File mã nguồn chưa được upload']);
-        }
-        $file_path = NV_UPLOADS_REAL_DIR . '/' . $module_upload . '/' . $source['file_path'];
-        if (!file_exists($file_path)) {
-            nv_jsonOutput(['status' => 'error', 'message' => 'File mã nguồn không tồn tại']);
-        }
-        
-        // Tạo download URL với token bảo mật
-        $token = md5($source_id . $user_info['userid'] . $global_config['sitekey'] . date('Ymd'));
-        $download_url = NV_BASE_SITEURL . 'index.php?' . NV_LANG_VARIABLE . '=' . NV_LANG_DATA . '&' . NV_NAME_VARIABLE . '=' . $module_name . '&' . NV_OP_VARIABLE . '=download&id=' . $source_id . '&token=' . $token;
+    // Kiểm tra link tải xuống
+    if (empty($source['download_link'])) {
+        nv_jsonOutput(['status' => 'error', 'message' => 'Link tải xuống không hợp lệ hoặc chưa được cấu hình']);
     }
+
+    $download_url = $source['download_link'];
     
     // Cập nhật thống kê download
-    $sql_update = "UPDATE " . NV_PREFIXLANG . "_" . $module_data . "_sources 
-            SET num_download = num_download + 1, last_download = " . NV_CURRENTTIME . "
+    $sql_update = "UPDATE " . NV_PREFIXLANG . "_" . $module_data . "_sources
+            SET num_download = num_download + 1
             WHERE id = " . $source_id;
     $db->query($sql_update);
     
     // Ghi log download
     $log_data = json_encode([
         'download_type' => 'history',
-        'link_type' => $source['download_link_type'],
-        'download_url' => $source['download_link_type'] == 'external' ? $source['download_link'] : $source['file_path'],
-        'file_name' => $source['download_link_type'] == 'external' ? '' : basename($source['file_path']),
+        'download_url' => $source['download_link'],
         'user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? ''
     ]);
     
@@ -160,7 +145,7 @@ $sql_count = "SELECT COUNT(*) FROM " . NV_PREFIXLANG . "_" . $module_data . "_pu
 $total_purchases = $db->query($sql_count)->fetchColumn();
 
 // Lấy danh sách purchases
-$sql = "SELECT p.*, s.title, s.alias, s.image, s.description, s.fee_type, s.fee_amount,
+$sql = "SELECT p.*, s.title, s.alias, s.image, s.avatar, s.description, s.fee_type, s.fee_amount,
                s.download_link_type, s.download_link, s.file_path, s.file_name,
                c.title as category_title
         FROM " . NV_PREFIXLANG . "_" . $module_data . "_purchases p
@@ -182,8 +167,10 @@ while ($row = $result->fetch()) {
     // Xử lý hình ảnh
     if (!empty($row['image']) && file_exists(NV_UPLOADS_REAL_DIR . '/' . $module_upload . '/' . $row['image'])) {
         $row['image_url'] = NV_BASE_SITEURL . NV_UPLOADS_DIR . '/' . $module_upload . '/' . $row['image'];
+    } elseif (!empty($row['avatar']) && file_exists(NV_ROOTDIR . $row['avatar'])) {
+        $row['image_url'] = NV_BASE_SITEURL . ltrim($row['avatar'], '/');
     } else {
-        $row['image_url'] = NV_BASE_SITEURL . 'themes/default/images/no-image.png';
+        $row['image_url'] = NV_BASE_SITEURL . 'themes/default/images/no_image.gif';
     }
     
     // Tạo link detail

@@ -15,9 +15,9 @@ if (!defined('NV_ADMIN') or !defined('NV_MAINFILE')) {
 
 $module_version = [
     'name' => 'ShareCode', // Tieu de module
-    'modfuncs' => 'main,category,detail,download,tag,cart,purchase,history,submit,author,favorites,notifications,dashboard', // Cac function co block
+    'modfuncs' => 'main,category,detail,download,tag,purchase,history,submit,author', // Cac function co block
     'change_alias' => 'category,detail,tag,history,submit,author',
-    'submenu' => 'detail,cart,purchase,history,submit,author,favorites,notifications,dashboard',
+    'submenu' => 'detail,purchase,history,submit,author',
     'is_sysmod' => 0, // 1:0 => Co phai la module he thong hay khong
     'virtual' => 1, // 1:0 => Co cho phep ao hao module hay khong
     'version' => '2.0.00', // Phien ban cua modle

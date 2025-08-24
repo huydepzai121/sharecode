@@ -34,7 +34,14 @@
                         <td><code>{TAG.alias}</code></td>
                         <td>{TAG.description}</td>
                         <td class="text-center">
-                            <span class="badge badge-info">{TAG.num_sources}</span>
+                            <!-- BEGIN: has_sources -->
+                            <a href="javascript:void(0);" onclick="showTagLinks({TAG.id}, '{TAG.name}');" class="badge badge-info" title="Xem danh sách mã nguồn">
+                                <i class="fa fa-link"></i> {TAG.num_sources}
+                            </a>
+                            <!-- END: has_sources -->
+                            <!-- BEGIN: no_sources -->
+                            <span class="badge badge-secondary" title="Chưa có mã nguồn nào">0</span>
+                            <!-- END: no_sources -->
                         </td>
                         <td class="text-center">
                             <input type="number" class="form-control input-sm text-center" style="width:60px;" value="{TAG.weight}" onchange="change_weight({TAG.id}, this.value);">
@@ -65,6 +72,33 @@
             {GENERATE_PAGE}
         </div>
         <!-- END: generate_page -->
+    </div>
+</div>
+
+<!-- Modal hiển thị danh sách mã nguồn của tag -->
+<div class="modal fade" id="tagLinksModal" tabindex="-1" role="dialog" aria-labelledby="tagLinksModalLabel">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title" id="tagLinksModalLabel">
+                    <i class="fa fa-link"></i> Danh sách mã nguồn sử dụng tag: <span id="tagName" class="text-primary"></span>
+                </h4>
+            </div>
+            <div class="modal-body" id="tagLinksContent">
+                <div class="text-center">
+                    <i class="fa fa-spinner fa-spin fa-2x"></i>
+                    <p class="mt-2">Đang tải dữ liệu...</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">
+                    <i class="fa fa-times"></i> Đóng
+                </button>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -100,6 +134,65 @@ function change_weight(id, new_weight) {
 function delete_tag(id, name) {
     if (confirm('Bạn có chắc chắn muốn xóa tag "' + name + '"?\nLưu ý: Việc xóa tag sẽ xóa tất cả liên kết với các sources.')) {
         location.href = script_name + '?' + nv_name_variable + '=' + nv_module_name + '&' + nv_fc_variable + '=tags&action=delete&id=' + id;
+    }
+}
+
+function showTagLinks(tagId, tagName) {
+    $('#tagName').text(tagName);
+    $('#tagLinksContent').html('<div class="text-center"><i class="fa fa-spinner fa-spin fa-2x"></i><p class="mt-2">Đang tải dữ liệu...</p></div>');
+    $('#tagLinksModal').modal('show');
+
+    $.ajax({
+        url: script_name + '?' + nv_name_variable + '=' + nv_module_name + '&' + nv_fc_variable + '=tags',
+        type: 'POST',
+        data: {
+            tagLinks: 1,
+            id: tagId,
+            checkss: nv_check_session
+        },
+        dataType: 'json',
+        success: function(response) {
+            if (response.success) {
+                $('#tagLinksContent').html(response.html);
+            } else {
+                $('#tagLinksContent').html('<div class="alert alert-danger"><i class="fa fa-exclamation-triangle"></i> ' + response.text + '</div>');
+            }
+        },
+        error: function() {
+            $('#tagLinksContent').html('<div class="alert alert-danger"><i class="fa fa-exclamation-triangle"></i> Có lỗi xảy ra khi tải dữ liệu!</div>');
+        }
+    });
+}
+
+function removeTagLink(tagId, sourceId) {
+    if (confirm('Bạn có chắc chắn muốn xóa liên kết này?')) {
+        $.ajax({
+            url: script_name + '?' + nv_name_variable + '=' + nv_module_name + '&' + nv_fc_variable + '=tags',
+            type: 'POST',
+            data: {
+                removeTagLink: 1,
+                tag_id: tagId,
+                source_id: sourceId,
+                checkss: nv_check_session
+            },
+            dataType: 'json',
+            success: function(response) {
+                if (response.success) {
+                    // Reload modal content
+                    var tagName = $('#tagName').text();
+                    showTagLinks(tagId, tagName);
+                    // Reload page to update count
+                    setTimeout(function() {
+                        location.reload();
+                    }, 1000);
+                } else {
+                    alert('Có lỗi xảy ra: ' + response.text);
+                }
+            },
+            error: function() {
+                alert('Có lỗi xảy ra khi xóa liên kết!');
+            }
+        });
     }
 }
 </script>

@@ -24,7 +24,9 @@ $array_table = [
     'logs',
     'download_logs',
     'favorites',
-    'notifications'
+    'notifications',
+    'keywords',
+    'source_keywords'
 ];
 
 $table = $db_config['prefix'] . '_' . $lang . '_' . $module_data;
@@ -59,6 +61,7 @@ $sql_create_module[] = "CREATE TABLE " . $table . "_categories (
     weight INT DEFAULT 0 COMMENT 'Thứ tự sắp xếp',
     status TINYINT DEFAULT 1 COMMENT 'Trạng thái (0: tắt, 1: bật)',
     add_time INT(11) DEFAULT 0 COMMENT 'Thời gian tạo',
+    edit_time INT(11) DEFAULT 0 COMMENT 'Thời gian cập nhật',
     INDEX idx_alias (alias),
     INDEX idx_parentid (parentid),
     INDEX idx_status (status),
@@ -75,11 +78,14 @@ $sql_create_module[] = "CREATE TABLE " . $table . "_sources (
     description TEXT COMMENT 'Mô tả ngắn',
     content LONGTEXT COMMENT 'Nội dung chi tiết',
     image VARCHAR(255) DEFAULT '' COMMENT 'Hình ảnh đại diện',
+    avatar VARCHAR(255) DEFAULT '' COMMENT 'Hình đại diện',
+    background_image VARCHAR(255) DEFAULT '' COMMENT 'Hình nền',
     file_path VARCHAR(255) DEFAULT '' COMMENT 'Đường dẫn file',
     file_name VARCHAR(255) DEFAULT '' COMMENT 'Tên file gốc',
     file_size INT DEFAULT 0 COMMENT 'Kích thước file (bytes)',
     download_link VARCHAR(255) DEFAULT '' COMMENT 'Link tải xuống',
     download_link_type ENUM('internal','external') DEFAULT 'internal' COMMENT 'Loại link (nội bộ/bên ngoài)',
+    external_source_link VARCHAR(255) DEFAULT '' COMMENT 'Link mã nguồn bên ngoài',
     demo_link VARCHAR(255) DEFAULT '' COMMENT 'Link demo',
     keywords VARCHAR(255) DEFAULT '' COMMENT 'Từ khóa tìm kiếm',
     fee_type ENUM('free','paid','contact') DEFAULT 'free' COMMENT 'Loại phí (free/paid/contact)',
@@ -98,6 +104,7 @@ $sql_create_module[] = "CREATE TABLE " . $table . "_sources (
     status TINYINT DEFAULT 1 COMMENT 'Trạng thái (0: tắt, 1: bật, 2: chờ duyệt)',
     userid INT DEFAULT 0 COMMENT 'ID người đăng',
     username VARCHAR(100) DEFAULT '' COMMENT 'Tên người đăng',
+    edit_time INT(11) DEFAULT 0 COMMENT 'Thời gian cập nhật',
     add_time INT(11) DEFAULT 0 COMMENT 'Thời gian tạo',
     INDEX idx_alias (alias),
     INDEX idx_catid (catid),
@@ -146,6 +153,7 @@ $sql_create_module[] = "CREATE TABLE " . $table . "_reviews (
     rating TINYINT DEFAULT 5 COMMENT 'Số sao đánh giá (1-5)',
     status TINYINT DEFAULT 0 COMMENT 'Trạng thái (0: chờ duyệt, 1: đã duyệt, 2: từ chối)',
     add_time INT(11) DEFAULT 0 COMMENT 'Thời gian tạo',
+    edit_time INT(11) DEFAULT 0 COMMENT 'Thời gian cập nhật',
     INDEX idx_source_id (source_id),
     INDEX idx_userid (userid),
     INDEX idx_status (status),
@@ -163,12 +171,15 @@ $sql_create_module[] = "CREATE TABLE " . $table . "_tags (
     weight INT DEFAULT 0 COMMENT 'Thứ tự sắp xếp',
     status TINYINT DEFAULT 1 COMMENT 'Trạng thái (0: tắt, 1: bật)',
     total_sources INT DEFAULT 0 COMMENT 'Tổng số mã nguồn có tag này',
+    add_time INT(11) DEFAULT 0 COMMENT 'Thời gian tạo',
+    edit_time INT(11) DEFAULT 0 COMMENT 'Thời gian cập nhật',
     UNIQUE KEY unique_name (name),
     INDEX idx_alias (alias),
     INDEX idx_weight (weight),
     INDEX idx_status (status),
     INDEX idx_total_sources (total_sources),
-    INDEX idx_status_weight (status, weight)
+    INDEX idx_status_weight (status, weight),
+    INDEX add_time (add_time)
 ) ENGINE=MyISAM COMMENT='Bảng thẻ tag'";
 
 // Tạo bảng source_tags
@@ -239,4 +250,28 @@ $sql_create_module[] = "CREATE TABLE " . $table . "_notifications (
     INDEX idx_userid_type (userid, type)
 ) ENGINE=MyISAM COMMENT='Bảng thông báo'";
 
-// Dữ liệu mẫu đã được chuyển sang file /language/data_vi.php
+// Tạo bảng keywords
+
+$sql_create_module[] = "CREATE TABLE " . $table . "_keywords (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL COMMENT 'Tên từ khóa',
+  `alias` varchar(255) NOT NULL COMMENT 'Alias URL thân thiện',
+  `description` text COMMENT 'Mô tả từ khóa',
+  `weight` int(11) NOT NULL DEFAULT '0' COMMENT 'Thứ tự sắp xếp',
+  `status` tinyint(1) NOT NULL DEFAULT '1' COMMENT 'Trạng thái (1: hoạt động, 0: tạm khóa)',
+  `add_time` int(11) NOT NULL DEFAULT '0' COMMENT 'Thời gian tạo',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `name` (`name`),
+  UNIQUE KEY `alias` (`alias`),
+  KEY `status` (`status`),
+  KEY `weight` (`weight`)
+  ) ENGINE=MyISAM COMMENT='Bảng từ khóa'";
+
+// Tạo bảng source_keywords
+$sql_create_module[] = "CREATE TABLE " . $table . "_source_keywords (
+    source_id INT NOT NULL DEFAULT 0 COMMENT 'ID mã nguồn',
+    keyword_id INT NOT NULL DEFAULT 0 COMMENT 'ID từ khóa',
+    PRIMARY KEY (source_id, keyword_id),
+    INDEX idx_keyword_id (keyword_id)
+) ENGINE=MyISAM COMMENT='Bảng liên kết mã nguồn và từ khóa'";
+

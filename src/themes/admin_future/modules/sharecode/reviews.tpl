@@ -166,7 +166,7 @@ function nv_del_review(id) {
 function nv_change_status(id, status) {
     var action_text = status == 1 ? 'duyệt' : 'từ chối';
     if (confirm('Bạn có chắc chắn muốn ' + action_text + ' đánh giá này?')) {
-        window.location.href = '{NV_BASE_ADMINURL}index.php?{NV_LANG_VARIABLE}={NV_LANG_DATA}&{NV_NAME_VARIABLE}={MODULE_NAME}&{NV_OP_VARIABLE}={OP}&action=change_status&id=' + id + '&status=' + status;
+        window.location.href = location.reload();
     }
 }
 </script>

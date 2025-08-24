@@ -14,6 +14,7 @@ if (!defined('NV_MAINFILE')) {
 }
 
 define('NV_IS_MOD_SHARECODE', true);
+use NukeViet\Api\DoApi;
 
 /**
  * nv_sharecode_user_menu()
@@ -281,7 +282,13 @@ function nv_sharecode_wallet_check_balance($user_id, $amount, $currency = 'VND')
             'currency' => $currency
         ];
 
-        $response = nv_local_api('WalletCheckBalance', $params, '', 'wallet');
+        // $response = nv_local_api('WalletCheckBalance', $params, '', 'wallet');
+        $api = new DoApi(API_WALLET_URL, API_WALLET_KEY, API_WALLET_SECRET);
+        $api->setModule('wallet')
+            ->setLang(NV_LANG_DATA)
+            ->setAction('CheckBalance')
+            ->setData($params);
+        $response = $api->execute();
 
         if ($response && isset($response['status']) && $response['status'] == 'success') {
             return $response['data']['has_enough'];
@@ -318,8 +325,13 @@ function nv_sharecode_wallet_deduct_balance($user_id, $amount, $description, $mo
             'ref_id' => $ref_id
         ];
 
-        $response = nv_local_api('WalletDeductBalance', $params, '', 'wallet');
-
+        // $response = nv_local_api('WalletDeductBalance', $params, '', 'wallet');
+        $api = new DoApi(API_WALLET_URL, API_WALLET_KEY, API_WALLET_SECRET);
+        $api->setModule('wallet')
+            ->setLang(NV_LANG_DATA)
+            ->setAction('DeductBalance')
+            ->setData($params);
+        $response = $api->execute();
         if ($response && isset($response['status']) && $response['status'] == 'success') {
             return true;
         }
@@ -348,8 +360,13 @@ function nv_sharecode_wallet_get_balance($user_id, $currency = 'VND')
             'currency' => $currency
         ];
 
-        $response = nv_local_api('WalletGetBalance', $params, '', 'wallet');
-
+        // $response = nv_local_api('WalletGetBalance', $params, '', 'wallet');
+        $api = new DoApi(API_WALLET_URL, API_WALLET_KEY, API_WALLET_SECRET);
+        $api->setModule('wallet')
+            ->setLang(NV_LANG_DATA)
+            ->setAction('GetUserBalance')
+            ->setData($params);
+        $response = $api->execute();
         if ($response && isset($response['status']) && $response['status'] == 'success') {
             return floatval($response['data']['balance']);
         }
@@ -399,43 +416,6 @@ function nv_sharecode_get_user_favorites_count($user_id)
             INNER JOIN " . NV_PREFIXLANG . "_" . $module_data . "_sources s ON f.source_id = s.id 
             WHERE f.userid=" . $user_id . " AND s.status=1";
     return $db->query($sql)->fetchColumn();
-}
-
-/**
- * nv_sharecode_add_notification()
- * Thêm thông báo mới
- *
- * @param int $userid
- * @param string $type
- * @param string $title  
- * @param string $content
- * @param int $source_id
- * @param string $url
- * @return bool
- */
-function nv_sharecode_add_notification($userid, $type, $title, $content = '', $source_id = 0, $url = '')
-{
-    global $db, $module_data;
-    
-    if ($userid <= 0 || empty($type) || empty($title)) {
-        return false;
-    }
-    
-    try {
-        $sql_insert = "INSERT INTO " . NV_PREFIXLANG . "_" . $module_data . "_notifications 
-                      (userid, type, title, content, source_id, url, add_time) VALUES (
-                      " . $userid . ",
-                      " . $db->quote($type) . ",
-                      " . $db->quote($title) . ",
-                      " . $db->quote($content) . ",
-                      " . $source_id . ",
-                      " . $db->quote($url) . ",
-                      " . NV_CURRENTTIME . "
-                      )";
-        return $db->exec($sql_insert) ? true : false;
-    } catch (Exception $e) {
-        return false;
-    }
 }
 
 /**
@@ -501,6 +481,54 @@ function nv_sharecode_send_email_notification($to_email, $to_name, $subject, $me
         </div>';
         
         return nv_sendmail($from, $to, $subject, $email_template);
+    } catch (Exception $e) {
+        return false;
+    }
+}
+
+/**
+ * nv_sharecode_send_purchase_success_email()
+ * Gửi email thông báo thanh toán thành công
+ *
+ * @param array $user_info
+ * @param array $source
+ * @param string $purchase_id
+ * @param float $amount
+ * @param string $transaction_id
+ * @return bool
+ */
+function nv_sharecode_send_purchase_success_email($user_info, $source, $purchase_id, $amount, $transaction_id)
+{
+    global $global_config, $module_name;
+
+    try {
+        // Tiêu đề email
+        $subject = '[' . $global_config['site_name'] . '] Thanh toán thành công';
+
+        // Nội dung email
+        $message = 'Xin chào ' . $user_info['full_name'] . ',<br><br>';
+        $message .= 'Cảm ơn bạn đã thanh toán thành công cho sản phẩm:<br><br>';
+        $message .= '<strong>Thông tin đơn hàng:</strong><br>';
+        $message .= 'Tên sản phẩm: ' . $source['title'] . '<br>';
+        $message .= 'Mô tả: ' . $source['description'] . '<br>';
+        $message .= 'Số tiền: ' . number_format($amount, 0, ',', '.') . ' VNĐ<br>';
+        $message .= 'Mã giao dịch: ' . $transaction_id . '<br>';
+        $message .= 'Mã đơn hàng: ' . $purchase_id . '<br>';
+        $message .= 'Thời gian: ' . date('d/m/Y H:i', NV_CURRENTTIME) . '<br><br>';
+
+        $message .= '<strong>Thông tin tải xuống:</strong><br>';
+        $message .= 'Bạn có thể tải xuống sản phẩm tại: <a href="' . NV_MY_DOMAIN . NV_BASE_SITEURL . 'index.php?' . NV_LANG_VARIABLE . '=' . NV_LANG_DATA . '&' . NV_NAME_VARIABLE . '=' . $module_name . '&' . NV_OP_VARIABLE . '=download&id=' . $source['id'] . '">Tải xuống ngay</a><br>';
+        $message .= 'Hoặc xem lịch sử mua hàng tại: <a href="' . NV_MY_DOMAIN . NV_BASE_SITEURL . 'index.php?' . NV_LANG_VARIABLE . '=' . NV_LANG_DATA . '&' . NV_NAME_VARIABLE . '=' . $module_name . '&' . NV_OP_VARIABLE . '=history&user">Lịch sử mua hàng</a><br><br>';
+
+        $message .= 'Cảm ơn bạn đã sử dụng dịch vụ của chúng tôi!<br><br>';
+        $message .= 'Trân trọng,<br>' . $global_config['site_name'];
+
+        // Gửi email
+        $from = [$global_config['site_email'], $global_config['site_name']];
+        $to = $user_info['email'];
+
+        return nv_sendmail($from, $to, $subject, $message);
+
     } catch (Exception $e) {
         return false;
     }

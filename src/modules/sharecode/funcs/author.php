@@ -78,7 +78,7 @@ if (!empty($author['first_name']) || !empty($author['last_name'])) {
 if (!empty($author['photo']) && file_exists(NV_ROOTDIR . '/' . $author['photo'])) {
     $author_info['avatar_url'] = NV_BASE_SITEURL . $author['photo'];
 } else {
-    $author_info['avatar_url'] = NV_BASE_SITEURL . 'themes/default/images/avatar-default.png';
+    $author_info['avatar_url'] = NV_BASE_SITEURL . 'themes/default/images/no_image.gif';
 }
 
 // Ngày tham gia và đăng nhập cuối
@@ -183,8 +183,10 @@ while ($row = $result->fetch()) {
     // Image
     if (!empty($row['image']) && file_exists(NV_UPLOADS_REAL_DIR . '/' . $module_upload . '/' . $row['image'])) {
         $row['image_url'] = NV_BASE_SITEURL . NV_UPLOADS_DIR . '/' . $module_upload . '/' . $row['image'];
+    } elseif (!empty($row['avatar']) && file_exists(NV_ROOTDIR . $row['avatar'])) {
+        $row['image_url'] = NV_BASE_SITEURL . ltrim($row['avatar'], '/');
     } else {
-        $row['image_url'] = NV_BASE_SITEURL . 'themes/default/images/no-image.png';
+        $row['image_url'] = NV_BASE_SITEURL . 'themes/default/images/no_image.gif';
     }
     
     // Rating
