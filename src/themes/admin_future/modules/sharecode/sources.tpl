@@ -79,7 +79,11 @@
                     <div class="mb-0">
                         <label for="detailed_description" class="form-label">Mô tả chi tiết:</label>
                         <div class="position-relative">
-                            <textarea class="form-control ckeditor" name="content" id="detailed_description" rows="8">{$DATA.content|default:''}</textarea>
+                            {if $HAS_EDITOR}
+                            {editor('content', '100%', '400px', $DATA.content, '', $UPLOADS_DIR_USER, $UPLOAD_CURRENT)}
+                            {else}
+                            <textarea class="form-control required" id="{$MODULE_NAME}_content" name="content" rows="15">{$DATA.content}</textarea>
+                            {/if}
                         </div>
                         <div class="form-text">Mô tả chi tiết về tính năng, cách sử dụng, yêu cầu hệ thống</div>
                     </div>

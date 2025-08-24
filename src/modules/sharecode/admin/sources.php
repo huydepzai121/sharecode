@@ -696,7 +696,74 @@ $tpl->assign('CATEGORY_OPTIONS_ALL', $category_options_all);
 if (!isset($category_options)) {
     $category_options = nv_admin_sharecode_get_category_options(0);
 }
+// Xác định và tạo các thư mục upload
+$username_alias = change_alias($admin_info['username']);
+$array_structure_image = [];
+$array_structure_image[''] = $module_upload;
+$array_structure_image['Y'] = $module_upload . '/' . date('Y');
+$array_structure_image['Ym'] = $module_upload . '/' . date('Y_m');
+$array_structure_image['Y_m'] = $module_upload . '/' . date('Y/m');
+$array_structure_image['Ym_d'] = $module_upload . '/' . date('Y_m/d');
+$array_structure_image['Y_m_d'] = $module_upload . '/' . date('Y/m/d');
+$array_structure_image['username'] = $module_upload . '/' . $username_alias;
+
+$array_structure_image['username_Y'] = $module_upload . '/' . $username_alias . '/' . date('Y');
+$array_structure_image['username_Ym'] = $module_upload . '/' . $username_alias . '/' . date('Y_m');
+$array_structure_image['username_Y_m'] = $module_upload . '/' . $username_alias . '/' . date('Y/m');
+$array_structure_image['username_Ym_d'] = $module_upload . '/' . $username_alias . '/' . date('Y_m/d');
+$array_structure_image['username_Y_m_d'] = $module_upload . '/' . $username_alias . '/' . date('Y/m/d');
+
+$structure_upload = $module_config[$module_name]['structure_upload'] ?? 'Ym';
+$currentpath = $array_structure_image[$structure_upload] ?? '';
+
+if (file_exists(NV_UPLOADS_REAL_DIR . '/' . $currentpath)) {
+    $upload_real_dir_page = NV_UPLOADS_REAL_DIR . '/' . $currentpath;
+} else {
+    $upload_real_dir_page = NV_UPLOADS_REAL_DIR . '/' . $module_upload;
+    $e = explode('/', $currentpath);
+    if (!empty($e)) {
+        $cp = '';
+        foreach ($e as $p) {
+            if (!empty($p) and !is_dir(NV_UPLOADS_REAL_DIR . '/' . $cp . $p)) {
+                $mk = nv_mkdir(NV_UPLOADS_REAL_DIR . '/' . $cp, $p);
+                if ($mk[0] > 0) {
+                    $upload_real_dir_page = $mk[2];
+                    try {
+                        $db->query('INSERT INTO ' . NV_UPLOAD_GLOBALTABLE . "_dir (dirname, time) VALUES ('" . NV_UPLOADS_DIR . '/' . $cp . $p . "', 0)");
+                    } catch (PDOException $e) {
+                        trigger_error($e->getMessage());
+                    }
+                }
+            } elseif (!empty($p)) {
+                $upload_real_dir_page = NV_UPLOADS_REAL_DIR . '/' . $cp . $p;
+            }
+            $cp .= $p . '/';
+        }
+    }
+    $upload_real_dir_page = str_replace('\\', '/', $upload_real_dir_page);
+}
+
+$currentpath = str_replace(NV_ROOTDIR . '/', '', $upload_real_dir_page);
+$uploads_dir_user = NV_UPLOADS_DIR . '/' . $module_upload;
+if (!defined('NV_IS_SPADMIN') and str_contains($structure_upload, 'username')) {
+    $array_currentpath = explode('/', $currentpath);
+    if ($array_currentpath[2] == $username_alias) {
+        $uploads_dir_user = NV_UPLOADS_DIR . '/' . $module_upload . '/' . $username_alias;
+    }
+}
 $tpl->assign('CATEGORY_OPTIONS', $category_options);
+$tpl->assign('UPLOADS_DIR_USER', $uploads_dir_user);
+$tpl->assign('UPLOAD_CURRENT', $currentpath);
+if (defined('NV_EDITOR')) {
+    require_once NV_ROOTDIR . '/' . NV_EDITORSDIR . '/' . NV_EDITOR . '/nv.php';
+}
+if (defined('NV_EDITOR') and nv_function_exists('nv_aleditor')) {
+    $has_editor = true;
+    $tpl->registerPlugin('modifier', 'editor', 'nv_aleditor');
+} else {
+    $has_editor = false;
+}
+$tpl->assign('HAS_EDITOR', $has_editor);
 
 // Lấy danh sách keywords cho select2
 $keywords = [];
