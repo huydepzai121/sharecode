@@ -247,12 +247,12 @@
                         <div class="form-text">Sẽ tự động tạo từ tên danh mục nếu để trống</div>
                     </div>
 
-                    <div class="mb-3">
+                    <!-- <div class="mb-3">
                         <label for="modal-parent" class="form-label">Danh mục cha</label>
                         <select class="form-select" id="modal-parent" name="parent_id">
                             {$PARENT_OPTIONS}
                         </select>
-                    </div>
+                    </div> -->
 
                     <div class="mb-3">
                         <label for="modal-description" class="form-label">Mô tả</label>
