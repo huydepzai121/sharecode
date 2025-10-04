@@ -125,7 +125,6 @@ if (!preg_match($global_config['check_module'], $module_name)) {
 
 // Xác định biến $op
 $op = $nv_Request->get_string(NV_OP_VARIABLE, 'post,get') ?: 'main';
-
 if (!empty($global_config['rewrite_op_mod']) and !isset($sys_mods[$module_name])) {
     $op = $module_name . ($op == 'main' ? '' : '/' . $op);
     $module_name = $global_config['rewrite_op_mod'];

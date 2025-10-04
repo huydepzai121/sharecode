@@ -1,21 +1,12 @@
 <?php
 
-/**
- * NukeViet Content Management System
- * @version 5.x
- * @author VINADES.,JSC <contact@vinades.vn>
- * @copyright (C) 2009-2025 VINADES.,JSC. All rights reserved
- * @license GNU/GPL version 2 or any later version
- * @see https://github.com/nukeviet The NukeViet CMS GitHub project
- */
-
 if (!defined('NV_IS_FILE_ADMIN')) {
     exit('Stop!!!');
 }
 
 $page_title = 'Cấu hình module';
 
-// Lấy cấu hình hiện tại
+
 $sql = "SELECT config_name, config_value FROM " . NV_CONFIG_GLOBALTABLE . " WHERE lang='" . NV_LANG_DATA . "' AND module='" . $module_name . "'";
 $result = $db->query($sql);
 $module_config = [];
@@ -23,29 +14,30 @@ while ($row = $result->fetch()) {
     $module_config[$row['config_name']] = $row['config_value'];
 }
 
-// Cấu hình mặc định
+
 $default_config = [
     'items_per_page' => 12,
     'allow_guest_download' => 1,
     'allow_guest_submit' => 1,
     'require_login_paid' => 1,
     'auto_approve_reviews' => 0,
-    'max_file_size' => 50, // MB
+    'max_file_size' => 50,
     'allowed_extensions' => 'zip,rar,7z,tar,gz,doc,docx,pdf,txt',
     'watermark_enable' => 0,
     'watermark_text' => $global_config['site_name'],
     'email_notify_new_source' => 1,
-    'email_notify_new_review' => 1
+    'email_notify_new_review' => 1,
+    'author_commission_rate' => 70
 ];
 
-// Merge với cấu hình hiện tại
+
 foreach ($default_config as $key => $value) {
     if (!isset($module_config[$key])) {
         $module_config[$key] = $value;
     }
 }
 
-// Xử lý lưu cấu hình
+
 if ($nv_Request->isset_request('save_config', 'post')) {
     try {
         $error = [];
@@ -62,8 +54,9 @@ if ($nv_Request->isset_request('save_config', 'post')) {
         $new_config['watermark_text'] = $nv_Request->get_title('watermark_text', 'post', '');
         $new_config['email_notify_new_source'] = $nv_Request->get_int('email_notify_new_source', 'post', 0);
         $new_config['email_notify_new_review'] = $nv_Request->get_int('email_notify_new_review', 'post', 0);
+        $new_config['author_commission_rate'] = $nv_Request->get_int('author_commission_rate', 'post', 70);
 
-        // Validate
+
         if ($new_config['items_per_page'] < 1 || $new_config['items_per_page'] > 100) {
             $error[] = 'Số item trên trang phải từ 1 đến 100';
         }
@@ -76,11 +69,15 @@ if ($nv_Request->isset_request('save_config', 'post')) {
             $error[] = 'Phần mở rộng file không được để trống';
         }
 
+        if ($new_config['author_commission_rate'] < 0 || $new_config['author_commission_rate'] > 100) {
+            $error[] = 'Tỷ lệ hoa hồng phải từ 0% đến 100%';
+        }
+
         if (empty($error)) {
-            // Xóa cấu hình cũ
+
             $db->query("DELETE FROM " . NV_CONFIG_GLOBALTABLE . " WHERE lang='" . NV_LANG_DATA . "' AND module='" . $module_name . "'");
 
-            // Lưu cấu hình mới
+
             foreach ($new_config as $config_name => $config_value) {
                 $sql = "INSERT INTO " . NV_CONFIG_GLOBALTABLE . " (lang, module, config_name, config_value) VALUES (
                     '" . NV_LANG_DATA . "',
@@ -90,13 +87,13 @@ if ($nv_Request->isset_request('save_config', 'post')) {
                 )";
                 $db->query($sql);
             }
-            
+
             $module_config = $new_config;
             $success_message = 'Lưu cấu hình thành công';
         }
     } catch (Exception $e) {
         pr($e->getMessage());
-    } 
+    }
 }
 
 $xtpl = new XTemplate('config.tpl', NV_ROOTDIR . '/themes/' . $global_config['module_theme'] . '/modules/' . $module_file);
@@ -107,10 +104,10 @@ $xtpl->assign('MODULE_NAME', $module_name);
 $xtpl->assign('OP', $op);
 $xtpl->assign('FORM_ACTION', NV_BASE_ADMINURL . 'index.php?' . NV_LANG_VARIABLE . '=' . NV_LANG_DATA . '&' . NV_NAME_VARIABLE . '=' . $module_name . '&' . NV_OP_VARIABLE . '=' . $op);
 
-// Assign config values
+
 $xtpl->assign('CONFIG', $module_config);
 
-// Checkboxes
+
 $xtpl->assign('ALLOW_GUEST_DOWNLOAD_CHECKED', $module_config['allow_guest_download'] ? 'checked="checked"' : '');
 $xtpl->assign('ALLOW_GUEST_SUBMIT_CHECKED', $module_config['allow_guest_submit'] ? 'checked="checked"' : '');
 $xtpl->assign('REQUIRE_LOGIN_PAID_CHECKED', $module_config['require_login_paid'] ? 'checked="checked"' : '');
@@ -119,13 +116,13 @@ $xtpl->assign('WATERMARK_ENABLE_CHECKED', $module_config['watermark_enable'] ? '
 $xtpl->assign('EMAIL_NOTIFY_NEW_SOURCE_CHECKED', $module_config['email_notify_new_source'] ? 'checked="checked"' : '');
 $xtpl->assign('EMAIL_NOTIFY_NEW_REVIEW_CHECKED', $module_config['email_notify_new_review'] ? 'checked="checked"' : '');
 
-// Success message
+
 if (!empty($success_message)) {
     $xtpl->assign('SUCCESS_MESSAGE', $success_message);
     $xtpl->parse('main.success');
 }
 
-// Error messages
+
 if (!empty($error)) {
     foreach ($error as $err) {
         $xtpl->assign('ERROR', $err);

@@ -40,24 +40,62 @@ function nv_sharecode_user_menu()
             'link' => NV_BASE_SITEURL . 'index.php?' . NV_LANG_VARIABLE . '=' . NV_LANG_DATA . '&' . NV_NAME_VARIABLE . '=' . $module_name . '&' . NV_OP_VARIABLE . '=history&userid=' . $user_info['userid'],
             'icon' => 'fa fa-history'
         ];
-        
+
+        $menu[] = [
+            'title' => 'Doanh thu bán code',
+            'link' => NV_BASE_SITEURL . 'index.php?' . NV_LANG_VARIABLE . '=' . NV_LANG_DATA . '&' . NV_NAME_VARIABLE . '=' . $module_name . '&' . NV_OP_VARIABLE . '=revenue',
+            'icon' => 'fa fa-chart-line'
+        ];
+
         $menu[] = [
             'title' => 'Sản phẩm yêu thích',
             'link' => NV_BASE_SITEURL . 'index.php?' . NV_LANG_VARIABLE . '=' . NV_LANG_DATA . '&' . NV_NAME_VARIABLE . '=' . $module_name . '&' . NV_OP_VARIABLE . '=favorites',
             'icon' => 'fa fa-heart'
         ];
-        
-        $unread_count = nv_sharecode_get_unread_notifications_count($user_info['userid']);
-        $notification_badge = $unread_count > 0 ? ' <span class="badge badge-danger">' . $unread_count . '</span>' : '';
-        
-        $menu[] = [
-            'title' => 'Thông báo' . $notification_badge,
-            'link' => NV_BASE_SITEURL . 'index.php?' . NV_LANG_VARIABLE . '=' . NV_LANG_DATA . '&' . NV_NAME_VARIABLE . '=' . $module_name . '&' . NV_OP_VARIABLE . '=notifications',
-            'icon' => 'fa fa-bell'
-        ];
+
     }
     
     return $menu;
+}
+
+/**
+ * nv_sharecode_calculate_commission()
+ * Tính hoa hồng cho tác giả
+ *
+ * @param float $amount Số tiền giao dịch
+ * @param float $rate Tỷ lệ hoa hồng (nếu null sẽ lấy từ config)
+ * @return float
+ */
+function nv_sharecode_calculate_commission($amount, $rate = null)
+{
+    global $module_config;
+
+    if ($rate === null) {
+        $rate = isset($module_config['author_commission_rate']) ? $module_config['author_commission_rate'] / 100 : 0.7;
+    }
+
+    return round($amount * $rate, 2);
+}
+
+/**
+ * nv_sharecode_update_purchase_commission()
+ * Cập nhật hoa hồng cho giao dịch
+ *
+ * @param string $purchase_id ID giao dịch
+ * @param float $amount Số tiền
+ * @return bool
+ */
+function nv_sharecode_update_purchase_commission($purchase_id, $amount)
+{
+    global $db, $module_data;
+
+    $commission = nv_sharecode_calculate_commission($amount);
+
+    $sql = "UPDATE " . NV_PREFIXLANG . "_" . $module_data . "_purchases
+            SET author_commission = " . $commission . "
+            WHERE id = " . $db->quote($purchase_id);
+
+    return $db->exec($sql) !== false;
 }
 
 /**
@@ -228,6 +266,16 @@ function nv_sharecode_check_permission($source, $user_id = 0)
 {
     global $module_name;
 
+    // Kiểm tra nếu là tác giả hoặc admin thì cho phép download miễn phí
+    if ($user_id > 0) {
+        $is_author = ($user_id == $source['userid']);
+        $is_admin = defined('NV_IS_ADMIN');
+
+        if ($is_author || $is_admin) {
+            return true;
+        }
+    }
+
     // Nếu là free thì cho phép download
     if ($source['fee_type'] == 'free') {
         return true;
@@ -377,66 +425,7 @@ function nv_sharecode_wallet_get_balance($user_id, $currency = 'VND')
     }
 }
 
-/**
- * nv_sharecode_is_favorite()
- * Kiểm tra xem sản phẩm có trong danh sách yêu thích không
- *
- * @param int $source_id
- * @param int $user_id
- * @return bool
- */
-function nv_sharecode_is_favorite($source_id, $user_id = 0)
-{
-    global $db, $module_data;
-    
-    if ($user_id <= 0 || $source_id <= 0) {
-        return false;
-    }
-    
-    $sql = "SELECT id FROM " . NV_PREFIXLANG . "_" . $module_data . "_favorites WHERE userid=" . $user_id . " AND source_id=" . $source_id;
-    return $db->query($sql)->fetchColumn() ? true : false;
-}
 
-/**
- * nv_sharecode_get_user_favorites_count()
- * Lấy số lượng sản phẩm yêu thích của user
- *
- * @param int $user_id
- * @return int
- */
-function nv_sharecode_get_user_favorites_count($user_id)
-{
-    global $db, $module_data;
-    
-    if ($user_id <= 0) {
-        return 0;
-    }
-    
-    $sql = "SELECT COUNT(*) FROM " . NV_PREFIXLANG . "_" . $module_data . "_favorites f 
-            INNER JOIN " . NV_PREFIXLANG . "_" . $module_data . "_sources s ON f.source_id = s.id 
-            WHERE f.userid=" . $user_id . " AND s.status=1";
-    return $db->query($sql)->fetchColumn();
-}
-
-/**
- * nv_sharecode_get_unread_notifications_count()
- * Lấy số lượng thông báo chưa đọc
- *
- * @param int $user_id
- * @return int
- */
-function nv_sharecode_get_unread_notifications_count($user_id)
-{
-    global $db, $module_data;
-    
-    if ($user_id <= 0) {
-        return 0;
-    }
-    
-    $sql = "SELECT COUNT(*) FROM " . NV_PREFIXLANG . "_" . $module_data . "_notifications 
-            WHERE userid=" . $user_id . " AND is_read=0";
-    return $db->query($sql)->fetchColumn();
-}
 
 /**
  * nv_sharecode_send_email_notification()
@@ -535,3 +524,279 @@ function nv_sharecode_send_purchase_success_email($user_info, $source, $purchase
 }
 
 
+
+/**
+ * nv_sharecode_create_upload_dirs()
+ * Tạo các thư mục upload cần thiết
+ *
+ * @param string $module_upload
+ * @return bool
+ */
+function nv_sharecode_create_upload_dirs($module_upload)
+{
+    global $db;
+
+    $upload_dirs = [
+        $module_upload,
+        $module_upload . '/images',
+        $module_upload . '/sources',
+        $module_upload . '/thumbnails'
+    ];
+
+    foreach ($upload_dirs as $dir) {
+        $full_path = NV_UPLOADS_REAL_DIR . '/' . $dir;
+        if (!is_dir($full_path)) {
+            $parts = explode('/', $dir);
+            $current_path = '';
+
+            foreach ($parts as $part) {
+                if (!empty($part)) {
+                    $current_path .= $part;
+                    $check_path = NV_UPLOADS_REAL_DIR . '/' . $current_path;
+
+                    if (!is_dir($check_path)) {
+                        $parent_path = dirname($check_path);
+                        $dir_name = basename($check_path);
+
+                        $mk = nv_mkdir($parent_path, $dir_name);
+                        if ($mk[0] > 0) {
+                            try {
+                                $db->query('INSERT INTO ' . NV_UPLOAD_GLOBALTABLE . "_dir (dirname, time) VALUES ('" . NV_UPLOADS_DIR . '/' . $current_path . "', 0)");
+                            } catch (PDOException $e) {
+                                // Ignore duplicate entries
+                            }
+                        }
+                    }
+                    $current_path .= '/';
+                }
+            }
+        }
+    }
+
+    return true;
+}
+
+/**
+ * nv_sharecode_is_favorite()
+ * Kiểm tra xem source có được yêu thích bởi user không
+ *
+ * @param int $source_id
+ * @param int $user_id
+ * @return bool
+ */
+function nv_sharecode_is_favorite($source_id, $user_id)
+{
+    global $db, $module_data;
+
+    if ($user_id <= 0 || $source_id <= 0) {
+        return false;
+    }
+
+    try {
+        $sql = "SELECT COUNT(*) FROM " . NV_PREFIXLANG . "_" . $module_data . "_favorites
+                WHERE userid = " . intval($user_id) . " AND source_id = " . intval($source_id);
+
+        return $db->query($sql)->fetchColumn() > 0;
+    } catch (PDOException $e) {
+        // Log lỗi để debug
+        error_log("nv_sharecode_is_favorite error: " . $e->getMessage());
+        error_log("SQL: " . $sql);
+        return false;
+    }
+}
+
+/**
+ * nv_sharecode_add_favorite()
+ * Thêm source vào danh sách yêu thích
+ *
+ * @param int $source_id
+ * @param int $user_id
+ * @return bool
+ */
+function nv_sharecode_add_favorite($source_id, $user_id)
+{
+    global $db, $module_data;
+
+    if ($user_id <= 0 || $source_id <= 0) {
+        return false;
+    }
+
+    if (nv_sharecode_is_favorite($source_id, $user_id)) {
+        return true; 
+    }
+
+    try {
+        // Kiểm tra xem bảng có trường add_time không
+        $has_add_time = false;
+        try {
+            $check_sql = "SHOW COLUMNS FROM " . NV_PREFIXLANG . "_" . $module_data . "_favorites LIKE 'add_time'";
+            $result = $db->query($check_sql);
+            $has_add_time = $result->rowCount() > 0;
+        } catch (Exception $e) {
+            $has_add_time = false;
+        }
+
+        if ($has_add_time) {
+            $sql = "INSERT INTO " . NV_PREFIXLANG . "_" . $module_data . "_favorites (userid, source_id, add_time)
+                    VALUES (" . intval($user_id) . ", " . intval($source_id) . ", " . time() . ")";
+        } else {
+            $sql = "INSERT INTO " . NV_PREFIXLANG . "_" . $module_data . "_favorites (userid, source_id)
+                    VALUES (" . intval($user_id) . ", " . intval($source_id) . ")";
+        }
+
+        return $db->exec($sql) > 0;
+    } catch (PDOException $e) {
+        pr($e->getMessage());
+        return false;
+    }
+}
+
+/**
+ * nv_sharecode_remove_favorite()
+ * Xóa source khỏi danh sách yêu thích
+ *
+ * @param int $source_id
+ * @param int $user_id
+ * @return bool
+ */
+function nv_sharecode_remove_favorite($source_id, $user_id)
+{
+    global $db, $module_data;
+
+    if ($user_id <= 0 || $source_id <= 0) {
+        return false;
+    }
+
+    try {
+        $sql = "DELETE FROM " . NV_PREFIXLANG . "_" . $module_data . "_favorites
+                WHERE userid = " . intval($user_id) . " AND source_id = " . intval($source_id);
+
+        return $db->exec($sql) > 0;
+    } catch (PDOException $e) {
+        return false;
+    }
+}
+
+/**
+ * nv_sharecode_get_user_favorites()
+ * Lấy danh sách yêu thích của user
+ *
+ * @param int $user_id
+ * @param int $page
+ * @param int $per_page
+ * @return array
+ */
+function nv_sharecode_get_user_favorites($user_id, $page = 1, $per_page = 20)
+{
+    global $db, $module_data;
+
+    if ($user_id <= 0) {
+        return ['items' => [], 'total' => 0];
+    }
+
+    // Đếm tổng số
+    $sql_count = "SELECT COUNT(*) FROM " . NV_PREFIXLANG . "_" . $module_data . "_favorites f
+                  INNER JOIN " . NV_PREFIXLANG . "_" . $module_data . "_sources s ON f.source_id = s.id
+                  WHERE f.userid = " . intval($user_id) . " AND s.status = 1";
+
+    $total = $db->query($sql_count)->fetchColumn();
+
+    if ($total == 0) {
+        return ['items' => [], 'total' => 0];
+    }
+
+    // Lấy dữ liệu
+    $offset = ($page - 1) * $per_page;
+
+    // Kiểm tra xem bảng có trường add_time không
+    $has_add_time = false;
+    try {
+        $check_sql = "SHOW COLUMNS FROM " . NV_PREFIXLANG . "_" . $module_data . "_favorites LIKE 'add_time'";
+        $result = $db->query($check_sql);
+        $has_add_time = $result->rowCount() > 0;
+    } catch (Exception $e) {
+        $has_add_time = false;
+    }
+
+    if ($has_add_time) {
+        $sql = "SELECT s.*, f.id as favorite_id, f.add_time, c.title as category_title, c.alias as category_alias
+                FROM " . NV_PREFIXLANG . "_" . $module_data . "_favorites f
+                INNER JOIN " . NV_PREFIXLANG . "_" . $module_data . "_sources s ON f.source_id = s.id
+                LEFT JOIN " . NV_PREFIXLANG . "_" . $module_data . "_categories c ON s.catid = c.id
+                WHERE f.userid = " . intval($user_id) . " AND s.status = 1
+                ORDER BY f.id DESC
+                LIMIT " . intval($per_page) . " OFFSET " . intval($offset);
+    } else {
+        $sql = "SELECT s.*, f.id as favorite_id, c.title as category_title, c.alias as category_alias
+                FROM " . NV_PREFIXLANG . "_" . $module_data . "_favorites f
+                INNER JOIN " . NV_PREFIXLANG . "_" . $module_data . "_sources s ON f.source_id = s.id
+                LEFT JOIN " . NV_PREFIXLANG . "_" . $module_data . "_categories c ON s.catid = c.id
+                WHERE f.userid = " . intval($user_id) . " AND s.status = 1
+                ORDER BY f.id DESC
+                LIMIT " . intval($per_page) . " OFFSET " . intval($offset);
+    }
+
+    $result = $db->query($sql);
+    $items = [];
+
+    while ($row = $result->fetch()) {
+        $items[] = $row;
+    }
+
+    return ['items' => $items, 'total' => $total];
+}
+
+/**
+ * nv_sharecode_get_favorites_count()
+ * Lấy số lượng yêu thích của user
+ *
+ * @param int $user_id
+ * @return int
+ */
+function nv_sharecode_get_favorites_count($user_id)
+{
+    global $db, $module_data;
+
+    if ($user_id <= 0) {
+        return 0;
+    }
+
+    $sql = "SELECT COUNT(*) FROM " . NV_PREFIXLANG . "_" . $module_data . "_favorites f
+            INNER JOIN " . NV_PREFIXLANG . "_" . $module_data . "_sources s ON f.source_id = s.id
+            WHERE f.userid = " . intval($user_id) . " AND s.status = 1";
+
+    return intval($db->query($sql)->fetchColumn());
+}
+
+/**
+ * nv_sharecode_log_action()
+ * Ghi log hành động của user
+ *
+ * @param int $user_id
+ * @param int $source_id
+ * @param string $action
+ * @param string $details
+ * @return bool
+ */
+function nv_sharecode_log_action($user_id, $source_id, $action, $details = '')
+{
+    global $db, $module_data, $client_info;
+
+    try {
+        $sql = "INSERT INTO " . NV_PREFIXLANG . "_" . $module_data . "_logs
+                (userid, source_id, action, ip, user_agent, log_time, details)
+                VALUES (
+                    " . intval($user_id) . ",
+                    " . intval($source_id) . ",
+                    " . $db->quote($action) . ",
+                    " . $db->quote($client_info['ip']) . ",
+                    " . $db->quote($client_info['agent']) . ",
+                    " . NV_CURRENTTIME . ",
+                    " . $db->quote($details) . "
+                )";
+
+        return $db->exec($sql) > 0;
+    } catch (PDOException $e) {
+        return false;
+    }
+}

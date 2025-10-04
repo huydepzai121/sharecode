@@ -1,4 +1,30 @@
 <!-- BEGIN: main -->
+<!-- Main category header -->
+<div class="marketplace-header">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-xs-24 col-md-16">
+                <h1 class="category-title">
+                    <i class="fa fa-folder-open"></i> {CATEGORY.title}
+                    <span class="item-count">({TOTAL_SOURCES} sản phẩm)</span>
+                </h1>
+                <!-- BEGIN: category_description -->
+                <p class="category-description">{CATEGORY.description}</p>
+                <!-- END: category_description -->
+            </div>
+            <div class="col-xs-24 col-md-8 text-right">
+                <div class="category-stats">
+                    <div class="stat-item">
+                        <span class="stat-number">{TOTAL_SOURCES}</span>
+                        <span class="stat-label">Sản phẩm</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Subcategories section -->
 <!-- BEGIN: subcategories -->
 <div class="subcategories-section">
     <div class="container-fluid">
@@ -26,8 +52,7 @@
     </div>
 </div>
 <!-- END: subcategories -->
-
-<!-- BEGIN: sort_links -->
+<!-- Toolbar with sorting -->
 <div class="marketplace-toolbar">
     <div class="container-fluid">
         <div class="row">
@@ -41,9 +66,16 @@
                     <div class="sort-controls">
                         <span class="sort-label">Sắp xếp:</span>
                         <div class="btn-group sort-dropdown">
+                            <!-- BEGIN: sort_links -->
                             <!-- BEGIN: sort -->
-                            <a href="{SORT.link}" class="btn btn-sort <!-- BEGIN: active -->active<!-- END: active --><!-- BEGIN: inactive -->btn-default<!-- END: inactive -->">{SORT.name}</a>
+                            <!-- BEGIN: active -->
+                            <a href="{SORT.link}" class="btn btn-sort active">{SORT.name}</a>
+                            <!-- END: active -->
+                            <!-- BEGIN: inactive -->
+                            <a href="{SORT.link}" class="btn btn-sort">{SORT.name}</a>
+                            <!-- END: inactive -->
                             <!-- END: sort -->
+                            <!-- END: sort_links -->
                         </div>
                     </div>
                 </div>
@@ -51,8 +83,7 @@
         </div>
     </div>
 </div>
-<!-- END: sort_links -->
-
+<!-- Sources listing -->
 <!-- BEGIN: sources -->
 <div class="marketplace-products">
     <div class="container-fluid">
@@ -71,13 +102,18 @@
                                 </div>
                             </div>
                         </a>
-                        <!-- BEGIN: contact_price -->
-                        <div class="product-badge badge-contact">
-                            <i class="fa fa-phone"></i> LIÊN HỆ
+                        <!-- BEGIN: free_price -->
+                        <div class="product-badge badge-free">
+                            <i class="fa fa-download"></i> MIỄN PHÍ
                         </div>
-                        <!-- END: contact_price -->
+                        <!-- END: free_price -->
+                        <!-- BEGIN: paid_price -->
+                        <div class="product-badge badge-price">
+                            <i class="fa fa-tag"></i> {SOURCE.fee_amount_formatted}
+                        </div>
+                        <!-- END: paid_price -->
                     </div>
-                    
+
                     <div class="product-info">
                         <div class="product-header">
                             <h4 class="product-title">
@@ -92,7 +128,7 @@
                             </div>
                             <!-- END: rating -->
                         </div>
-                        
+
                         <p class="product-description">{SOURCE.description}</p>
 
                         <div class="product-stats">
@@ -115,24 +151,27 @@
                         </div>
 
                         <div class="product-actions">
-                            <!-- BEGIN: free_price -->
-                            <a href="{SOURCE.link}" class="btn-download">
+                            <!-- BEGIN: free_price --> 
+                            <a href="{SOURCE.link}" class="btn btn-success btn-block btn-download">
                                 <i class="fa fa-download"></i> Tải miễn phí
                             </a>
                             <!-- END: free_price -->
-                            <!-- BEGIN: contact_price -->
-                            <button class="btn btn-info btn-block btn-contact" data-id="{SOURCE.id}" data-title="{SOURCE.title}">
-                                <i class="fa fa-phone"></i> Liên hệ để biết giá
-                            </button>
-                            <!-- END: contact_price -->
                             <!-- BEGIN: paid_price -->
+                            <div class="price-display">
+                                <div class="price-amount">{SOURCE.fee_amount_formatted}</div>
+                            </div>
                             <div class="price-actions">
                                 <button class="btn btn-success btn-buy" data-id="{SOURCE.id}" data-price="{SOURCE.fee_amount}">
                                     <i class="fa fa-shopping-cart"></i> Mua ngay
                                 </button>
-    
+                                <button class="btn btn-cart" data-id="{SOURCE.id}">
+                                    <i class="fa fa-cart-plus"></i>
+                                </button>
                             </div>
                             <!-- END: paid_price -->
+                            <button class="btn btn-info btn-block btn-contact" data-id="{SOURCE.id}" data-title="{SOURCE.title}">
+                                <i class="fa fa-phone"></i> Liên hệ để biết giá
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -142,7 +181,7 @@
     </div>
 </div>
 <!-- END: sources -->
-
+<!-- No sources message -->
 <!-- BEGIN: no_sources -->
 <div class="alert alert-info text-center">
     <h4><i class="fa fa-info-circle"></i> Không có mã nguồn nào</h4>
@@ -150,12 +189,13 @@
 </div>
 <!-- END: no_sources -->
 
+<!-- Pagination -->
 <!-- BEGIN: pagination -->
 <div class="text-center">
     {GENERATE_PAGE}
 </div>
 <!-- END: pagination -->
-
+<!-- END: main -->
 <style>
 /* Marketplace Theme Styles */
 .marketplace-header {
@@ -473,6 +513,7 @@
     overflow: hidden;
     display: -webkit-box;
     -webkit-line-clamp: 3;
+    line-clamp: 3;
     -webkit-box-orient: vertical;
 }
 
@@ -604,20 +645,20 @@
     .marketplace-header {
         padding: 20px 0;
     }
-    
+
     .category-title {
         font-size: 24px;
     }
-    
+
     .product-card {
         margin-bottom: 20px;
     }
-    
+
     .price-actions {
         flex-direction: row;
         align-items: center;
     }
-    
+
     .btn-cart {
         width: auto;
         min-width: 50px;
@@ -632,31 +673,31 @@ $(document).ready(function() {
     $('.btn-buy').click(function() {
         var sourceId = $(this).data('id');
         var price = $(this).data('price');
-        
+
         // Check if user is logged in
         if (typeof nv_is_user === 'undefined' || !nv_is_user) {
             alert('Vui lòng đăng nhập để mua sản phẩm');
             window.location.href = nv_base_siteurl + 'index.php?' + nv_lang_variable + '=' + nv_lang_data + '&' + nv_name_variable + '=users&' + nv_op_variable + '=login';
             return;
         }
-        
+
         // Call wallet API to process payment
         purchaseSource(sourceId, price);
     });
-    
+
     // Add to cart handler
     $('.btn-cart').click(function() {
         var sourceId = $(this).data('id');
         addToCart(sourceId);
     });
-    
-    // Contact button handler  
+
+    // Contact button handler
     $('.btn-contact').click(function() {
         var sourceId = $(this).data('id');
         var sourceTitle = $(this).data('title');
         showContactModal(sourceId, sourceTitle);
     });
-    
+
     // Preview handler
     $('.btn-preview').click(function(e) {
         e.preventDefault();
@@ -672,7 +713,7 @@ function purchaseSource(sourceId, price) {
     var originalText = btn.html();
     btn.html('<i class="fa fa-spinner fa-spin"></i> Đang xử lý...');
     btn.prop('disabled', true);
-    
+
     // Call wallet API
     $.ajax({
         url: nv_base_siteurl + 'index.php?' + nv_lang_variable + '=' + nv_lang_data + '&' + nv_name_variable + '=wallet&' + nv_op_variable + '=purchase',
@@ -704,15 +745,15 @@ function purchaseSource(sourceId, price) {
 function addToCart(sourceId) {
     // Get cart from localStorage
     var cart = JSON.parse(localStorage.getItem('sharecode_cart') || '[]');
-    
+
     // Check if item already in cart
     if (cart.indexOf(sourceId) === -1) {
         cart.push(sourceId);
         localStorage.setItem('sharecode_cart', JSON.stringify(cart));
-        
+
         // Update cart count in UI
         updateCartCount();
-        
+
         // Show notification
         showNotification('Đã thêm vào giỏ hàng', 'success');
     } else {
@@ -760,13 +801,13 @@ function showContactModal(sourceId, sourceTitle) {
         '</div>' +
         '</div>' +
         '</div>';
-    
+
     // Remove existing modal
     $('#contactModal').remove();
-    
+
     // Add new modal to body
     $('body').append(modalContent);
-    
+
     // Show modal
     $('#contactModal').modal('show');
 }
@@ -784,11 +825,10 @@ function showNotification(message, type) {
     var notification = $('<div class="alert ' + alertClass + ' alert-dismissible" style="position: fixed; top: 20px; right: 20px; z-index: 9999;">' +
         '<button type="button" class="close" data-dismiss="alert">&times;</button>' +
         message + '</div>');
-    
+
     $('body').append(notification);
     setTimeout(function() {
         notification.fadeOut();
     }, 3000);
 }
 </script>
-<!-- END: main -->

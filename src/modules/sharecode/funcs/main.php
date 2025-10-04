@@ -1,30 +1,18 @@
 <?php
 
-/**
- * NukeViet Content Management System
- * @version 5.x
- * @author VINADES.,JSC <contact@vinades.vn>
- * @copyright (C) 2009-2025 VINADES.,JSC. All rights reserved
- * @license GNU/GPL version 2 or any later version
- * @see https://github.com/nukeviet The NukeViet CMS GitHub project
- */
-
 if (!defined('NV_IS_MOD_SHARECODE')) {
     exit('Stop!!!');
 }
 
-// Parameters
 $q = $nv_Request->get_title('q', 'get', '');
 $category = $nv_Request->get_int('category', 'get', 0);
 $price_filter = $nv_Request->get_title('price_filter', 'get', '');
 $sort = $nv_Request->get_title('sort', 'get', 'latest');
 $page = $nv_Request->get_int('page', 'get', 1);
 
-// Pagination
 $per_page = !empty($module_config[$module_name]['items_per_page']) ? intval($module_config[$module_name]['items_per_page']) : 12;
 $offset = ($page - 1) * $per_page;
 
-// Build SQL conditions - use direct SQL escaping for simplicity
 $where_conditions = ['s.status = 1'];
 
 if (!empty($q)) {
@@ -42,7 +30,6 @@ if ($price_filter == 'free') {
     $where_conditions[] = 's.fee_type = "paid"';
 }
 
-// Order by
 $order_map = [
     'latest' => 's.add_time DESC',
     'popular' => 's.num_view DESC',
@@ -51,11 +38,10 @@ $order_map = [
 ];
 $order_by = isset($order_map[$sort]) ? $order_map[$sort] : $order_map['latest'];
 
-// Count total results
 $count_sql = "SELECT COUNT(s.id) FROM " . NV_PREFIXLANG . "_" . $module_data . "_sources s";
 $count_sql .= " WHERE " . implode(' AND ', $where_conditions);
 $total_sources = $db->query($count_sql)->fetchColumn();
-// Get sources
+
 $sources = [];
 if ($total_sources > 0) {
     $sql = "SELECT s.*, c.title as category_title, c.alias as category_alias
@@ -66,12 +52,10 @@ if ($total_sources > 0) {
             LIMIT " . intval($offset) . ", " . intval($per_page);
 
     $result = $db->query($sql);
-    
+
     while ($row = $result->fetch()) {
-        // Format data
         $row['add_time_format'] = nv_date('d/m/Y', $row['add_time']);
-        
-        // Enhanced price formatting with contact support
+
         switch ($row['fee_type']) {
             case 'free':
                 $row['price_text'] = 'Miễn phí';
@@ -83,33 +67,27 @@ if ($total_sources > 0) {
                 $row['price_class'] = 'text-info';
                 $row['price_badge'] = 'info';
                 break;
-            default: // paid
+            default:
                 $row['price_text'] = number_format($row['fee_amount']) . ' VNĐ';
                 $row['price_class'] = 'text-warning';
                 $row['price_badge'] = 'warning';
         }
-        // Create clean detail URL with URL rewriting using NukeViet standard
         $detail_url = NV_BASE_SITEURL . 'index.php?' . NV_LANG_VARIABLE . '=' . NV_LANG_DATA . '&' . NV_NAME_VARIABLE . '=' . $module_name . '&' . NV_OP_VARIABLE . '=detail/' . $row['alias'];
         $row['link'] = nv_url_rewrite($detail_url, true);
-        
-        // Image URL
-        if (!empty($row['image']) && file_exists(NV_UPLOADS_REAL_DIR . '/' . $module_upload . '/' . $row['image'])) {
-            $row['image_url'] = NV_BASE_SITEURL . NV_UPLOADS_DIR . '/' . $module_upload . '/' . $row['image'];
-        } elseif (!empty($row['avatar']) && file_exists(NV_ROOTDIR . $row['avatar'])) {
-            $row['image_url'] = NV_BASE_SITEURL . ltrim($row['avatar'], '/');
+
+        if (!empty($row['avatar']) && file_exists(NV_ROOTDIR . '/' . $row['avatar'])) {
+            $row['image_url'] = $row['avatar'];
         } else {
             $row['image_url'] = NV_BASE_SITEURL . 'themes/default/images/no_image.gif';
         }
-        
-        // Default values for missing fields
+
         $row['avg_rating'] = isset($row['avg_rating']) ? $row['avg_rating'] : 0;
         $row['total_reviews'] = isset($row['total_reviews']) ? $row['total_reviews'] : 0;
-        
+
         $sources[] = $row;
     }
 }
 
-// Get categories for filter
 $categories = [];
 $cat_sql = "SELECT id, title FROM " . NV_PREFIXLANG . "_" . $module_data . "_categories WHERE status = 1 ORDER BY weight ASC";
 $cat_result = $db->query($cat_sql);
@@ -127,7 +105,6 @@ $base_url = nv_url_rewrite($base_url, true);
 
 $generate_page = nv_generate_page($base_url, $total_sources, $per_page, $page);
 
-// Page info
 $page_title = $module_info['site_title'];
 $key_words = $module_info['keywords'];
 $description = $module_info['description'];

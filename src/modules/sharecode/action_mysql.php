@@ -18,13 +18,12 @@ $array_table = [
     'categories',
     'sources',
     'reviews',
+    'comments',
     'tags',
     'source_tags',
     'purchases',
     'logs',
     'download_logs',
-    'favorites',
-    'notifications',
     'keywords',
     'source_keywords'
 ];
@@ -77,9 +76,9 @@ $sql_create_module[] = "CREATE TABLE " . $table . "_sources (
     alias VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'Đường dẫn tĩnh',
     description TEXT COMMENT 'Mô tả ngắn',
     content LONGTEXT COMMENT 'Nội dung chi tiết',
-    image VARCHAR(255) DEFAULT '' COMMENT 'Hình ảnh đại diện',
     avatar VARCHAR(255) DEFAULT '' COMMENT 'Hình đại diện',
     background_image VARCHAR(255) DEFAULT '' COMMENT 'Hình nền',
+    demo_image VARCHAR(255) DEFAULT '' COMMENT 'Hình ảnh demo (cũ)',
     file_path VARCHAR(255) DEFAULT '' COMMENT 'Đường dẫn file',
     file_name VARCHAR(255) DEFAULT '' COMMENT 'Tên file gốc',
     file_size INT DEFAULT 0 COMMENT 'Kích thước file (bytes)',
@@ -125,6 +124,7 @@ $sql_create_module[] = "CREATE TABLE " . $table . "_purchases (
     userid INT NOT NULL DEFAULT 0 COMMENT 'ID người mua',
     source_id INT NOT NULL DEFAULT 0 COMMENT 'ID mã nguồn',
     amount DECIMAL(15,2) NOT NULL DEFAULT 0.00 COMMENT 'Số tiền',
+    author_commission DECIMAL(15,2) NOT NULL DEFAULT 0.00 COMMENT 'Hoa hồng tác giả',
     currency VARCHAR(3) DEFAULT 'VND' COMMENT 'Loại tiền tệ',
     payment_method VARCHAR(50) DEFAULT '' COMMENT 'Phương thức thanh toán',
     transaction_id VARCHAR(100) DEFAULT '' COMMENT 'Mã giao dịch từ gateway',
@@ -154,6 +154,9 @@ $sql_create_module[] = "CREATE TABLE " . $table . "_reviews (
     status TINYINT DEFAULT 0 COMMENT 'Trạng thái (0: chờ duyệt, 1: đã duyệt, 2: từ chối)',
     add_time INT(11) DEFAULT 0 COMMENT 'Thời gian tạo',
     edit_time INT(11) DEFAULT 0 COMMENT 'Thời gian cập nhật',
+    admin_reply TEXT DEFAULT NULL COMMENT 'Phản hồi từ admin',
+    admin_reply_time INT NOT NULL DEFAULT 0 COMMENT 'Thời gian admin phản hồi',
+    admin_reply_userid INT NOT NULL DEFAULT 0 COMMENT 'ID admin phản hồi',
     INDEX idx_source_id (source_id),
     INDEX idx_userid (userid),
     INDEX idx_status (status),
@@ -161,6 +164,31 @@ $sql_create_module[] = "CREATE TABLE " . $table . "_reviews (
     INDEX idx_source_id_status (source_id, status),
     INDEX idx_source_id_rating (source_id, rating)
 ) ENGINE=MyISAM COMMENT='Bảng đánh giá'";
+
+// Tạo bảng comments
+$sql_create_module[] = "CREATE TABLE " . $table . "_comments (
+    id INT AUTO_INCREMENT PRIMARY KEY COMMENT 'ID bình luận',
+    source_id INT NOT NULL DEFAULT 0 COMMENT 'ID mã nguồn',
+    userid INT NOT NULL DEFAULT 0 COMMENT 'ID người bình luận',
+    username VARCHAR(100) NOT NULL DEFAULT '' COMMENT 'Tên người bình luận',
+    email VARCHAR(100) NOT NULL DEFAULT '' COMMENT 'Email người bình luận',
+    content TEXT NOT NULL COMMENT 'Nội dung bình luận',
+    add_time INT NOT NULL DEFAULT 0 COMMENT 'Thời gian tạo',
+    status TINYINT NOT NULL DEFAULT 1 COMMENT 'Trạng thái (0: ẩn, 1: hiển thị)',
+    parent_id INT NOT NULL DEFAULT 0 COMMENT 'ID bình luận cha (cho reply)',
+    admin_reply TEXT DEFAULT NULL COMMENT 'Phản hồi từ admin',
+    admin_reply_time INT NOT NULL DEFAULT 0 COMMENT 'Thời gian admin phản hồi',
+    admin_reply_userid INT NOT NULL DEFAULT 0 COMMENT 'ID admin phản hồi',
+    ip_address VARCHAR(39) NOT NULL DEFAULT '' COMMENT 'Địa chỉ IP',
+    user_agent TEXT DEFAULT NULL COMMENT 'User agent',
+    is_admin TINYINT NOT NULL DEFAULT 0 COMMENT 'Có phải admin comment (0: không, 1: có)',
+    INDEX idx_source_id (source_id),
+    INDEX idx_userid (userid),
+    INDEX idx_status (status),
+    INDEX idx_parent_id (parent_id),
+    INDEX idx_add_time (add_time),
+    INDEX idx_is_admin (is_admin)
+) ENGINE=MyISAM COMMENT='Bảng bình luận'";
 
 // Tạo bảng tags
 $sql_create_module[] = "CREATE TABLE " . $table . "_tags (
@@ -223,33 +251,6 @@ $sql_create_module[] = "CREATE TABLE " . $table . "_download_logs (
     INDEX idx_user_id_download_time (user_id, download_time)
 ) ENGINE=MyISAM COMMENT='Bảng log tải xuống'";
 
-// Tạo bảng favorites
-$sql_create_module[] = "CREATE TABLE " . $table . "_favorites (
-    id INT AUTO_INCREMENT PRIMARY KEY COMMENT 'ID yêu thích',
-    userid INT NOT NULL DEFAULT 0 COMMENT 'ID người dùng',
-    source_id INT NOT NULL DEFAULT 0 COMMENT 'ID mã nguồn',
-    UNIQUE KEY unique_favorite (userid, source_id),
-    INDEX idx_userid (userid),
-    INDEX idx_source_id (source_id)
-) ENGINE=MyISAM COMMENT='Bảng mã nguồn yêu thích'";
-
-// Tạo bảng notifications
-$sql_create_module[] = "CREATE TABLE " . $table . "_notifications (
-    id INT AUTO_INCREMENT PRIMARY KEY COMMENT 'ID thông báo',
-    userid INT NOT NULL DEFAULT 0 COMMENT 'ID người nhận',
-    type VARCHAR(50) NOT NULL DEFAULT '' COMMENT 'Loại thông báo (new_source/review/etc)',
-    title VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'Tiêu đề thông báo',
-    content TEXT COMMENT 'Nội dung thông báo',
-    source_id INT DEFAULT 0 COMMENT 'ID mã nguồn liên quan',
-    url VARCHAR(255) DEFAULT '' COMMENT 'URL liên kết',
-    is_read TINYINT DEFAULT 0 COMMENT 'Đã đọc (0: chưa, 1: rồi)',
-    INDEX idx_userid (userid),
-    INDEX idx_type (type),
-    INDEX idx_is_read (is_read),
-    INDEX idx_userid_is_read (userid, is_read),
-    INDEX idx_userid_type (userid, type)
-) ENGINE=MyISAM COMMENT='Bảng thông báo'";
-
 // Tạo bảng keywords
 
 $sql_create_module[] = "CREATE TABLE " . $table . "_keywords (
@@ -275,3 +276,15 @@ $sql_create_module[] = "CREATE TABLE " . $table . "_source_keywords (
     INDEX idx_keyword_id (keyword_id)
 ) ENGINE=MyISAM COMMENT='Bảng liên kết mã nguồn và từ khóa'";
 
+// Tạo bảng favorites
+$sql_create_module[] = "CREATE TABLE IF NOT EXISTS " . $table . "_favorites (
+    id INT AUTO_INCREMENT COMMENT 'ID yêu thích',
+    userid INT NOT NULL DEFAULT 0 COMMENT 'ID người dùng',
+    source_id INT NOT NULL DEFAULT 0 COMMENT 'ID mã nguồn',
+    add_time INT(11) DEFAULT 0 COMMENT 'Thời gian thêm vào yêu thích',
+    PRIMARY KEY (id),
+    UNIQUE KEY unique_favorite (userid, source_id),
+    INDEX idx_userid (userid),
+    INDEX idx_source_id (source_id),
+    INDEX idx_add_time (add_time)
+) ENGINE=MyISAM COMMENT='Bảng mã nguồn yêu thích'";

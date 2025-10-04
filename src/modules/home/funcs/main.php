@@ -43,8 +43,7 @@ if (($cache = $nv_Cache->getItem('home', $cache_file, 300)) != false) {
             ->select('*')
             ->from(NV_PREFIXLANG . '_' . $module_sharecode . '_sources')
             ->where('status = 1')
-            ->order('add_time DESC')
-            ->limit(10);
+            ->order('add_time DESC');
 
         $result = $db_slave->query($db_slave->sql());
         while ($view = $result->fetch()) {
@@ -64,12 +63,11 @@ if (($cache = $nv_Cache->getItem('home', $cache_file, 300)) != false) {
             }
             $view['link'] = NV_BASE_SITEURL . $module_sharecode . '/detail/' . $view['alias'];
 
-            // Xử lý hình ảnh từ database
-            $module_upload = $module_sharecode;
-            if (!empty($view['image']) && file_exists(NV_UPLOADS_REAL_DIR . '/' . $module_upload . '/' . $view['image'])) {
-                $view['image_url'] = NV_BASE_SITEURL . NV_UPLOADS_DIR . '/' . $module_upload . '/' . $view['image'];
-            } elseif (!empty($view['avatar']) && file_exists(NV_ROOTDIR . $view['avatar'])) {
-                $view['image_url'] = NV_BASE_SITEURL . ltrim($view['avatar'], '/');
+            // Xử lý hình ảnh từ database - paths now include 'uploads/' prefix
+            if (!empty($view['image']) && file_exists(NV_ROOTDIR . '/' . $view['image'])) {
+                $view['image_url'] = NV_BASE_SITEURL . $view['image'];
+            } elseif (!empty($view['avatar']) && file_exists(NV_ROOTDIR . '/' . $view['avatar'])) {
+                $view['image_url'] = NV_BASE_SITEURL . $view['avatar'];
             } else {
                 $view['image_url'] = NV_BASE_SITEURL . 'themes/default/images/no_image.gif';
             }
@@ -81,8 +79,8 @@ if (($cache = $nv_Cache->getItem('home', $cache_file, 300)) != false) {
     $link_more = NV_BASE_SITEURL . 'index.php?' . NV_LANG_VARIABLE . '=' . NV_LANG_DATA . '&amp;' . NV_NAME_VARIABLE . '=' . $module_sharecode;
 
     // pr($array_data);
-    
-    // 2. Lấy danh sách danh mục ShareCode
+
+    // 2. Lấy danh sách danh mục ShareCode (6 danh mục cho categories section)
     $array_plans = [];
     if (isset($site_mods[$module_sharecode])) {
         $db->sqlreset()
@@ -91,8 +89,7 @@ if (($cache = $nv_Cache->getItem('home', $cache_file, 300)) != false) {
             ->join('LEFT JOIN ' . NV_PREFIXLANG . '_' . $module_sharecode . '_sources s ON c.id = s.catid AND s.status = 1')
             ->where('c.status = 1')
             ->group('c.id')
-            ->order('total_sources DESC, c.weight ASC')
-            ->limit(8);
+            ->order('total_sources DESC, c.weight ASC');
 
         $result = $db_slave->query($db_slave->sql());
         while ($view = $result->fetch()) {
@@ -109,21 +106,21 @@ if (($cache = $nv_Cache->getItem('home', $cache_file, 300)) != false) {
             ->from(NV_PREFIXLANG . '_' . $module_sharecode . '_sources')
             ->where('status = 1');
         $array_stats['total_sources'] = $db_slave->query($db_slave->sql())->fetchColumn();
-        
+
         // Tổng lượt tải
         $db->sqlreset()
             ->select('SUM(num_download)')
             ->from(NV_PREFIXLANG . '_' . $module_sharecode . '_sources')
             ->where('status = 1');
         $array_stats['total_downloads'] = (int)$db_slave->query($db_slave->sql())->fetchColumn();
-        
+
         // Tổng danh mục
         $db->sqlreset()
             ->select('COUNT(*)')
             ->from(NV_PREFIXLANG . '_' . $module_sharecode . '_categories')
             ->where('status = 1');
         $array_stats['total_categories'] = $db_slave->query($db_slave->sql())->fetchColumn();
-        
+
         // Tổng mã nguồn miễn phí
         $db->sqlreset()
             ->select('COUNT(*)')
@@ -146,7 +143,7 @@ if (($cache = $nv_Cache->getItem('home', $cache_file, 300)) != false) {
         } else {
             $array_data[$key]['category_title'] = 'Khác';
         }
-        
+
         // Thêm hình ảnh mặc định nếu chưa có
         if (empty($array_data[$key]['image_url'])) {
             $array_data[$key]['image_url'] = NV_BASE_SITEURL . 'themes/default/images/no_image.jpg';
@@ -159,9 +156,7 @@ if (($cache = $nv_Cache->getItem('home', $cache_file, 300)) != false) {
         $db->sqlreset()
             ->select('*')
             ->from(NV_PREFIXLANG . '_' . $module_sharecode . '_sources')
-            ->where('status = 1')
-            ->order('num_view DESC, num_download DESC')
-            ->limit(6);
+            ->where('status = 1');
 
         $result = $db_slave->query($db_slave->sql());
         while ($view = $result->fetch()) {
@@ -180,7 +175,7 @@ if (($cache = $nv_Cache->getItem('home', $cache_file, 300)) != false) {
                     $view['price_class'] = 'text-warning';
             }
             $view['link'] = NV_BASE_SITEURL . $module_sharecode . '/detail/' . $view['alias'];
-            
+
             // Lấy thông tin danh mục
             $db->sqlreset()
                 ->select('title')
@@ -193,7 +188,7 @@ if (($cache = $nv_Cache->getItem('home', $cache_file, 300)) != false) {
             } else {
                 $view['category_title'] = 'Khác';
             }
-            
+
             // Xử lý hình ảnh từ database
             $module_upload = $module_sharecode;
             if (!empty($view['image']) && file_exists(NV_UPLOADS_REAL_DIR . '/' . $module_upload . '/' . $view['image'])) {
@@ -203,12 +198,94 @@ if (($cache = $nv_Cache->getItem('home', $cache_file, 300)) != false) {
             } else {
                 $view['image_url'] = NV_BASE_SITEURL . 'themes/default/images/no_image.gif';
             }
-            
+
             $array_popular_sources[$view['id']] = $view;
         }
     }
-    
-    $contents = nv_theme_home_main([], $array_data, $link_more, $array_plans, $array_stats, $array_popular_sources);
+
+    $featured_product = null;
+    if (isset($site_mods[$module_sharecode]) && !empty($array_popular_sources)) {
+        $highest_rating = 0;
+        foreach ($array_popular_sources as $source) {
+            if ($source['avg_rating'] > $highest_rating) {
+                $highest_rating = $source['avg_rating'];
+                $featured_product = $source;
+            }
+        }
+
+        if ($featured_product === null && !empty($array_popular_sources)) {
+            $featured_product = reset($array_popular_sources);
+        }
+    }
+
+    $array_latest_sources = [];
+    if (isset($site_mods[$module_sharecode])) {
+        $popular_ids = array_keys($array_popular_sources);
+        $exclude_condition = '';
+        if (!empty($popular_ids)) {
+            $exclude_condition = ' AND id NOT IN (' . implode(',', $popular_ids) . ')';
+        }
+
+        $db->sqlreset()
+            ->select('*')
+            ->from(NV_PREFIXLANG . '_' . $module_sharecode . '_sources')
+            ->where('status = 1' . $exclude_condition)
+            ->order('add_time DESC');
+
+        $result = $db_slave->query($db_slave->sql());
+        while ($view = $result->fetch()) {
+            // Xử lý giá tiền
+            if ($view['fee_type'] == 'free') {
+                $view['price_text'] = 'Miễn phí';
+                $view['original_price_text'] = '';
+            } else {
+                $view['price_text'] = number_format($view['price'], 0, ',', '.') . ' VNĐ';
+                if ($view['original_price'] > $view['price']) {
+                    $view['original_price_text'] = number_format($view['original_price'], 0, ',', '.') . ' VNĐ';
+                    $view['discount_percent'] = round((($view['original_price'] - $view['price']) / $view['original_price']) * 100);
+                } else {
+                    $view['original_price_text'] = '';
+                    $view['discount_percent'] = 0;
+                }
+            }
+
+            // Xử lý rating
+            $view['rating'] = number_format($view['avg_rating'], 1);
+            if ($view['avg_rating'] == 0) {
+                $view['rating'] = '0.0';
+            }
+
+            // Xử lý link
+            $view['link'] = NV_BASE_SITEURL . $module_sharecode . '/detail/' . $view['alias'];
+
+            // Lấy thông tin danh mục
+            $db->sqlreset()
+                ->select('title')
+                ->from(NV_PREFIXLANG . '_' . $module_sharecode . '_categories')
+                ->where('id = ' . $view['catid']);
+            $cat_result = $db_slave->query($db_slave->sql());
+            if ($cat_result) {
+                $category = $cat_result->fetch();
+                $view['category_title'] = $category ? $category['title'] : 'Khác';
+            } else {
+                $view['category_title'] = 'Khác';
+            }
+
+            // Xử lý hình ảnh từ database
+            $module_upload = $module_sharecode;
+            if (!empty($view['image']) && file_exists(NV_UPLOADS_REAL_DIR . '/' . $module_upload . '/' . $view['image'])) {
+                $view['image_url'] = NV_BASE_SITEURL . NV_UPLOADS_DIR . '/' . $module_upload . '/' . $view['image'];
+            } elseif (!empty($view['avatar']) && file_exists(NV_ROOTDIR . $view['avatar'])) {
+                $view['image_url'] = NV_BASE_SITEURL . ltrim($view['avatar'], '/');
+            } else {
+                $view['image_url'] = NV_BASE_SITEURL . 'themes/default/images/no_image.gif';
+            }
+
+            $array_latest_sources[$view['id']] = $view;
+        }
+    }
+
+    $contents = nv_theme_home_main([], $array_data, $link_more, $array_plans, $array_stats, $array_popular_sources, $featured_product, $array_latest_sources);
     $nv_Cache->setItem('home', $cache_file, $contents);
 }
 

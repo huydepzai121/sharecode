@@ -12,4 +12,56 @@ INSERT INTO `nv4_config` (`lang`, `module`, `config_name`, `config_value`) VALUE
 ('vi', 'sharecode', 'watermark_text', 'ShareCode'),
 ('vi', 'sharecode', 'email_notify_new_source', '1'),
 ('vi', 'sharecode', 'email_notify_new_review', '1'),
-('vi', 'sharecode', 'cache_time', '3600');
+('vi', 'sharecode', 'cache_time', '3600'),
+('vi', 'sharecode', 'author_commission_rate', '70');
+
+-- =================================================================
+-- THÊM CHỨC NĂNG DOANH THU BÁN CODE
+-- =================================================================
+
+-- 1. Thêm cột author_commission vào bảng purchases (nếu chưa có)
+ALTER TABLE `nv4_vi_sharecode_purchases`
+ADD COLUMN `author_commission` DECIMAL(15,2) NOT NULL DEFAULT 0.00 COMMENT 'Hoa hồng tác giả' AFTER `amount`;
+
+-- 2. Cập nhật hoa hồng cho các giao dịch cũ (70% mặc định)
+UPDATE `nv4_vi_sharecode_purchases`
+SET `author_commission` = `amount` * 0.7
+WHERE `author_commission` = 0 AND `status` = 'completed';
+
+-- =================================================================
+-- BUG FIXES
+-- =================================================================
+
+-- Fix: Sửa lỗi column 's.price' không tồn tại
+-- Đã sửa trong revenue.php: s.price -> s.fee_amount as price
+
+-- =================================================================
+-- HƯỚNG DẪN SỬ DỤNG
+-- =================================================================
+
+/*
+1. Chạy các câu SQL ở trên để cập nhật database
+2. Vào Admin > ShareCode > Cấu hình để thiết lập tỷ lệ hoa hồng
+3. Người dùng có thể truy cập trang doanh thu qua:
+   URL: /index.php?language=vi&nv=sharecode&op=revenue
+
+TÍNH NĂNG DOANH THU:
+- Thống kê tổng quan: đơn hàng, doanh thu, hoa hồng, giá trị TB
+- Biểu đồ doanh thu 30 ngày gần nhất
+- Danh sách sản phẩm bán chạy
+- Lịch sử giao dịch với phân trang
+- Bộ lọc theo thời gian (hôm nay, tuần này, tháng này, tùy chọn)
+- Responsive design với Chart.js
+
+CẤU HÌNH HOA HỒNG:
+- Mặc định: 70% cho tác giả
+- Có thể điều chỉnh từ 0% đến 100% trong admin
+- Tự động áp dụng cho giao dịch mới
+- Có thể cập nhật lại cho giao dịch cũ bằng SQL
+
+LƯU Ý:
+- Cần có module wallet để xử lý thanh toán
+- Cần Chart.js CDN để hiển thị biểu đồ
+- Template sử dụng Bootstrap classes
+- Chỉ user đăng nhập mới xem được trang doanh thu của mình
+*/

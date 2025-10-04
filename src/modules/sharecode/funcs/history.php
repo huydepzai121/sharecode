@@ -1,67 +1,52 @@
 <?php
 
-/**
- * NukeViet Content Management System
- * @version 5.x
- * @author VINADES.,JSC <contact@vinades.vn>
- * @copyright (C) 2009-2025 VINADES.,JSC. All rights reserved
- * @license GNU/GPL version 2 or any later version
- * @see https://github.com/nukeviet The NukeViet CMS GitHub project
- */
-
 if (!defined('NV_IS_MOD_SHARECODE')) {
     exit('Stop!!!');
 }
 
-// Xử lý AJAX download token
 if ($nv_Request->isset_request('get_download_token', 'post')) {
     if (!defined('NV_IS_USER')) {
         nv_jsonOutput(['status' => 'error', 'message' => 'Vui lòng đăng nhập']);
     }
-    
+
     $source_id = $nv_Request->get_int('source_id', 'post', 0);
-    
+
     if ($source_id <= 0) {
         nv_jsonOutput(['status' => 'error', 'message' => 'Source ID không hợp lệ']);
     }
-    
-    // Lấy thông tin source
+
     $sql = "SELECT * FROM " . NV_PREFIXLANG . "_" . $module_data . "_sources WHERE id=" . $source_id . " AND status=1";
     $source = $db->query($sql)->fetch();
-    
+
     if (empty($source)) {
         nv_jsonOutput(['status' => 'error', 'message' => 'Mã nguồn không tồn tại']);
     }
-    
-    // Kiểm tra đã mua chưa
+
     $sql_check = "SELECT id FROM " . NV_PREFIXLANG . "_" . $module_data . "_purchases
             WHERE userid=" . $user_info['userid'] . " AND source_id=" . $source_id . " AND status='completed'";
     $purchased = $db->query($sql_check)->fetchColumn();
-    
+
     if (!$purchased) {
         nv_jsonOutput(['status' => 'error', 'message' => 'Bạn chưa mua mã nguồn này']);
     }
-    
-    // Kiểm tra link tải xuống
+
     if (empty($source['download_link'])) {
         nv_jsonOutput(['status' => 'error', 'message' => 'Link tải xuống không hợp lệ hoặc chưa được cấu hình']);
     }
 
     $download_url = $source['download_link'];
-    
-    // Cập nhật thống kê download
+
     $sql_update = "UPDATE " . NV_PREFIXLANG . "_" . $module_data . "_sources
             SET num_download = num_download + 1
             WHERE id = " . $source_id;
     $db->query($sql_update);
-    
-    // Ghi log download
+
     $log_data = json_encode([
         'download_type' => 'history',
         'download_url' => $source['download_link'],
         'user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? ''
     ]);
-    
+
     $sql_log = "INSERT INTO " . NV_PREFIXLANG . "_" . $module_data . "_logs (
         userid, source_id, action, ip, user_agent, log_time, details
     ) VALUES (
@@ -74,78 +59,65 @@ if ($nv_Request->isset_request('get_download_token', 'post')) {
         " . $db->quote($log_data) . "
     )";
     $db->query($sql_log);
-    
+
     nv_jsonOutput([
         'status' => 'success',
         'download_url' => $download_url
     ]);
 }
 
-// Lấy userid từ URL
 $view_userid = $nv_Request->get_int('userid', 'get', 0);
 
-// Yêu cầu đăng nhập
 if (!defined('NV_IS_USER')) {
     $redirect_url = NV_BASE_SITEURL . 'index.php?' . NV_LANG_VARIABLE . '=' . NV_LANG_DATA . '&' . NV_NAME_VARIABLE . '=' . $module_name . '&' . NV_OP_VARIABLE . '=history' . ($view_userid > 0 ? '&userid=' . $view_userid : '');
     $login_url = NV_BASE_SITEURL . 'index.php?' . NV_LANG_VARIABLE . '=' . NV_LANG_DATA . '&' . NV_NAME_VARIABLE . '=users&' . NV_OP_VARIABLE . '=login&nv_redirect=' . nv_base64_encode($redirect_url);
     nv_redirect_location($login_url);
 }
 
-// Xác định user để xem lịch sử
-$target_userid = $user_info['userid']; // Mặc định xem lịch sử của chính mình
+$target_userid = $user_info['userid'];
 
-// Nếu có userid trong URL, kiểm tra quyền xem
 if ($view_userid > 0) {
     if ($view_userid == $user_info['userid']) {
-        // Xem lịch sử của chính mình
         $target_userid = $user_info['userid'];
     } else {
-        // Kiểm tra có phải admin không (có thể xem lịch sử user khác)
         if (defined('NV_IS_ADMIN')) {
             $target_userid = $view_userid;
-            
-            // Lấy thông tin user được xem
+
             $sql_user = "SELECT userid, username, first_name, last_name FROM " . NV_USERS_GLOBALTABLE . " WHERE userid = " . $view_userid;
             $target_user = $db->query($sql_user)->fetch();
-            
+
             if (empty($target_user)) {
                 nv_info_die('Lỗi', 'Lỗi', 'User không tồn tại', 404);
             }
-            
+
             $page_title = 'Lịch sử mua code của ' . ($target_user['first_name'] . ' ' . $target_user['last_name']);
         } else {
-            // Không có quyền xem lịch sử user khác
             nv_redirect_location(NV_BASE_SITEURL . 'index.php?' . NV_LANG_VARIABLE . '=' . NV_LANG_DATA . '&' . NV_NAME_VARIABLE . '=' . $module_name . '&' . NV_OP_VARIABLE . '=history&userid=' . $user_info['userid']);
         }
     }
 } else {
-    // Nếu không có userid trong URL, redirect về URL có userid
     nv_redirect_location(NV_BASE_SITEURL . 'index.php?' . NV_LANG_VARIABLE . '=' . NV_LANG_DATA . '&' . NV_NAME_VARIABLE . '=' . $module_name . '&' . NV_OP_VARIABLE . '=history&userid=' . $user_info['userid']);
 }
-// Breadcrumb
+
 $base_url = NV_BASE_SITEURL . 'index.php?' . NV_LANG_VARIABLE . '=' . NV_LANG_DATA . '&' . NV_NAME_VARIABLE . '=' . $module_name . '&' . NV_OP_VARIABLE . '=history&userid=' . $target_userid;
 $array_mod_title[] = [
     'title' => 'Lịch sử mua hàng',
     'link' => nv_url_rewrite($base_url, true)
 ];
 
-// SEO
 $page_title = 'Lịch sử mua code';
 $key_words = 'lịch sử, mua code, sharecode';
 $description = 'Xem lịch sử các mã nguồn đã mua';
 
-// Phân trang
 $page = $nv_Request->get_int('page', 'get', 1);
 $per_page = 20;
 $offset = ($page - 1) * $per_page;
 
-// Lấy tổng số purchase
-$sql_count = "SELECT COUNT(*) FROM " . NV_PREFIXLANG . "_" . $module_data . "_purchases 
+$sql_count = "SELECT COUNT(*) FROM " . NV_PREFIXLANG . "_" . $module_data . "_purchases
               WHERE userid=" . $target_userid . " AND status='completed'";
 $total_purchases = $db->query($sql_count)->fetchColumn();
 
-// Lấy danh sách purchases
-$sql = "SELECT p.*, s.title, s.alias, s.image, s.avatar, s.description, s.fee_type, s.fee_amount,
+$sql = "SELECT p.*, s.title, s.alias, s.avatar, s.description, s.fee_type, s.fee_amount,
                s.download_link_type, s.download_link, s.file_path, s.file_name,
                c.title as category_title
         FROM " . NV_PREFIXLANG . "_" . $module_data . "_purchases p
@@ -159,34 +131,28 @@ $result = $db->query($sql);
 $purchases = [];
 
 while ($row = $result->fetch()) {
-    // Format dữ liệu
     $row['purchase_time_format'] = date('d/m/Y H:i', $row['purchase_time']);
     $row['payment_time_format'] = date('d/m/Y H:i', $row['payment_time']);
     $row['amount_format'] = ($row['amount'] > 0) ? number_format($row['amount'], 0, '.', ',') . ' VNĐ' : 'Miễn phí';
-    
-    // Xử lý hình ảnh
-    if (!empty($row['image']) && file_exists(NV_UPLOADS_REAL_DIR . '/' . $module_upload . '/' . $row['image'])) {
-        $row['image_url'] = NV_BASE_SITEURL . NV_UPLOADS_DIR . '/' . $module_upload . '/' . $row['image'];
-    } elseif (!empty($row['avatar']) && file_exists(NV_ROOTDIR . $row['avatar'])) {
-        $row['image_url'] = NV_BASE_SITEURL . ltrim($row['avatar'], '/');
+
+    // Xử lý hình ảnh sản phẩm
+    if (!empty($row['avatar']) && file_exists(NV_ROOTDIR . '/' . $row['avatar'])) {
+        $row['image_url'] =  $row['avatar'];
     } else {
         $row['image_url'] = NV_BASE_SITEURL . 'themes/default/images/no_image.gif';
     }
-    
-    // Tạo link detail
+
     $detail_url = NV_BASE_SITEURL . 'index.php?' . NV_LANG_VARIABLE . '=' . NV_LANG_DATA . '&' . NV_NAME_VARIABLE . '=' . $module_name . '&' . NV_OP_VARIABLE . '=detail&alias=' . $row['alias'];
     $row['detail_url'] = nv_url_rewrite($detail_url, true);
-    
-    // Tạo download URL
+
     $token = md5($row['source_id'] . $user_info['userid'] . $global_config['sitekey'] . date('Ymd'));
     if ($row['download_link_type'] == 'external') {
-        $row['download_url'] = $row['detail_url']; // Sẽ redirect từ detail page
+        $row['download_url'] = $row['detail_url'];
     } else {
         $download_url = NV_BASE_SITEURL . 'index.php?' . NV_LANG_VARIABLE . '=' . NV_LANG_DATA . '&' . NV_NAME_VARIABLE . '=' . $module_name . '&' . NV_OP_VARIABLE . '=download&id=' . $row['source_id'] . '&token=' . $token;
         $row['download_url'] = $download_url;
     }
-    
-    // Payment method display
+
     $payment_methods = [
         'wallet_auto' => 'Ví điện tử',
         'free' => 'Miễn phí',
@@ -195,21 +161,19 @@ while ($row = $result->fetch()) {
         'paypal' => 'PayPal'
     ];
     $row['payment_method_text'] = isset($payment_methods[$row['payment_method']]) ? $payment_methods[$row['payment_method']] : $row['payment_method'];
-    
+
     $purchases[] = $row;
 }
 
-// Tạo phân trang
 $base_url = NV_BASE_SITEURL . 'index.php?' . NV_LANG_VARIABLE . '=' . NV_LANG_DATA . '&' . NV_NAME_VARIABLE . '=' . $module_name . '&' . NV_OP_VARIABLE . '=history&userid=' . $target_userid;
 $generate_page = nv_generate_page($base_url, $total_purchases, $per_page, $page);
 
-// Thống kê
-$sql_stats = "SELECT 
+$sql_stats = "SELECT
                 COUNT(*) as total_items,
                 SUM(amount) as total_spent,
                 COUNT(CASE WHEN amount = 0 THEN 1 END) as free_items,
                 COUNT(CASE WHEN amount > 0 THEN 1 END) as paid_items
-              FROM " . NV_PREFIXLANG . "_" . $module_data . "_purchases 
+              FROM " . NV_PREFIXLANG . "_" . $module_data . "_purchases
               WHERE userid=" . $target_userid . " AND status='completed'";
 $stats = $db->query($sql_stats)->fetch();
 

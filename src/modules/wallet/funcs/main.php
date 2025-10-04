@@ -86,7 +86,7 @@ foreach ($array_replace as $index => $value) {
     $payport_content = str_replace('[' . $index . ']', $value, $payport_content);
 }
 
-$get_info = $db->query("SELECT * FROM nv5_wallet_bank_info")->fetchAll();
+$get_info = $db->query("SELECT * FROM nv4_wallet_bank_info")->fetchAll();
 
 $infobank = $get_info[0];
 $contents = nv_theme_wallet_main($url_checkout, $payport_content, $get_info, $infobank);

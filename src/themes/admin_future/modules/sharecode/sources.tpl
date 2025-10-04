@@ -58,11 +58,31 @@
                         </div>
                         <div class="col-md-5">
                             <div class="mb-3">
-                                <label for="background_image" class="form-label">Hình nền:</label>
-                                <div class="input-group">
-                                    <input class="form-control" type="text" name="background_image" id="background_image" value="{$DATA.background_image|default:''}">
-                                    <button type="button" class="btn btn-secondary" aria-label="Chọn hình nền" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-title="Chọn hình nền" onclick="nv_open_file_manager('background_image')"><i class="fa-solid fa-image"></i></button>
+                                <label for="demo_images" class="form-label">Ảnh demo:</label>
+                                <div id="demo-images-container">
+                                    {if isset($DATA.demo_images_array) && !empty($DATA.demo_images_array)}
+                                        {foreach from=$DATA.demo_images_array item=demo_image}
+                                        <div class="demo-image-item mb-2">
+                                            <div class="input-group">
+                                                <input class="form-control demo-image-input" type="text" name="demo_images[]" value="{$demo_image}" placeholder="Đường dẫn ảnh demo">
+                                                <button type="button" class="btn btn-secondary" aria-label="Chọn ảnh demo" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-title="Chọn ảnh demo" onclick="nv_open_file_manager_for_demo(this)"><i class="fa-solid fa-image"></i></button>
+                                                <button type="button" class="btn btn-danger remove-demo-image" aria-label="Xóa ảnh" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-title="Xóa ảnh này"><i class="fa-solid fa-trash"></i></button>
+                                            </div>
+                                        </div>
+                                        {/foreach}
+                                    {else}
+                                        <div class="demo-image-item mb-2">
+                                            <div class="input-group">
+                                                <input class="form-control demo-image-input" type="text" name="demo_images[]" value="" placeholder="Đường dẫn ảnh demo">
+                                                <button type="button" class="btn btn-secondary" aria-label="Chọn ảnh demo" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-title="Chọn ảnh demo" onclick="nv_open_file_manager_for_demo(this)"><i class="fa-solid fa-image"></i></button>
+                                                <button type="button" class="btn btn-danger remove-demo-image" aria-label="Xóa ảnh" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-title="Xóa ảnh này"><i class="fa-solid fa-trash"></i></button>
+                                            </div>
+                                        </div>
+                                    {/if}
                                 </div>
+                                <button type="button" class="btn btn-sm btn-outline-primary" id="add-demo-image">
+                                    <i class="fa-solid fa-plus"></i> Thêm ảnh demo
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -90,44 +110,86 @@
                 </div>
             </div>
             
-            <div class="row g-3 mb-3">
-                <div class="col-lg-6">
-                    <div class="card h-100">
-                        <div class="card-header fw-medium fs-5">
-                            Liên kết & Demo
+            <!-- Phần liên kết và tải về -->
+            <div class="card mb-3">
+                <div class="card-header fw-medium fs-5">
+                    <i class="fa-solid fa-link me-2"></i>Liên kết & Tải về
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <!-- Link download - ưu tiên cao nhất -->
+                        <div class="col-12">
+                            <div class="alert alert-info mb-3">
+                                <i class="fa-solid fa-info-circle me-2"></i>
+                                <strong>Link download là bắt buộc</strong> - Đây là liên kết chính để người dùng tải về mã nguồn
+                            </div>
+                            <label for="download_link" class="form-label fw-medium">
+                                <i class="fa-solid fa-download me-1"></i>Link download <span class="text-danger">(*)</span>:
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fa-solid fa-cloud-download-alt"></i></span>
+                                <input type="url" class="form-control" name="download_link" id="download_link" value="{$DATA.download_link}" placeholder="https://drive.google.com/file/d/xxx hoặc https://github.com/user/repo/archive/main.zip" required>
+                            </div>
+                            <div class="form-text">
+                                <strong>Hỗ trợ:</strong> Google Drive, Dropbox, GitHub, GitLab, OneDrive, MediaFire, hoặc link trực tiếp khác
+                            </div>
                         </div>
-                        <div class="card-body">
-                            <div class="mb-3">
-                                <label for="external_source_link" class="form-label">Link mã nguồn bên ngoài:</label>
-                                <input type="url" class="form-control" name="external_source_link" id="external_source_link" value="{$DATA.external_source_link|default:''}" placeholder="https://github.com/user/repo">
-                                <div class="form-text">Link đến repository GitHub, GitLab hoặc trang web mã nguồn</div>
+
+                        <!-- Các link phụ -->
+                        <div class="col-md-6">
+                            <label for="external_source_link" class="form-label fw-medium">
+                                <i class="fa-brands fa-github me-1"></i>Link mã nguồn gốc:
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fa-solid fa-code-branch"></i></span>
+                                <input type="url" class="form-control" name="external_source_link" id="external_source_link" value="{$DATA.external_source_link|default:''}" placeholder="https://github.com/user/repository">
                             </div>
-                            
-                            <div class="mb-0">
-                                <label for="demo_link" class="form-label">Link demo:</label>
-                                <input type="url" class="form-control" name="demo_link" id="demo_link" value="{$DATA.demo_link}" placeholder="https://demo.example.com">
-                                <div class="form-text">Link xem demo trực tiếp của mã nguồn</div>
+                            <div class="form-text">Repository GitHub, GitLab hoặc trang web chính thức của mã nguồn</div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="demo_link" class="form-label fw-medium">
+                                <i class="fa-solid fa-eye me-1"></i>Link demo trực tiếp:
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fa-solid fa-external-link-alt"></i></span>
+                                <input type="url" class="form-control" name="demo_link" id="demo_link" value="{$DATA.demo_link}" placeholder="https://demo.yoursite.com">
                             </div>
+                            <div class="form-text">Link xem demo hoặc preview trực tiếp của mã nguồn</div>
                         </div>
                     </div>
-                </div>
-                <div class="col-lg-6">
-                    <div class="card h-100">
-                        <div class="card-header fw-medium fs-5">
-                            Tập tin & Download
-                        </div>
-                        <div class="card-body">
-                            <div class="mb-3">
-                                <label for="download_link_type" class="form-label">Loại link download:</label>
-                                <select class="form-select" name="download_link_type" id="download_link_type">
-                                    <option value="external" selected>Link download bên ngoài</option>
-                                </select>
-                            </div>
-                            
-                            <div class="mb-0">
-                                <label for="download_link" class="form-label">Link download <span class="text-danger">(*)</span>:</label>
-                                <input type="url" class="form-control" name="download_link" id="download_link" value="{$DATA.download_link}" placeholder="https://example.com/file.zip" required>
-                                <div class="form-text">URL trực tiếp đến file tải về (Google Drive, Dropbox, GitHub, v.v.)</div>
+
+                    <!-- Hướng dẫn sử dụng -->
+                    <div class="mt-3">
+                        <div class="accordion" id="linkGuideAccordion">
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#linkGuide" aria-expanded="false">
+                                        <i class="fa-solid fa-question-circle me-2"></i>Hướng dẫn tạo link download
+                                    </button>
+                                </h2>
+                                <div id="linkGuide" class="accordion-collapse collapse" data-bs-parent="#linkGuideAccordion">
+                                    <div class="accordion-body">
+                                        <div class="row g-3">
+                                            <div class="col-md-6">
+                                                <h6><i class="fa-brands fa-google-drive text-success"></i> Google Drive:</h6>
+                                                <ol class="small">
+                                                    <li>Upload file lên Google Drive</li>
+                                                    <li>Chuột phải → Chia sẻ → Thay đổi quyền thành "Bất kỳ ai có liên kết"</li>
+                                                    <li>Sao chép link chia sẻ</li>
+                                                </ol>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <h6><i class="fa-brands fa-github text-dark"></i> GitHub:</h6>
+                                                <ol class="small">
+                                                    <li>Vào repository của bạn</li>
+                                                    <li>Click nút "Code" → "Download ZIP"</li>
+                                                    <li>Hoặc dùng link: github.com/user/repo/archive/main.zip</li>
+                                                </ol>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -154,9 +216,11 @@
                 <div class="card-header py-2">
                     <div class="d-flex gap-2 justify-content-between align-items-center">
                         <div class="fw-medium fs-5 text-truncate">Từ khóa tìm kiếm</div>
-                        <button type="button" class="btn btn-secondary btn-sm" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-title="Tạo tự động từ khóa từ nội dung" aria-label="Tạo tự động từ khóa từ nội dung" data-toggle="keywords_auto_create">
-                            <i class="fa-solid fa-key" data-icon="fa-key"></i>
-                        </button>
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-title="Tạo từ khóa bằng AI (DeepSeek)" aria-label="Tạo từ khóa bằng AI" data-toggle="keywords_ai_create">
+                                <i class="fa-solid fa-robot" data-icon="fa-robot"></i> AI
+                            </button>
+                        </div>
                     </div>
                 </div>
                 <div class="card-body">
@@ -174,9 +238,14 @@
                 <div class="card-header py-2">
                     <div class="d-flex gap-2 justify-content-between align-items-center">
                         <div class="fw-medium fs-5 text-truncate">Tags cho mã nguồn</div>
-                        <button type="button" class="btn btn-secondary btn-sm" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-title="Tạo tự động tags dựa vào nội dung mã nguồn" aria-label="Tạo tự động tags dựa vào nội dung mã nguồn" data-toggle="tags_auto_create">
-                            <i class="fa-solid fa-tags" data-icon="fa-tags"></i>
-                        </button>
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-title="Tạo tags bằng AI (DeepSeek)" aria-label="Tạo tags bằng AI" data-toggle="tags_ai_create">
+                                <i class="fa-solid fa-robot" data-icon="fa-robot"></i> AI
+                            </button>
+                            <button type="button" class="btn btn-secondary btn-sm" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-title="Tạo tự động tags từ nội dung" aria-label="Tạo tự động tags từ nội dung" data-toggle="tags_auto_create">
+                                <i class="fa-solid fa-tags" data-icon="fa-tags"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
                 <div class="card-body">
@@ -206,7 +275,13 @@
                     
                     <div class="mb-0" id="fee_amount_group" style="display: {if $DATA.fee_type eq 'paid'}block{else}none{/if};">
                         <label for="fee_amount" class="form-label">Số tiền (VNĐ):</label>
-                        <input type="number" class="form-control" name="fee_amount" id="fee_amount" value="{$DATA.fee_amount}" min="0">
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fa-solid fa-dong-sign"></i></span>
+                            <input type="text" class="form-control" name="fee_amount_display" id="fee_amount_display" value="{if $DATA.fee_amount}{$DATA.fee_amount}{/if}" onkeyup="updateFeeAmount(this.value, true);" oninput="updateFeeAmount(this.value, true);" placeholder="0">
+                            <input type="hidden" name="fee_amount" id="fee_amount" value="{$DATA.fee_amount}">
+                            <span class="input-group-text">VNĐ</span>
+                        </div>
+                        <div class="form-text">Nhập số tiền bán mã nguồn (VD: 100,000 hoặc 1,500,000)</div>
                     </div>
                 </div>
             </div>
@@ -280,22 +355,26 @@
 </form>
 {else}
 <div class="card">
+    <div class="card-header text-bg-primary rounded-top-2 d-flex gap-2 justify-content-between align-items-center">
+        <div class="fw-medium"><i class="fa-solid fa-code"></i> Quản lý mã nguồn</div>
+        <a href="{$BASE_URL}&action=add" class="btn btn-sm btn-secondary"><i class="fa-solid fa-plus"></i> Thêm mã nguồn mới</a>
+    </div>
     <div class="card-body">
         <form method="get" action="{$smarty.const.NV_BASE_ADMINURL}index.php" id="form-search-sources">
             <input type="hidden" name="{$smarty.const.NV_LANG_VARIABLE}" value="{$smarty.const.NV_LANG_DATA}">
             <input type="hidden" name="{$smarty.const.NV_NAME_VARIABLE}" value="{$MODULE_NAME}">
             <input type="hidden" name="{$smarty.const.NV_OP_VARIABLE}" value="sources">
-            
+
             <div class="row g-3 flex-xl-nowrap">
                 <div class="col-md-6 flex-lg-fill">
                     <label for="element_q" class="form-label">Từ khóa tìm kiếm</label>
-                    <input type="text" class="form-control" name="q" id="element_q" value="{$SEARCH.q}" maxlength="64" placeholder="Nhập từ khóa...">
+                    <input type="text" class="form-control" name="q" id="element_q" value="{if isset($SEARCH.q)}{$SEARCH.q}{/if}" maxlength="64" placeholder="Nhập từ khóa...">
                 </div>
                 <div class="col-sm-auto flex-sm-grow-1 flex-sm-shrink-1 flex-xl-grow-0 flex-xl-shrink-0 col-xl-3">
                     <label for="element_catid" class="form-label">Danh mục</label>
                     <select class="form-select select2" name="catid" id="element_catid">
                         {foreach from=$LIST_CAT item=cat}
-                        <option value="{$cat.value}"{if $cat.value eq $SEARCH.catid} selected{/if}>{$cat.title}</option>
+                        <option value="{$cat.value}"{if isset($SEARCH.catid) and $cat.value eq $SEARCH.catid} selected{/if}>{$cat.title}</option>
                         {/foreach}
                     </select>
                 </div>
@@ -303,7 +382,7 @@
                     <label for="element_status" class="form-label">Trạng thái</label>
                     <select class="form-select" name="status" id="element_status">
                         {foreach from=$STATUS_SEARCH key=key item=status}
-                        <option value="{$key}"{if $key eq $SEARCH.status} selected{/if}>{$status}</option>
+                        <option value="{$key}"{if isset($SEARCH.status) and $key eq $SEARCH.status} selected{/if}>{$status}</option>
                         {/foreach}
                     </select>
                 </div>
@@ -311,7 +390,7 @@
                     <label for="element_fee_type" class="form-label">Loại phí</label>
                     <select class="form-select" name="fee_type" id="element_fee_type">
                         {foreach from=$FEE_TYPE_SEARCH key=key item=fee_type}
-                        <option value="{$key}"{if $key eq $SEARCH.fee_type} selected{/if}>{$fee_type}</option>
+                        <option value="{$key}"{if isset($SEARCH.fee_type) and $key eq $SEARCH.fee_type} selected{/if}>{$fee_type}</option>
                         {/foreach}
                     </select>
                 </div>
@@ -322,73 +401,75 @@
             </div>
         </form>
     </div>
-    
     <div class="card-body">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h5 class="mb-0">
-                <i class="fa-solid fa-list"></i> Danh sách mã nguồn
-            </h5>
-            <a href="{$BASE_URL}&action=add" class="btn btn-success">
-                <i class="fa-solid fa-plus"></i> Thêm mã nguồn mới
-            </a>
-        </div>
-        
-        <div class="table-responsive-lg table-card" id="list-sources-items">
+        <div class="table-responsive-lg table-card pb-1" id="list-sources-items">
             <table class="table table-striped align-middle table-sticky mb-0">
                 <thead class="text-muted">
                     <tr>
                         <th class="text-nowrap" style="width: 1%;">
                             <input type="checkbox" data-toggle="checkAll" name="checkAll[]" class="form-check-input m-0 align-middle" aria-label="Chọn tất cả">
                         </th>
-                        <th class="text-nowrap" style="width: 30%;">Tên mã nguồn</th>
+                        <th class="text-nowrap" style="width: 30%;">
+                            {if isset($BASE_URL_ORDER)}
+                            <a href="{$BASE_URL_ORDER}{if !isset($ARRAY_ORDER.field) or $ARRAY_ORDER.field neq 'title' or !isset($ARRAY_ORDER.value) or $ARRAY_ORDER.value neq 'desc'}&amp;of=title{if !isset($ARRAY_ORDER.field) or $ARRAY_ORDER.field neq 'title' or empty($ARRAY_ORDER.value)}&amp;ov=asc{else}&amp;ov=desc{/if}{/if}" class="d-flex align-items-center justify-content-between">
+                                <span class="me-1">Tên mã nguồn</span>
+                                {if !isset($ARRAY_ORDER.field) or $ARRAY_ORDER.field neq 'title' or empty($ARRAY_ORDER.value)}<i class="fa-solid fa-sort"></i>{elseif $ARRAY_ORDER.value eq 'asc'}<i class="fa-solid fa-sort-up"></i>{else}<i class="fa-solid fa-sort-down"></i>{/if}
+                            </a>
+                            {else}
+                            <span>Tên mã nguồn</span>
+                            {/if}
+                        </th>
                         <th class="text-nowrap" style="width: 15%;">Danh mục</th>
                         <th class="text-nowrap" style="width: 10%;">Loại phí</th>
-                        <th class="text-nowrap" style="width: 10%;">Lượt xem</th>
-                        <th class="text-nowrap" style="width: 10%;">Lượt tải</th>
+                        <th class="text-nowrap text-center" style="width: 8%;">Lượt xem</th>
+                        <th class="text-nowrap text-center" style="width: 8%;">Lượt tải</th>
                         <th class="text-nowrap" style="width: 10%;">Trạng thái</th>
-                        <th class="text-nowrap" style="width: 12%;">Ngày tạo</th>
-                        <th class="text-nowrap" style="width: 1%;">Thao tác</th>
+                        <th class="text-nowrap" style="width: 12%;">
+                            {if isset($BASE_URL_ORDER)}
+                            <a href="{$BASE_URL_ORDER}{if !isset($ARRAY_ORDER.field) or $ARRAY_ORDER.field neq 'add_time' or !isset($ARRAY_ORDER.value) or $ARRAY_ORDER.value neq 'desc'}&amp;of=add_time{if !isset($ARRAY_ORDER.field) or $ARRAY_ORDER.field neq 'add_time' or empty($ARRAY_ORDER.value)}&amp;ov=asc{else}&amp;ov=desc{/if}{/if}" class="d-flex align-items-center justify-content-between">
+                                <span class="me-1">Ngày tạo</span>
+                                {if !isset($ARRAY_ORDER.field) or $ARRAY_ORDER.field neq 'add_time' or empty($ARRAY_ORDER.value)}<i class="fa-solid fa-sort"></i>{elseif $ARRAY_ORDER.value eq 'asc'}<i class="fa-solid fa-sort-up"></i>{else}<i class="fa-solid fa-sort-down"></i>{/if}
+                            </a>
+                            {else}
+                            <span>Ngày tạo</span>
+                            {/if}
+                        </th>
+                        <th class="text-nowrap text-center" style="width: 1%;">Thao tác</th>
                     </tr>
                 </thead>
                 <tbody>
                     {if isset($SOURCES) and !empty($SOURCES)}
                     {foreach from=$SOURCES item=source}
-                    <tr>
+                    <tr class="indicator-{$source.status_class}">
                         <td>
-                            <input type="checkbox" data-toggle="checkSingle" name="checkSingle[]" value="{$source.id}" class="form-check-input m-0 align-middle" aria-label="Chọn mục này">
+                            <input type="checkbox" data-toggle="checkSingle" name="checkSingle[]" value="{$source.id}" class="form-check-input m-0 align-middle" aria-label="Chọn mục này"{if isset($source.is_locked) and $source.is_locked} disabled{/if}>
                         </td>
                         <td>
                             <div class="text-truncate-2">
                                 <strong><a href="{$source.link_detail}" target="_blank" title="Xem chi tiết ngoài site">{$source.title}</a></strong>
-                                <br><small class="text-muted">{$source.alias}</small>
+                                {if $source.alias}<br><small class="text-muted">{$source.alias}</small>{/if}
                             </div>
                         </td>
                         <td>{$source.category_title}</td>
                         <td>
                             <span class="badge bg-{$source.fee_class}">{$source.fee_text}</span>
                         </td>
-                        <td class="text-center">
-                            <span class="badge bg-info">{$source.num_view}</span>
-                        </td>
-                        <td class="text-center">
-                            <span class="badge bg-primary">{$source.num_download}</span>
-                        </td>
+                        <td class="text-center text-nowrap fw-medium">{$source.num_view}</td>
+                        <td class="text-center text-nowrap fw-medium">{$source.num_download}</td>
                         <td>
                             <span class="badge bg-{$source.status_class}">{$source.status_text}</span>
                         </td>
-                        <td>{$source.add_time_format}</td>
+                        <td class="text-nowrap">{$source.add_time_format}</td>
                         <td>
                             <div class="input-group flex-nowrap">
-                                <a href="{$source.edit_url}" class="btn btn-sm btn-secondary text-nowrap">
-                                    <i class="fa-solid fa-pen"></i> Sửa
-                                </a>
+                                <a href="{$source.edit_url}" class="btn btn-sm btn-secondary text-nowrap"><i class="fa-solid fa-pen"></i> Sửa</a>
                                 <button type="button" class="btn btn-sm btn-secondary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
                                     <span class="visually-hidden">Thao tác</span>
                                 </button>
                                 <ul class="dropdown-menu">
-                                    <li><a class="dropdown-item" href="#" data-toggle="deleteSource" data-id="{$source.id}" data-checksess="{$source.checksess}">
-                                        <i class="fa-solid fa-trash fa-fw text-center text-danger"></i> Xóa
-                                    </a></li>
+                                    <li><a class="dropdown-item" href="{$source.link_detail}" target="_blank"><i class="fa-solid fa-eye fa-fw text-center text-primary" data-icon="fa-eye"></i> Xem</a></li>
+                                    <li><a class="dropdown-item" href="#" data-toggle="copySource" data-id="{$source.id}" data-checksess="{$source.checksess}"><i class="fa-solid fa-copy fa-fw text-center text-info" data-icon="fa-copy"></i> Sao chép</a></li>
+                                    <li><a class="dropdown-item" href="#" data-toggle="deleteSource" data-id="{$source.id}" data-checksess="{$source.checksess}"><i class="fa-solid fa-trash fa-fw text-center text-danger" data-icon="fa-trash"></i> Xóa</a></li>
                                 </ul>
                             </div>
                         </td>
@@ -474,9 +555,9 @@ $(document).ready(function() {
         language: '{$smarty.const.NV_LANG_INTERFACE}',
         width: '100%',
         tags: true,
-        tokenSeparators: [',', ' '],
+        tokenSeparators: [','],
         placeholder: 'Chọn từ khóa...',
-        allowClear: true,
+        allowClear: false,
         maximumSelectionLength: 15,
         createTag: function (params) {
             var term = $.trim(params.term);
@@ -504,9 +585,9 @@ $(document).ready(function() {
         language: '{$smarty.const.NV_LANG_INTERFACE}',
         width: '100%',
         tags: true,
-        tokenSeparators: [',', ' '],
+        tokenSeparators: [','],
         placeholder: 'Nhập tag...',
-        allowClear: true,
+        allowClear: false,
         maximumSelectionLength: 20,
         createTag: function (params) {
             var term = $.trim(params.term);
@@ -559,19 +640,115 @@ $(document).ready(function() {
             $('#alias').val(alias);
         }
     });
-    
+
+    // AI Keywords Generation
+    $('[data-toggle="keywords_ai_create"]').on('click', function() {
+        var $btn = $(this);
+        var originalText = $btn.html();
+
+        // Safely get values with existence checks
+        var title = '';
+        var shortDesc = '';
+        var detailedDesc = '';
+
+        // Get title
+        if ($('#title').length) {
+            title = $('#title').val() || '';
+            title = title.trim();
+        }
+
+        // Get short description
+        if ($('#short_description').length) {
+            shortDesc = $('#short_description').val() || '';
+            shortDesc = shortDesc.trim();
+        }
+
+        // Get detailed description from CKEditor or textarea
+        if (typeof CKEDITOR !== 'undefined' && CKEDITOR.instances.detailed_description) {
+            detailedDesc = CKEDITOR.instances.detailed_description.getData() || '';
+            detailedDesc = $('<div>').html(detailedDesc).text(); // Strip HTML
+            detailedDesc = detailedDesc.trim();
+        } else if ($('#detailed_description').length) {
+            detailedDesc = $('#detailed_description').val() || '';
+            detailedDesc = detailedDesc.trim();
+        }
+
+        if (!title && !shortDesc && !detailedDesc) {
+            nukeviet.toast('Vui lòng nhập ít nhất tiêu đề hoặc mô tả để tạo từ khóa bằng AI (6-8 từ khóa ngắn gọn)', 'warning');
+            return;
+        }
+
+        // Show loading state
+        $btn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Đang tạo...');
+
+        $.ajax({
+            url: script_name + '?' + nv_name_variable + '=' + nv_module_name + '&' + nv_fc_variable + '=sources',
+            type: 'POST',
+            dataType: 'json',
+            data: {
+                action: 'ai_keywords',
+                title: title,
+                description: shortDesc,
+                content: detailedDesc,
+                checksess: '{$smarty.const.NV_CHECK_SESSION}'
+            },
+            success: function(response) {
+                if (response.status === 'OK' && response.keywords && response.keywords.length > 0) {
+                    // Add AI-generated keywords to select2
+                    var currentKeywords = $('#sourcecontent_keywords').val() || [];
+                    var newKeywords = [...new Set([...currentKeywords, ...response.keywords])]; // Remove duplicates
+
+                    // Add new options if they don't exist
+                    response.keywords.forEach(function(keyword) {
+                        if ($('#sourcecontent_keywords option[value="' + keyword + '"]').length === 0) {
+                            var newOption = new Option(keyword, keyword, false, false);
+                            $('#sourcecontent_keywords').append(newOption);
+                        }
+                    });
+
+                    $('#sourcecontent_keywords').val(newKeywords).trigger('change');
+                    nukeviet.toast('🤖 ' + response.mess + ': ' + response.keywords.join(', '), 'success');
+                } else {
+                    nukeviet.toast('❌ ' + (response.mess || 'Không thể tạo từ khóa bằng AI'), 'error');
+                }
+            },
+            error: function() {
+                nukeviet.toast('❌ Lỗi kết nối. Vui lòng thử lại sau.', 'error');
+            },
+            complete: function() {
+                // Restore button state
+                $btn.prop('disabled', false).html(originalText);
+            }
+        });
+    });
+
     // Auto-create keywords button functionality
     $('[data-toggle="keywords_auto_create"]').on('click', function() {
-        var title = $('#title').val().trim();
-        var shortDesc = $('#short_description').val().trim();
+        // Safely get values with existence checks
+        var title = '';
+        var shortDesc = '';
         var detailedDesc = '';
-        
-        // Get content from CKEditor if available
+
+        // Get title
+        if ($('#title').length) {
+            title = $('#title').val() || '';
+            title = title.trim();
+        }
+
+        // Get short description
+        if ($('#short_description').length) {
+            shortDesc = $('#short_description').val() || '';
+            shortDesc = shortDesc.trim();
+        }
+
+        // Get detailed description from CKEditor or textarea
         if (typeof CKEDITOR !== 'undefined' && CKEDITOR.instances.detailed_description) {
-            detailedDesc = CKEDITOR.instances.detailed_description.getData();
+            detailedDesc = CKEDITOR.instances.detailed_description.getData() || '';
             detailedDesc = $('<div>').html(detailedDesc).text(); // Strip HTML
-        } else {
-            detailedDesc = $('#detailed_description').val().trim();
+            detailedDesc = detailedDesc.trim();
+        } else if ($('#detailed_description').length) {
+            detailedDesc = $('#detailed_description').val() || '';
+            detailedDesc = detailedDesc.trim();
         }
         
         var content = title + ' ' + shortDesc + ' ' + detailedDesc;
@@ -591,24 +768,120 @@ $(document).ready(function() {
             });
             
             $('#sourcecontent_keywords').val(newKeywords).trigger('change');
-            nukeviet.toast('Đã tạo ' + autoKeywords.length + ' từ khóa tự động: ' + autoKeywords.join(', '), 'success');
+            nukeviet.toast('🔑 Đã tạo ' + autoKeywords.length + ' từ khóa tự động: ' + autoKeywords.join(', '), 'success');
         } else {
-            nukeviet.toast('Không thể tạo từ khóa tự động. Vui lòng nhập thêm nội dung.', 'warning');
+            nukeviet.toast('⚠️ Không thể tạo từ khóa tự động. Vui lòng nhập thêm nội dung.', 'warning');
         }
     });
-    
+
+    // AI Tags Generation
+    $('[data-toggle="tags_ai_create"]').on('click', function() {
+        var $btn = $(this);
+        var originalText = $btn.html();
+
+        // Safely get values with existence checks
+        var title = '';
+        var shortDesc = '';
+        var detailedDesc = '';
+
+        // Get title
+        if ($('#title').length) {
+            title = $('#title').val() || '';
+            title = title.trim();
+        }
+
+        // Get short description
+        if ($('#short_description').length) {
+            shortDesc = $('#short_description').val() || '';
+            shortDesc = shortDesc.trim();
+        }
+
+        // Get detailed description from CKEditor or textarea
+        if (typeof CKEDITOR !== 'undefined' && CKEDITOR.instances.detailed_description) {
+            detailedDesc = CKEDITOR.instances.detailed_description.getData() || '';
+            detailedDesc = $('<div>').html(detailedDesc).text(); // Strip HTML
+            detailedDesc = detailedDesc.trim();
+        } else if ($('#detailed_description').length) {
+            detailedDesc = $('#detailed_description').val() || '';
+            detailedDesc = detailedDesc.trim();
+        }
+
+        if (!title && !shortDesc && !detailedDesc) {
+            nukeviet.toast('Vui lòng nhập ít nhất tiêu đề hoặc mô tả để tạo tags bằng AI (4-6 tags ngắn gọn)', 'warning');
+            return;
+        }
+
+        // Show loading state
+        $btn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Đang tạo...');
+
+        $.ajax({
+            url: script_name + '?' + nv_name_variable + '=' + nv_module_name + '&' + nv_fc_variable + '=sources',
+            type: 'POST',
+            dataType: 'json',
+            data: {
+                action: 'ai_tags',
+                title: title,
+                description: shortDesc,
+                content: detailedDesc,
+                checksess: '{$smarty.const.NV_CHECK_SESSION}'
+            },
+            success: function(response) {
+                if (response.status === 'OK' && response.tags && response.tags.length > 0) {
+                    // Add AI-generated tags to select2
+                    var currentTags = $('#sourcecontent_tags').val() || [];
+                    var newTags = [...new Set([...currentTags, ...response.tags])]; // Remove duplicates
+
+                    // Add new options if they don't exist
+                    response.tags.forEach(function(tag) {
+                        if ($('#sourcecontent_tags option[value="' + tag + '"]').length === 0) {
+                            var newOption = new Option(tag, tag, false, false);
+                            $('#sourcecontent_tags').append(newOption);
+                        }
+                    });
+
+                    $('#sourcecontent_tags').val(newTags).trigger('change');
+                    nukeviet.toast('🤖 ' + response.mess + ': ' + response.tags.join(', '), 'success');
+                } else {
+                    nukeviet.toast('❌ ' + (response.mess || 'Không thể tạo tags bằng AI'), 'error');
+                }
+            },
+            error: function() {
+                nukeviet.toast('❌ Lỗi kết nối. Vui lòng thử lại sau.', 'error');
+            },
+            complete: function() {
+                // Restore button state
+                $btn.prop('disabled', false).html(originalText);
+            }
+        });
+    });
+
     // Auto-create tags button functionality
     $('[data-toggle="tags_auto_create"]').on('click', function() {
-        var title = $('#title').val().trim();
-        var shortDesc = $('#short_description').val().trim();
+        // Safely get values with existence checks
+        var title = '';
+        var shortDesc = '';
         var detailedDesc = '';
-        
-        // Get content from CKEditor if available
+
+        // Get title
+        if ($('#title').length) {
+            title = $('#title').val() || '';
+            title = title.trim();
+        }
+
+        // Get short description
+        if ($('#short_description').length) {
+            shortDesc = $('#short_description').val() || '';
+            shortDesc = shortDesc.trim();
+        }
+
+        // Get detailed description from CKEditor or textarea
         if (typeof CKEDITOR !== 'undefined' && CKEDITOR.instances.detailed_description) {
-            detailedDesc = CKEDITOR.instances.detailed_description.getData();
+            detailedDesc = CKEDITOR.instances.detailed_description.getData() || '';
             detailedDesc = $('<div>').html(detailedDesc).text(); // Strip HTML
-        } else {
-            detailedDesc = $('#detailed_description').val().trim();
+            detailedDesc = detailedDesc.trim();
+        } else if ($('#detailed_description').length) {
+            detailedDesc = $('#detailed_description').val() || '';
+            detailedDesc = detailedDesc.trim();
         }
         
         var content = title + ' ' + shortDesc + ' ' + detailedDesc;
@@ -628,9 +901,9 @@ $(document).ready(function() {
             });
             
             $('#sourcecontent_tags').val(newTags).trigger('change');
-            nukeviet.toast('Đã tạo ' + autoTags.length + ' tags tự động: ' + autoTags.join(', '), 'success');
+            nukeviet.toast('🏷️ Đã tạo ' + autoTags.length + ' tags tự động: ' + autoTags.join(', '), 'success');
         } else {
-            nukeviet.toast('Không thể tạo tags tự động. Vui lòng nhập thêm nội dung.', 'warning');
+            nukeviet.toast('⚠️ Không thể tạo tags tự động. Vui lòng nhập thêm nội dung.', 'warning');
         }
     });
     
@@ -720,6 +993,70 @@ $(document).ready(function() {
         });
     }
     
+    // URL validation and helper functions
+    function validateUrlInput(inputId) {
+        var input = $('#' + inputId);
+        var url = input.val().trim();
+
+        if (url && !isValidUrl(url)) {
+            input.addClass('is-invalid');
+            input.siblings('.invalid-feedback').remove();
+            input.after('<div class="invalid-feedback">URL không hợp lệ</div>');
+        } else {
+            input.removeClass('is-invalid');
+            input.siblings('.invalid-feedback').remove();
+        }
+    }
+
+    // Real-time URL validation
+    $('#download_link, #external_source_link, #demo_link').on('blur', function() {
+        validateUrlInput(this.id);
+    });
+
+    // Auto-detect and suggest URL format
+    $('#download_link').on('input', function() {
+        var url = $(this).val().trim();
+        var suggestions = $('#download-suggestions');
+
+        // Remove existing suggestions
+        suggestions.remove();
+
+        if (url.includes('drive.google.com') && !url.includes('/uc?')) {
+            var suggestionHtml = '<div id="download-suggestions" class="alert alert-warning mt-2">' +
+                '<i class="fa-solid fa-lightbulb me-2"></i>' +
+                '<strong>Gợi ý:</strong> Link Google Drive cần được chuyển đổi để tải trực tiếp. ' +
+                '<button type="button" class="btn btn-sm btn-outline-primary ms-2" onclick="convertGoogleDriveLink()">Chuyển đổi tự động</button>' +
+                '</div>';
+            $(this).parent().after(suggestionHtml);
+        }
+    });
+
+    // Format fee amount on page load if exists
+    var feeAmountDisplayField = $('#fee_amount_display');
+    var feeAmountHiddenField = $('#fee_amount');
+
+    // Initialize display field with formatted value from hidden field
+    if (feeAmountHiddenField.val() && feeAmountHiddenField.val() !== '0' && feeAmountHiddenField.val() !== '') {
+        var initialValue = feeAmountHiddenField.val();
+        feeAmountDisplayField.val(FormatNumber(initialValue));
+    } else if (feeAmountDisplayField.val()) {
+        // If display field has value but hidden doesn't, format the display value
+        updateFeeAmount(feeAmountDisplayField.val());
+    }
+
+    // Add focus/blur events for better UX
+    $('#fee_amount_display').on('focus', function() {
+        $(this).select(); // Select all text on focus
+    }).on('blur', function() {
+        // Ensure proper formatting on blur
+        if ($(this).val()) {
+            updateFeeAmount($(this).val());
+        }
+    }).on('input', function() {
+        // Real-time formatting as user types
+        updateFeeAmount($(this).val());
+    });
+
     // Initialize page on load
     $('#title').trigger('input');
 });
@@ -821,6 +1158,124 @@ function nv_create_alias(text) {
     
     return text;
 }
+
+// Convert Google Drive sharing link to direct download link
+function convertGoogleDriveLink() {
+    var input = $('#download_link');
+    var url = input.val().trim();
+
+    // Extract file ID from Google Drive URL
+    var fileIdMatch = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+    if (fileIdMatch) {
+        var fileId = fileIdMatch[1];
+        var directLink = 'https://drive.google.com/uc?export=download&id=' + fileId;
+        input.val(directLink);
+        $('#download-suggestions').remove();
+        nukeviet.toast('Đã chuyển đổi thành link tải trực tiếp', 'success');
+    }
+}
+
+// URL validation function
+function isValidUrl(string) {
+    try {
+        new URL(string);
+        return true;
+    } catch (_) {
+        return false;
+    }
+}
+
+// Number formatting functions (modified for integer display)
+function FormatNumber(str) {
+    var strTemp = GetNumber(str);
+    if (strTemp.length <= 3) {
+        return strTemp;
+    }
+
+    // Remove commas first
+    for (var i = 0; i < strTemp.length; i++) {
+        strTemp = strTemp.replace(",", "");
+    }
+
+    // Convert to integer (remove decimal part for money display)
+    var numValue = parseFloat(strTemp);
+    if (isNaN(numValue)) {
+        return strTemp;
+    }
+
+    // Convert to integer string (remove decimal part)
+    strTemp = Math.floor(numValue).toString();
+
+    var strResult = "";
+    // Format with commas (integer only)
+    for (var i = strTemp.length; i >= 0; i--) {
+        if (strResult.length > 0 && (strTemp.length - i - 1) % 3 == 0) {
+            strResult = "," + strResult;
+        }
+        strResult = strTemp.substring(i, i + 1) + strResult;
+    }
+
+    return strResult;
+}
+
+function GetNumber(str) {
+    var count = 0;
+    for (var i = 0; i < str.length; i++) {
+        var temp = str.substring(i, i + 1);
+        if (!(temp == "," || temp == "." || (temp >= 0 && temp <= 9))) {
+            return str.substring(0, i);
+        }
+        if (temp == " ") {
+            return str.substring(0, i);
+        }
+        if (temp == ".") {
+            if (count > 0) {
+                return str.substring(0, i);
+            }
+            count++;
+        }
+    }
+    return str;
+}
+
+// Update fee amount function
+function updateFeeAmount(displayValue, preserveCursor) {
+    if (!displayValue) {
+        $('#fee_amount_display').val('');
+        $('#fee_amount').val('');
+        return;
+    }
+
+    var field = $('#fee_amount_display')[0];
+    var cursorPos = preserveCursor ? field.selectionStart : null;
+    var oldLength = displayValue.length;
+
+    // Remove all non-numeric characters (only allow digits)
+    var cleanValue = displayValue.replace(/[^0-9]/g, '');
+
+    // Only process if we have a valid number
+    if (cleanValue && !isNaN(cleanValue)) {
+        // Convert to integer (remove any decimal part)
+        var intValue = Math.floor(parseFloat(cleanValue));
+        cleanValue = intValue.toString();
+
+        // Format the number with commas
+        var formatted = FormatNumber(cleanValue);
+
+        // Update both fields
+        $('#fee_amount_display').val(formatted);
+        $('#fee_amount').val(cleanValue);
+
+        // Restore cursor position if needed
+        if (preserveCursor && cursorPos !== null) {
+            var newLength = formatted.length;
+            var newPos = cursorPos + (newLength - oldLength);
+            if (newPos >= 0 && newPos <= newLength) {
+                field.setSelectionRange(newPos, newPos);
+            }
+        }
+    }
+}
 {/literal}
 
 // NukeViet file manager integration
@@ -839,42 +1294,108 @@ function nv_select_file(file_path, field_id) {
     }
 }
 
+// Demo images management
+$('#add-demo-image').on('click', function() {
+    var newImageItem = $('<div class="demo-image-item mb-2">' +
+        '<div class="input-group">' +
+            '<input class="form-control demo-image-input" type="text" name="demo_images[]" placeholder="Đường dẫn ảnh demo">' +
+            '<button type="button" class="btn btn-secondary" aria-label="Chọn ảnh demo" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-title="Chọn ảnh demo" onclick="nv_open_file_manager_for_demo(this)"><i class="fa-solid fa-image"></i></button>' +
+            '<button type="button" class="btn btn-danger remove-demo-image" aria-label="Xóa ảnh" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-title="Xóa ảnh này"><i class="fa-solid fa-trash"></i></button>' +
+        '</div>' +
+    '</div>');
+
+    $('#demo-images-container').append(newImageItem);
+    updateRemoveButtons();
+
+    // Initialize tooltips for new elements
+    newImageItem.find('[data-bs-toggle="tooltip"]').tooltip();
+});
+
+// Remove demo image
+$(document).on('click', '.remove-demo-image', function() {
+    $(this).closest('.demo-image-item').remove();
+    updateRemoveButtons();
+});
+
+// Update visibility of remove buttons
+function updateRemoveButtons() {
+    var items = $('.demo-image-item');
+    if (items.length > 1) {
+        $('.remove-demo-image').show();
+    } else {
+        $('.remove-demo-image').hide();
+    }
+}
+
+// File manager for demo images
+function nv_open_file_manager_for_demo(button) {
+    var input = $(button).siblings('.demo-image-input')[0];
+    var area = input.name.replace('[]', '') + '_' + Date.now(); // Unique area name
+    input.setAttribute('id', area);
+
+    var path = '{$UPLOADS_DIR_USER}';
+    var currentpath = '{$UPLOAD_CURRENT}';
+    var type = 'image';
+
+    nv_open_browse(script_name + "?" + nv_name_variable + "=upload&popup=1&area=" + area + "&path=" + path + "&type=" + type + "&currentpath=" + currentpath, "NVImg", 850, 420, "resizable=no,scrollbars=no,toolbar=no,location=no,status=no");
+}
+
+// Initialize remove buttons on page load
+$(document).ready(function() {
+    updateRemoveButtons();
+});
+
 // Enhanced form validation
 $('#source-form').on('submit', function(e) {
     var errors = [];
-    
+
+    // Ensure fee_amount hidden field is updated from display field
+    var feeAmountDisplayField = $('#fee_amount_display');
+    if (feeAmountDisplayField.val()) {
+        updateFeeAmount(feeAmountDisplayField.val());
+    }
+
     // Validate title
     var title = $('#title').val().trim();
     if (title.length < 3) {
         errors.push('Tên mã nguồn phải có ít nhất 3 ký tự');
     }
-    
+
     // Validate short description
     var shortDesc = $('#short_description').val().trim();
     if (shortDesc.length < 10) {
         errors.push('Mô tả ngắn phải có ít nhất 10 ký tự');
     }
-    
+
     // Validate category
     if ($('#catid').val() == '0') {
         errors.push('Vui lòng chọn danh mục');
     }
-    
-    // Validate download link for external type
-    var downloadType = $('#download_link_type').val();
-    if (downloadType === 'external') {
-        var downloadLink = $('#download_link').val().trim();
-        if (downloadLink === '') {
-            errors.push('Vui lòng nhập link download bên ngoài');
-        } else if (!isValidUrl(downloadLink)) {
-            errors.push('Link download không hợp lệ');
-        }
+
+    // Validate download link (always required)
+    var downloadLink = $('#download_link').val().trim();
+    if (downloadLink === '') {
+        errors.push('Vui lòng nhập link download');
+    } else if (!isValidUrl(downloadLink)) {
+        errors.push('Link download không hợp lệ');
     }
-    
+
+    // Validate URLs format if provided
+    var externalLink = $('#external_source_link').val().trim();
+    if (externalLink !== '' && !isValidUrl(externalLink)) {
+        errors.push('Link mã nguồn gốc không hợp lệ');
+    }
+
+    var demoLink = $('#demo_link').val().trim();
+    if (demoLink !== '' && !isValidUrl(demoLink)) {
+        errors.push('Link demo không hợp lệ');
+    }
+
     // Validate fee amount for paid type
     var feeType = $('#fee_type').val();
     if (feeType === 'paid') {
-        var feeAmount = parseFloat($('#fee_amount').val());
+        var feeAmountStr = $('#fee_amount').val(); // Use hidden field value
+        var feeAmount = parseFloat(feeAmountStr);
         if (isNaN(feeAmount) || feeAmount <= 0) {
             errors.push('Vui lòng nhập số tiền hợp lệ');
         }

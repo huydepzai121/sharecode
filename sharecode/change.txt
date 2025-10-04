@@ -1,6 +1,5 @@
 -- ShareCode Module SQL Changes
 -- Thêm các câu lệnh SQL cần thiết cho module ShareCode
-INSERT INTO `nv4_config` (`lang`, `module`, `config_name`, `config_value`) VALUES ('', '', 'sharecode', '0');
 INSERT INTO `nv4_config` (`lang`, `module`, `config_name`, `config_value`) VALUES
 ('vi', 'sharecode', 'items_per_page', '12'),
 ('vi', 'sharecode', 'allow_guest_download', '1'),
@@ -12,4 +11,9 @@ INSERT INTO `nv4_config` (`lang`, `module`, `config_name`, `config_value`) VALUE
 ('vi', 'sharecode', 'watermark_text', 'ShareCode'),
 ('vi', 'sharecode', 'email_notify_new_source', '1'),
 ('vi', 'sharecode', 'email_notify_new_review', '1'),
-('vi', 'sharecode', 'cache_time', '3600');
+('vi', 'sharecode', 'cache_time', '3600'),
+('vi', 'sharecode', 'author_commission_rate', '70');
+
+INSERT INTO `nv4_config` (`lang`, `module`, `config_name`, `config_value`) VALUES
+('vi', 'sharecode', 'deekseek_base_url', 'https://api.deepseek.com'),
+('vi', 'sharecode', 'deekseek_api_key', 'sk-70326b2a0e35431bba8274e37f9e5e87'),

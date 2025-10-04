@@ -1,14 +1,5 @@
 <?php
 
-/**
- * NukeViet Content Management System
- * @version 5.x
- * @author VINADES.,JSC <contact@vinades.vn>
- * @copyright (C) 2009-2025 VINADES.,JSC. All rights reserved
- * @license GNU/GPL version 2 or any later version
- * @see https://github.com/nukeviet The NukeViet CMS GitHub project
- */
-
 if (!defined('NV_IS_FILE_ADMIN')) {
     exit('Stop!!!');
 }
@@ -17,13 +8,13 @@ $page_title = 'Quản lý Tags';
 
 $checkss = $nv_Request->get_string('checkss', 'post', '');
 
-// Cập nhật count cho tất cả tags
+
 if ($nv_Request->get_string('action', 'get', '') == 'update_count') {
     nv_admin_sharecode_update_all_tags_count();
     nv_redirect_location(NV_BASE_ADMINURL . 'index.php?' . NV_LANG_VARIABLE . '=' . NV_LANG_DATA . '&' . NV_NAME_VARIABLE . '=' . $module_name . '&' . NV_OP_VARIABLE . '=' . $op . '&updated=1');
 }
 
-// Xóa các liên kết
+
 if ($nv_Request->isset_request('tagsIdDel', 'post')) {
     $tid = $nv_Request->get_int('id', 'post', 0);
     $ids = $nv_Request->get_title('ids', 'post', '');
@@ -48,7 +39,7 @@ if ($nv_Request->isset_request('tagsIdDel', 'post')) {
     nv_jsonOutput($respon);
 }
 
-// Xóa nhiều tags
+
 if ($nv_Request->isset_request('del_listid', 'post')) {
     $del_listid = $nv_Request->get_string('del_listid', 'post', '');
     $del_listid = array_map('intval', explode(',', $del_listid));
@@ -72,7 +63,7 @@ if ($nv_Request->isset_request('del_listid', 'post')) {
     ]);
 }
 
-// Xóa tag
+
 if ($nv_Request->isset_request('del_tid', 'post')) {
     $tid = $nv_Request->get_int('del_tid', 'post', 0);
 
@@ -94,13 +85,13 @@ if ($nv_Request->isset_request('del_tid', 'post')) {
     ]);
 }
 
-// Thêm nhiều tags
+
 if ($nv_Request->isset_request('savetag', 'post')) {
     $respon = [
         'status' => 'error',
         'mess' => 'Error!!!',
     ];
-    
+
     if (NV_CHECK_SESSION !== $checkss) {
         $respon['mess'] = 'Wrong session!!!';
         nv_jsonOutput($respon);
@@ -114,10 +105,10 @@ if ($nv_Request->isset_request('savetag', 'post')) {
         $name = trim(strip_tags($tag_i));
         if (nv_strlen($name) >= 2) {
             $alias = change_alias($name);
-            
-            // Kiểm tra alias đã tồn tại chưa
+
+
             $check_exists = $db->query('SELECT id FROM ' . NV_PREFIXLANG . '_' . $module_data . '_tags WHERE alias=' . $db->quote($alias))->fetchColumn();
-            
+
             if (!$check_exists) {
                 $add_time = NV_CURRENTTIME;
                 $sth = $db->prepare('INSERT IGNORE INTO ' . NV_PREFIXLANG . '_' . $module_data . "_tags (name, alias, description, weight, status, add_time) VALUES (:name, :alias, '', 0, 1, :add_time)");
@@ -145,7 +136,7 @@ if ($nv_Request->isset_request('savetag', 'post')) {
     nv_jsonOutput($respon);
 }
 
-// Thêm tag hoặc sửa tag
+
 if ($nv_Request->isset_request('savecat', 'post')) {
     if (NV_CHECK_SESSION !== $checkss) {
         nv_jsonOutput([
@@ -153,7 +144,7 @@ if ($nv_Request->isset_request('savecat', 'post')) {
             'mess' => 'Wrong session!!!'
         ]);
     }
-    
+
     $id = $nv_Request->get_int('id', 'post', 0);
     if (!empty($id)) {
         $num = $db->query('SELECT COUNT(*) FROM ' . NV_PREFIXLANG . '_' . $module_data . '_tags where id=' . $id)->fetchColumn();
@@ -178,14 +169,14 @@ if ($nv_Request->isset_request('savecat', 'post')) {
     if (empty($alias)) {
         $alias = change_alias($name);
     }
-    
-    // Kiểm tra alias đã tồn tại chưa
+
+
     $check_sql = "SELECT id FROM " . NV_PREFIXLANG . "_" . $module_data . "_tags WHERE alias=" . $db->quote($alias);
     if ($id > 0) {
         $check_sql .= " AND id!=" . $id;
     }
     $check_exists = $db->query($check_sql)->fetchColumn();
-    
+
     if ($check_exists) {
         nv_jsonOutput([
             'status' => 'error',
@@ -230,7 +221,7 @@ if ($nv_Request->isset_request('savecat', 'post')) {
     }
 }
 
-// Danh sách liên kết
+
 if ($nv_Request->isset_request('tagLinks', 'post')) {
     $respon = [
         'success' => 0,
@@ -310,7 +301,7 @@ if ($nv_Request->isset_request('tagLinks', 'post')) {
     nv_jsonOutput($respon);
 }
 
-// Lấy thông tin tag để sửa
+
 if ($nv_Request->isset_request('loadEditTag', 'post')) {
     $respon = [
         'success' => 0,
@@ -338,7 +329,7 @@ if ($nv_Request->isset_request('loadEditTag', 'post')) {
     nv_jsonOutput($respon);
 }
 
-// Mặc định hiển thị danh sách tags
+
 $complete = $nv_Request->get_bool('complete', 'get,post', false);
 $incomplete = $nv_Request->get_bool('incomplete', 'get,post', false);
 $page = $nv_Request->get_absint('page', 'get', 1);
@@ -372,25 +363,25 @@ $sth->execute();
 $num_items = $sth->fetchColumn();
 
 $db_slave->sqlreset()
-->select('*')
-->from(NV_PREFIXLANG . '_' . $module_data . '_tags')
-->where($where)
-->order('weight ASC, name ASC')
-->limit($per_page)
-->offset(($page - 1) * $per_page);
+    ->select('*')
+    ->from(NV_PREFIXLANG . '_' . $module_data . '_tags')
+    ->where($where)
+    ->order('weight ASC, name ASC')
+    ->limit($per_page)
+    ->offset(($page - 1) * $per_page);
 
 $sth = $db_slave->prepare($db_slave->sql());
 $sth->execute();
 
 $array = [];
 while ($row = $sth->fetch()) {
-    // Cập nhật số lượng sources cho tag nếu chưa có
+
     if (!isset($row['total_sources']) || $row['total_sources'] == 0) {
         $num_sources = $db->query('SELECT COUNT(*) FROM ' . NV_PREFIXLANG . '_' . $module_data . '_source_tags WHERE tag_id=' . $row['id'])->fetchColumn();
         $db->query('UPDATE ' . NV_PREFIXLANG . '_' . $module_data . '_tags SET total_sources=' . $num_sources . ' WHERE id=' . $row['id']);
         $row['total_sources'] = $num_sources;
     }
-    
+
     $row['num_sources'] = $row['total_sources'];
     $row['has_sources'] = $row['total_sources'] > 0;
     $row['no_sources'] = $row['total_sources'] == 0;
@@ -400,11 +391,12 @@ $sth->closeCursor();
 
 $generate_page = nv_generate_page($base_url, $num_items, $per_page, $page);
 
-// Use modern Smarty templating
+
 $tpl = new \NukeViet\Template\NVSmarty();
 $tpl->setTemplateDir(get_module_tpl_dir('tags.tpl'));
 $tpl->assign('MODULE_NAME', $module_name);
 $tpl->assign('OP', $op);
+$tpl->assign('CHECKSESS', NV_CHECK_SESSION);
 
 $tpl->assign('INCOMPLETE', $incomplete);
 $tpl->assign('COMPLETE', $complete);

@@ -1,38 +1,25 @@
 <?php
 
-/**
- * NukeViet Content Management System
- * @version 5.x
- * @author VINADES.,JSC <contact@vinades.vn>
- * @copyright (C) 2009-2025 VINADES.,JSC. All rights reserved
- * @license GNU/GPL version 2 or any later version
- * @see https://github.com/nukeviet The NukeViet CMS GitHub project
- */
-
 if (!defined('NV_IS_MOD_SHARECODE')) {
     exit('Stop!!!');
 }
 
 $alias = $nv_Request->get_title('t', 'get', '');
 $page = $nv_Request->get_int('page', 'get', 1);
-
-if (empty($alias)) {
+if (empty($array_op)) {
     nv_redirect_location(NV_BASE_SITEURL . 'index.php?' . NV_LANG_VARIABLE . '=' . NV_LANG_DATA . '&' . NV_NAME_VARIABLE . '=' . $module_name);
 }
 
-// Lấy thông tin tag
-$sql = "SELECT * FROM " . NV_PREFIXLANG . "_" . $module_data . "_tags WHERE alias=" . $db->quote($alias);
+$sql = "SELECT * FROM " . NV_PREFIXLANG . "_" . $module_data . "_tags WHERE alias=" . $db->quote($array_op[1]);
 $tag = $db->query($sql)->fetch();
 
 if (empty($tag)) {
     nv_redirect_location(NV_BASE_SITEURL . 'index.php?' . NV_LANG_VARIABLE . '=' . NV_LANG_DATA . '&' . NV_NAME_VARIABLE . '=' . $module_name);
 }
 
-// Phân trang
 $per_page = 12;
-$base_url = nv_url_rewrite(NV_BASE_SITEURL . 'index.php?' . NV_LANG_VARIABLE . '=' . NV_LANG_DATA . '&' . NV_NAME_VARIABLE . '=' . $module_name . '&' . NV_OP_VARIABLE . '=tag&t=' . $alias, true);
+$base_url = NV_BASE_SITEURL . 'index.php?' . NV_LANG_VARIABLE . '=' . NV_LANG_DATA . '&' . NV_NAME_VARIABLE . '=' . $module_name . '&' . NV_OP_VARIABLE . '=' . $array_op[0] . '/' . $array_op[1] . '/';
 
-// Đếm tổng số sources có tag này
 $sql = "SELECT COUNT(DISTINCT s.id) 
         FROM " . NV_PREFIXLANG . "_" . $module_data . "_sources s
         INNER JOIN " . NV_PREFIXLANG . "_" . $module_data . "_source_tags st ON s.id = st.source_id
@@ -40,7 +27,6 @@ $sql = "SELECT COUNT(DISTINCT s.id)
         WHERE s.status=1 AND t.id=" . $tag['id'];
 $total_sources = $db->query($sql)->fetchColumn();
 
-// Xử lý sort
 $sort = $nv_Request->get_title('sort', 'get', 'latest');
 $allowed_sorts = ['latest', 'popular', 'name', 'rating'];
 if (!in_array($sort, $allowed_sorts)) {
@@ -63,7 +49,6 @@ switch ($sort) {
         break;
 }
 
-// Lấy danh sách sources
 $limit = ($page - 1) * $per_page;
 $sql = "SELECT DISTINCT s.*, c.title as category_title,
         (SELECT COUNT(*) FROM " . NV_PREFIXLANG . "_" . $module_data . "_reviews r WHERE r.source_id = s.id AND r.status = 1) as total_reviews
@@ -79,10 +64,8 @@ $result = $db->query($sql);
 $sources = [];
 
 while ($row = $result->fetch()) {
-    // Format dữ liệu
     $row['add_time_format'] = date('d/m/Y', $row['add_time']);
-    
-    // Enhanced price formatting with contact support
+
     switch ($row['fee_type']) {
         case 'free':
             $row['price_text'] = 'Miễn phí';
@@ -94,38 +77,31 @@ while ($row = $result->fetch()) {
             $row['price_class'] = 'text-info';
             $row['price_badge'] = 'info';
             break;
-        default: // paid
+        default:
             $row['price_text'] = number_format($row['fee_amount']) . ' VNĐ';
             $row['price_class'] = 'text-warning';
             $row['price_badge'] = 'warning';
     }
-    
-    // Xử lý hình ảnh từ database
-    if (!empty($row['image']) && file_exists(NV_UPLOADS_REAL_DIR . '/' . $module_upload . '/' . $row['image'])) {
-        $row['image_url'] = NV_BASE_SITEURL . NV_UPLOADS_DIR . '/' . $module_upload . '/' . $row['image'];
-    } elseif (!empty($row['avatar']) && file_exists(NV_ROOTDIR . $row['avatar'])) {
-        $row['image_url'] = NV_BASE_SITEURL . ltrim($row['avatar'], '/');
+
+    if (!empty($row['avatar']) && file_exists(NV_ROOTDIR . '/' . $row['avatar'])) {
+        $row['image_url'] =  $row['avatar'];
     } else {
         $row['image_url'] = NV_BASE_SITEURL . 'themes/default/images/no_image.gif';
     }
-    
-    // Tạo link chi tiết với cấu trúc URL chuẩn NukeViet
+
     $detail_url = NV_BASE_SITEURL . 'index.php?' . NV_LANG_VARIABLE . '=' . NV_LANG_DATA . '&' . NV_NAME_VARIABLE . '=' . $module_name . '&' . NV_OP_VARIABLE . '=detail/' . $row['alias'];
     $row['link'] = nv_url_rewrite($detail_url, true);
-    
-    // Rating stars
+
     $row['rating_stars'] = '';
     if ($row['avg_rating'] > 0) {
         $row['rating_stars'] = str_repeat('★', round($row['avg_rating'])) . str_repeat('☆', 5 - round($row['avg_rating']));
     }
-    
+
     $sources[] = $row;
 }
 
-// Tạo phân trang
 $generate_page = nv_alias_page($page_title, $base_url, $total_sources, $per_page, $page);
 
-// SEO
 $page_title = 'Tag: ' . $tag['name'] . ' - ' . $module_info['custom_title'];
 $key_words = $tag['name'] . ', ' . $module_info['keywords'];
 if (!empty($tag['keywords'])) {
@@ -133,14 +109,12 @@ if (!empty($tag['keywords'])) {
 }
 $description = 'Danh sách mã nguồn có tag: ' . $tag['name'];
 
-// Breadcrumb
 $array_mod_title[] = [
     'catid' => 0,
     'title' => 'Tag: ' . $tag['name'],
-    'link' => NV_BASE_SITEURL . 'index.php?' . NV_LANG_VARIABLE . '=' . NV_LANG_DATA . '&' . NV_NAME_VARIABLE . '=' . $module_name . '&' . NV_OP_VARIABLE . '=tag&t=' . $tag['alias']
+    'link' => NV_BASE_SITEURL . 'index.php?' . NV_LANG_VARIABLE . '=' . NV_LANG_DATA . '&' . NV_NAME_VARIABLE . '=' . $module_name . '&' . NV_OP_VARIABLE . '=' . $array_op[0] . '/' . $array_op[1]
 ];
 
-// Lấy các tags liên quan
 $sql = "SELECT t.*, COUNT(st.source_id) as total_sources
         FROM " . NV_PREFIXLANG . "_" . $module_data . "_tags t
         INNER JOIN " . NV_PREFIXLANG . "_" . $module_data . "_source_tags st ON t.id = st.tag_id
@@ -153,12 +127,11 @@ $result = $db->query($sql);
 $related_tags = [];
 
 while ($row = $result->fetch()) {
-    $tag_url = NV_BASE_SITEURL . 'index.php?' . NV_LANG_VARIABLE . '=' . NV_LANG_DATA . '&' . NV_NAME_VARIABLE . '=' . $module_name . '&' . NV_OP_VARIABLE . '=tag&t=' . $row['alias'];
+    $tag_url = NV_BASE_SITEURL . 'index.php?' . NV_LANG_VARIABLE . '=' . NV_LANG_DATA . '&' . NV_NAME_VARIABLE . '=' . $module_name . '&' . NV_OP_VARIABLE . '=' . $array_op[0] . '/' . $array_op[1];
     $row['link'] = nv_url_rewrite($tag_url, true);
     $related_tags[] = $row;
 }
 
-// Sort links
 $sort_links = [];
 $sorts = [
     'latest' => 'Mới nhất',
@@ -177,11 +150,6 @@ foreach ($sorts as $sort_key => $sort_name) {
         'link' => nv_url_rewrite($sort_url, true),
         'active' => $sort == $sort_key
     ];
-}
-
-// Include theme functions
-if (file_exists(NV_ROOTDIR . '/themes/' . $global_config['module_theme'] . '/modules/sharecode/theme.php')) {
-    include_once NV_ROOTDIR . '/themes/' . $global_config['module_theme'] . '/modules/sharecode/theme.php';
 }
 
 $contents = nv_theme_sharecode_tag($tag, $sources, $related_tags, $sort_links, $sort, $generate_page, $total_sources);
