@@ -1,3 +1,7 @@
+# 5/10/2025
+Xóa csdl import csdl cùng thư mục sharecode3.sql 
+
+
 -- ShareCode Module SQL Changes
 -- Thêm các câu lệnh SQL cần thiết cho module ShareCode
 INSERT INTO `nv4_config` (`lang`, `module`, `config_name`, `config_value`) VALUES
