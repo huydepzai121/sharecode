@@ -27,7 +27,9 @@ $allow_func = [
     'pending',
     'keywords',
     'payments',
-    'payment-content'
+    'payment-content',
+    'comments',
+    'finance'
 ];
 
 /**
@@ -495,11 +497,16 @@ function nv_admin_sharecode_delete_source($source_id)
     // Xóa download logs
     $db->exec("DELETE FROM " . NV_PREFIXLANG . "_" . $module_data . "_download_logs WHERE source_id=" . $source_id);
     
+    // Xóa comments
+    $db->exec("DELETE FROM " . NV_PREFIXLANG . "_" . $module_data . "_comments WHERE source_id=" . $source_id);
+
     // Xóa source
     $result = $db->exec("DELETE FROM " . NV_PREFIXLANG . "_" . $module_data . "_sources WHERE id=" . $source_id);
-    
+
     return $result > 0;
 }
+
+
 
 /**
  * Thêm watermark vào ảnh

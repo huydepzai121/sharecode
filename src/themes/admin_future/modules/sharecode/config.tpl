@@ -137,6 +137,19 @@
                         <div class="col-md-6">
                             <div class="card mb-4">
                                 <div class="card-header">
+                                    <h6 class="card-title mb-0">Cấu hình hoa hồng</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <label for="author_commission_rate" class="form-label">Tỷ lệ hoa hồng cho tác giả (%)</label>
+                                        <input type="number" class="form-control" name="author_commission_rate" id="author_commission_rate" value="{CONFIG.author_commission_rate}" min="0" max="100">
+                                        <small class="form-text text-muted">Từ 0% đến 100%. Mặc định: 70%</small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card mb-4">
+                                <div class="card-header">
                                     <h6 class="card-title mb-0">Cấu hình email thông báo</h6>
                                 </div>
                                 <div class="card-body">

@@ -89,7 +89,9 @@ if ($nv_Request->isset_request('btnsubmit', 'post')) {
             $row['transaction_id'] = '';
             $row['transaction_data'] = '';
             $row['payment'] = '';
+            $row['provider'] = '';
             $row['tokenkey'] = '';
+            $row['transaction_type'] = 1; // Loại giao dịch mặc định
             $row['transaction_time'] = 0;
             if ($row['transaction_status'] == 4) {
                 $row['transaction_time'] = NV_CURRENTTIME;
@@ -98,13 +100,13 @@ if ($nv_Request->isset_request('btnsubmit', 'post')) {
             $stmt = $db->prepare('INSERT INTO ' . $db_config['prefix'] . '_' . $module_data . '_transaction (
                 created_time, status, money_unit, money_total, money_net, money_discount,
                 money_revenue, userid, adminid, customer_id, customer_name, customer_email, customer_phone,
-                customer_address, customer_info, transaction_id, transaction_status, transaction_time,
-                transaction_info, transaction_data, payment, tokenkey, detail_money)
+                customer_address, customer_info, transaction_id, transaction_type, transaction_status, transaction_time,
+                transaction_info, transaction_data, payment, provider, tokenkey, detail_money)
             VALUES (
                 :created_time, :status, :money_unit, :money_total, :money_net, :money_discount,
                 :money_revenue, :userid, :adminid, :customer_id, :customer_name, :customer_email, :customer_phone,
-                :customer_address, :customer_info, :transaction_id, :transaction_status, :transaction_time,
-                :transaction_info, :transaction_data, :payment, :tokenkey, :detail_money
+                :customer_address, :customer_info, :transaction_id, :transaction_type, :transaction_status, :transaction_time,
+                :transaction_info, :transaction_data, :payment, :provider, :tokenkey, :detail_money
             )');
             // Chi tiết tài khoản tại lúc thực hiện giao dịch
             $_sql = 'SELECT * FROM ' . $db_config['prefix'] . '_' . $module_data . '_money WHERE userid = ' . $row['userid'] . ' AND money_unit=' . $db->quote($row['money_unit']);
@@ -121,10 +123,12 @@ if ($nv_Request->isset_request('btnsubmit', 'post')) {
             $stmt->bindParam(':customer_phone', $row['customer_phone'], PDO::PARAM_STR);
             $stmt->bindParam(':customer_address', $row['customer_address'], PDO::PARAM_STR);
             $stmt->bindParam(':transaction_id', $row['transaction_id'], PDO::PARAM_STR);
+            $stmt->bindParam(':transaction_type', $row['transaction_type'], PDO::PARAM_INT);
             $stmt->bindParam(':transaction_status', $row['transaction_status'], PDO::PARAM_INT);
             $stmt->bindParam(':transaction_time', $row['transaction_time'], PDO::PARAM_INT);
             $stmt->bindParam(':transaction_data', $row['transaction_data'], PDO::PARAM_STR);
             $stmt->bindParam(':payment', $row['payment'], PDO::PARAM_STR);
+            $stmt->bindParam(':provider', $row['provider'], PDO::PARAM_STR);
             $stmt->bindParam(':tokenkey', $row['tokenkey'], PDO::PARAM_STR);
 
             $stmt->bindParam(':money_total', $row['money_total'], PDO::PARAM_STR);
@@ -144,7 +148,7 @@ if ($nv_Request->isset_request('btnsubmit', 'post')) {
                     $title = "Thông báo";
                     $messages = "Hệ thống thực hiện +" . number_format($row['money_total'], 0, '.', ',') . " VND vào tài khoản của bạn, lý do: " . $row['transaction_info'];
                     $add_time = NV_CURRENTTIME;
-                    $sql = "INSERT INTO " . NV_PREFIXLANG . "_log_message (userid, title, messages, addtime) VALUES(". $row['userid'] . "," . $db->quote($title) . ", " . $db->quote($messages) . "," . $add_time . ")";
+                    $sql = "INSERT INTO " . NV_PREFIXLANG . "_log_message (userid, title, messages, addtime) VALUES(" . $row['userid'] . "," . $db->quote($title) . ", " . $db->quote($messages) . "," . $add_time . ")";
                     $db->query($sql);
                     $message = sprintf($nv_Lang->getModule('email_transaction_message'), $row['money_total']);
                 } else {

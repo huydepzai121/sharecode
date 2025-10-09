@@ -124,12 +124,12 @@
                                     </div>
                                     
                                     <div class="source-price">
-                                        <!-- BEGIN: free_price -->
+                                        <!-- BEGIN: source.free_price -->
                                         <span class="price free">Miễn phí</span>
-                                        <!-- END: free_price -->
-                                        <!-- BEGIN: paid_price -->
+                                        <!-- END: source.free_price -->
+                                        <!-- BEGIN: source.paid_price -->
                                         <span class="price paid">{SOURCE.price_text}</span>
-                                        <!-- END: paid_price -->
+                                        <!-- END: source.paid_price -->
                                     </div>
                                     
                                     <!-- BEGIN: rating -->

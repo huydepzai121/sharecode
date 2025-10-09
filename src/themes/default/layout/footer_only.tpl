@@ -19,5 +19,31 @@
         </script>
         <!-- END: crossdomain_listener -->
         <script src="{NV_STATIC_URL}themes/{TEMPLATE}/js/bootstrap.min.js"></script>
+
+        <!-- AOS.js Script for scroll animations -->
+        <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+        <script>
+        /**
+         * Khởi tạo AOS.js với cấu hình tối ưu cho NukeViet ShareCode
+         * - duration: 800ms cho animation mượt mà
+         * - once: true để animation chỉ chạy 1 lần khi scroll xuống
+         * - offset: 80px để trigger animation sớm hơn một chút
+         * - easing: ease-out-cubic cho hiệu ứng tự nhiên
+         */
+        document.addEventListener('DOMContentLoaded', function() {
+            // Kiểm tra AOS đã load thành công từ CDN
+            if (typeof AOS !== 'undefined') {
+                AOS.init({
+                    duration: 800,
+                    once: true,
+                    offset: 80,
+                    easing: 'ease-out-cubic'
+                });
+            } else {
+                // Fallback graceful nếu AOS không load được từ CDN
+                console.warn('AOS.js chưa được tải. Kiểm tra kết nối CDN.');
+            }
+        });
+        </script>
     </body>
 </html>

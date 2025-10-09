@@ -40,7 +40,7 @@ nv_add_hook($module_name, 'get_global_admin_theme', $priority, function ($vars) 
     if (($module_info['module_file'] ?? '') == 'page' and in_array($op, ['main', 'config'])) {
         return $new_theme;
     }
-    if (($module_info['module_file'] ?? '') == 'sharecode' and in_array($op, ['main', 'categories', 'sources', 'reviews', 'logs', 'config', 'tags', 'tag-content', 'pending', 'keywords', 'payments', 'payment-content'])) {
+    if (($module_info['module_file'] ?? '') == 'sharecode' and in_array($op, ['main', 'categories', 'sources', 'reviews', 'logs', 'config', 'tags', 'tag-content', 'pending', 'keywords', 'payments', 'payment-content', 'comments', 'authors', 'author-add', 'finance'])) {
         return $new_theme;
     }
 

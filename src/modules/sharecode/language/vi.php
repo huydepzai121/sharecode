@@ -74,6 +74,11 @@ $lang_module['remove_from_favorites'] = 'Xóa khỏi yêu thích';
 $lang_module['my_favorites'] = 'Sản phẩm yêu thích';
 $lang_module['no_favorites'] = 'Chưa có sản phẩm yêu thích nào';
 $lang_module['favorites_count'] = 'Số yêu thích';
+$lang_module['confirm_remove_favorite'] = 'Bạn có chắc chắn muốn xóa khỏi danh sách yêu thích?';
+$lang_module['processing'] = 'Đang xử lý';
+$lang_module['system_error'] = 'Lỗi hệ thống, vui lòng thử lại';
+$lang_module['no_favorites_desc'] = 'Bạn chưa có sản phẩm yêu thích nào. Hãy khám phá và thêm những sản phẩm bạn quan tâm vào danh sách yêu thích.';
+$lang_module['browse_sources'] = 'Khám phá sản phẩm';
 
 // Notifications
 $lang_module['notifications'] = 'Thông báo';

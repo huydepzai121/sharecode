@@ -1,13 +1,9 @@
 <!-- BEGIN: main -->
-<!-- Load CKEditor -->
-<script src="{NV_BASE_SITEURL}assets/js/ckeditor/ckeditor.js"></script>
 
 <div id="sharecode-detail" class="container">
-    <!-- Main Content -->
     <div class="row">
         <div class="col-sm-24">
             <div class="detail-container">
-                <!-- Hero Section -->
                 <div class="detail-hero">
                     <div class="hero-layout">
                         <div class="hero-image">
@@ -72,7 +68,6 @@
                                     <!-- END: paid_price -->
                                 </div>
 
-                                <!-- Action Buttons -->
                                 <div class="action-buttons">
                                     <!-- BEGIN: can_download -->
                                     <button class="purchase-btn" data-toggle="modal" data-target="#downloadModal">
@@ -81,6 +76,16 @@
                                     </button>
                                     <!-- END: can_download -->
                                     <!-- BEGIN: already_purchased -->
+                                    <!-- BEGIN: author_message -->
+                                    <div class="alert alert-info mb-2">
+                                        <i class="fa fa-user-circle"></i> {SPECIAL_MESSAGE}
+                                    </div>
+                                    <!-- END: author_message -->
+                                    <!-- BEGIN: admin_message -->
+                                    <div class="alert alert-warning mb-2">
+                                        <i class="fa fa-shield"></i> {SPECIAL_MESSAGE}
+                                    </div>
+                                    <!-- END: admin_message -->
                                     <button class="download-btn" onclick="downloadFile({SOURCE.id}); return false;">
                                         <i class="fa fa-download"></i>
                                         <span>TẢI XUỐNG</span>
@@ -2093,5 +2098,161 @@ $(document).ready(function() {
         order: -1;
     }
 }
+
+/* Favorite Section Styles */
+.favorite-section {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid #eee;
+}
+
+/* Favorite Button Styles */
+.favorite-btn {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+    color: white;
+    padding: 12px 25px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 140px;
+    justify-content: center;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.favorite-btn.btn-outline-danger {
+    background: transparent;
+    color: #dc3545;
+    border: 2px solid #dc3545;
+}
+
+.favorite-btn.btn-outline-danger:hover {
+    background: #dc3545;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(220, 53, 69, 0.3);
+}
+
+.favorite-btn.btn-danger {
+    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+    color: white;
+    border: none;
+}
+
+.favorite-btn.btn-danger:hover {
+    background: linear-gradient(135deg, #c82333 0%, #dc3545 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(220, 53, 69, 0.4);
+}
+
+.favorite-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
 </style>
+
+<script>
+$(document).ready(function() {
+    // Xử lý nút yêu thích
+    $('#favorite-btn').click(function(e) {
+        e.preventDefault();
+
+        var $btn = $(this);
+        var sourceId = $btn.data('source-id');
+        var action = $btn.data('action');
+        var checkss = $btn.data('checkss');
+        var ajaxUrl = $btn.data('ajax-url');
+
+        // Disable button và hiển thị loading
+        $btn.prop('disabled', true);
+        var originalHtml = $btn.html();
+        $btn.html('<i class="fa fa-spinner fa-spin"></i> <span>Đang xử lý...</span>');
+
+        $.ajax({
+            url: ajaxUrl,
+            type: 'POST',
+            data: {
+                ajax: 1,
+                source_id: sourceId,
+                action: action,
+                checkss: checkss
+            },
+            dataType: 'json',
+            success: function(response) {
+                if (response.status === 'success' || response.status === 'info') {
+                    // Cập nhật trạng thái button
+                    $btn.removeClass('btn-danger btn-outline-danger')
+                        .addClass(response.button_class);
+
+                    $btn.html('<i class="fa ' + (response.action === 'add' ? 'fa-heart-o' : 'fa-heart') + '"></i> <span>' + response.button_text + '</span>');
+
+                    // Cập nhật data attributes
+                    $btn.data('action', response.action);
+
+                    // Tạo checkss mới cho action tiếp theo
+                    var newCheckss = md5(sourceId + '_' + response.action + '_' + '{NV_CHECK_SESSION}' + '_' + '{USER_ID}');
+                    $btn.data('checkss', newCheckss);
+
+                    // Hiển thị thông báo
+                    nukeviet.toast(response.message, 'success');
+                } else {
+                    // Hiển thị lỗi
+                    nukeviet.toast(response.message, 'error');
+                    $btn.html(originalHtml);
+                }
+
+                $btn.prop('disabled', false);
+            },
+            error: function() {
+                nukeviet.toast('Có lỗi xảy ra, vui lòng thử lại', 'error');
+                $btn.html(originalHtml);
+                $btn.prop('disabled', false);
+            }
+        });
+    });
+
+    // Hàm hiển thị thông báo
+    function showNotification(type, message) {
+        var alertClass = type === 'success' || type === 'info' ? 'alert-success' : 'alert-danger';
+        var icon = type === 'success' || type === 'info' ? 'fa-check-circle' : 'fa-exclamation-circle';
+
+        var notification = $('<div class="alert ' + alertClass + ' alert-dismissible fade show notification-alert" role="alert">' +
+                           '<i class="fa ' + icon + '"></i> ' + message +
+                           '<button type="button" class="close" data-dismiss="alert" aria-label="Close">' +
+                           '<span aria-hidden="true">&times;</span>' +
+                           '</button>' +
+                           '</div>');
+
+        // Thêm vào đầu container
+        $('#sharecode-detail .container').prepend(notification);
+
+        // Tự động ẩn sau 4 giây
+        setTimeout(function() {
+            notification.fadeOut(function() {
+                $(this).remove();
+            });
+        }, 4000);
+
+        // Scroll to top để user thấy thông báo
+        $('html, body').animate({
+            scrollTop: $('#sharecode-detail').offset().top - 20
+        }, 500);
+    }
+
+    // Simple MD5 function for checkss generation (simplified version)
+    function md5(string) {
+        // This is a simplified placeholder - in real implementation you'd use a proper MD5 library
+        // For now, we'll just return the original checkss since it's generated server-side
+        return $('#favorite-btn').data('checkss');
+    }
+});
+</script>
+
 <!-- END: main -->

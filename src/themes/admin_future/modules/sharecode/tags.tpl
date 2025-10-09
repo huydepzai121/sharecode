@@ -1,4 +1,4 @@
-<div class="card mb-4">
+<div class="card mb-3">
     <div class="card-body">
         <div class="row g-1">
             <div class="col-auto">
@@ -29,32 +29,38 @@
 </div>
 
 <div class="card">
+    <div class="card-header text-bg-primary rounded-top-2 d-flex gap-2 justify-content-between align-items-center">
+        <div class="fw-medium"><i class="fa-solid fa-tags"></i> Quản lý từ khóa</div>
+        <a href="#" class="btn btn-sm btn-secondary" data-toggle="add_tags" data-fc="addTag" data-mtitle="Thêm từ khóa" data-tid="0"><i class="fa-solid fa-plus"></i> Thêm từ khóa</a>
+    </div>
     <div class="card-body">
-        <form method="get" action="{$smarty.const.NV_BASE_ADMINURL}index.php">
+        <form method="get" action="{$smarty.const.NV_BASE_ADMINURL}index.php" id="form-search-tags">
             <input type="hidden" name="{$smarty.const.NV_LANG_VARIABLE}" value="{$smarty.const.NV_LANG_DATA}">
             <input type="hidden" name="{$smarty.const.NV_NAME_VARIABLE}" value="{$MODULE_NAME}">
             <input type="hidden" name="{$smarty.const.NV_OP_VARIABLE}" value="{$OP}">
             <input type="hidden" name="incomplete" value="{$INCOMPLETE}">
             <input type="hidden" name="complete" value="{$COMPLETE}">
-            <div class="d-flex align-items-end flex-wrap justify-content-between g-3">
-                <div>
-                    <div class="input-group">
-                        <input type="text" class="form-control" name="q" value="{$Q}" maxlength="64"
-                            placeholder="Tìm kiếm từ khóa" aria-label="Tìm kiếm từ khóa">
-                        <button type="submit" class="btn btn-primary text-nowrap"><i
-                                class="fa-solid fa-magnifying-glass"></i> Tìm kiếm</button>
-                    </div>
+            <div class="row g-3 flex-xl-nowrap">
+                <div class="col-md-6 flex-lg-fill">
+                    <label for="element_q" class="form-label">Tìm kiếm từ khóa</label>
+                    <input type="text" class="form-control" name="q" id="element_q" value="{$Q}" maxlength="64" placeholder="Nhập từ khóa...">
                 </div>
-                <div>
-                    {if $COMPLETE}Đã có mô tả{elseif $INCOMPLETE}Chưa có mô tả{else}Tất cả từ khóa{/if}: <strong
-                        class="text-danger">{$NUM_ITEMS}</strong>
+                <div class="flex-grow-0 flex-shrink-1 w-auto">
+                    <label for="submit_search" class="form-label d-none d-sm-block">&nbsp;</label>
+                    <button id="submit_search" type="submit" class="btn btn-primary text-nowrap"><i class="fa-solid fa-magnifying-glass"></i> Tìm kiếm</button>
+                </div>
+                <div class="col-auto">
+                    <label class="form-label d-none d-sm-block">&nbsp;</label>
+                    <div class="text-muted">
+                        {if $COMPLETE}Đã có mô tả{elseif $INCOMPLETE}Chưa có mô tả{else}Tất cả từ khóa{/if}: <strong class="text-primary">{$NUM_ITEMS}</strong>
+                    </div>
                 </div>
             </div>
         </form>
     </div>
     {if not empty($DATA)}
     <div class="card-body">
-        <div class="table-responsive-lg table-card" id="list-tags-items">
+        <div class="table-responsive-lg table-card pb-1" id="list-tags-items">
             <table class="table table-striped align-middle table-sticky mb-0">
                 <thead class="text-muted">
                     <tr>
@@ -62,10 +68,20 @@
                             <input type="checkbox" data-toggle="checkAll" data-type="tag"
                                 class="form-check-input m-0 align-middle" aria-label="Chọn tất cả">
                         </th>
-                        <th class="text-nowrap" style="width: 38%;">Tên từ khóa</th>
-                        <th class="text-nowrap text-center" style="width: 1%;">Mô tả</th>
-                        <th class="text-nowrap" style="width: 40%;">Alias</th>
-                        <th class="text-nowrap" style="width: 20%;">Thao tác</th>
+                        <th class="text-nowrap" style="width: 35%;">
+                            {if isset($BASE_URL_ORDER)}
+                            <a href="{$BASE_URL_ORDER}{if !isset($ARRAY_ORDER.field) or $ARRAY_ORDER.field neq 'name' or !isset($ARRAY_ORDER.value) or $ARRAY_ORDER.value neq 'asc'}&amp;of=name{if !isset($ARRAY_ORDER.field) or $ARRAY_ORDER.field neq 'name' or empty($ARRAY_ORDER.value)}&amp;ov=asc{else}&amp;ov=desc{/if}{/if}" class="d-flex align-items-center justify-content-between">
+                                <span class="me-1">Tên từ khóa</span>
+                                {if !isset($ARRAY_ORDER.field) or $ARRAY_ORDER.field neq 'name' or empty($ARRAY_ORDER.value)}<i class="fa-solid fa-sort"></i>{elseif $ARRAY_ORDER.value eq 'asc'}<i class="fa-solid fa-sort-up"></i>{else}<i class="fa-solid fa-sort-down"></i>{/if}
+                            </a>
+                            {else}
+                            <span>Tên từ khóa</span>
+                            {/if}
+                        </th>
+                        <th class="text-nowrap text-center" style="width: 5%;">Mô tả</th>
+                        <th class="text-nowrap" style="width: 35%;">Alias</th>
+                        <th class="text-nowrap text-center" style="width: 8%;">Liên kết</th>
+                        <th class="text-nowrap text-center" style="width: 1%;">Thao tác</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -73,38 +89,40 @@
                     <tr>
                         <td>
                             <input type="checkbox" data-toggle="checkSingle" data-type="tag" value="{$row.id}"
-                                class="form-check-input m-0 align-middle" aria-label="Chọn">
+                                class="form-check-input m-0 align-middle" aria-label="Chọn mục này">
                         </td>
                         <td>
-                            <strong>{$row.name}</strong>
+                            <div class="fw-medium">{$row.name}</div>
+                            {if $row.description}<small class="text-muted">{$row.description|truncate:60}</small>{/if}
                         </td>
                         <td class="text-center">
                             {if empty($row.description)}
                             <i class="fa-solid fa-triangle-exclamation text-danger" data-bs-toggle="tooltip"
                                 data-bs-title="Chưa có mô tả"></i>
                             {else}
-                            <i class="fa-solid fa-check text-success"></i>
+                            <i class="fa-solid fa-check text-success" data-bs-toggle="tooltip"
+                                data-bs-title="Đã có mô tả"></i>
                             {/if}
                         </td>
                         <td><code class="text-muted">{$row.alias}</code></td>
+                        <td class="text-center">
+                            <span class="badge bg-{if $row.num_sources > 0}primary{else}secondary{/if}">{$row.num_sources}</span>
+                        </td>
                         <td>
-                            <div class="row g-1 flex-nowrap">
-                                <div class="col-auto">
-                                    <button type="button" class="btn btn-secondary btn-sm" {if empty($row.num_sources)}
-                                        disabled{else} data-toggle="link_tags" data-tid="{$row.id}" {/if}><i
-                                            class="fa-solid fa-tags" data-icon="fa-tags"></i> Liên kết:
-                                        <strong>{$row.num_sources}</strong></button>
-                                </div>
-                                <div class="col-auto">
-                                    <button type="button" class="btn btn-secondary btn-sm" data-toggle="add_tags"
-                                        data-fc="editTag" data-mtitle="Sửa từ khóa" data-tid="{$row.id}"><i
-                                            class="fa-solid fa-pen" data-icon="fa-pen"></i> Sửa</button>
-                                </div>
-                                <div class="col-auto">
-                                    <button type="button" class="btn btn-danger btn-sm" data-toggle="nv_del_tag"
-                                        data-tid="{$row.id}"><i class="fa-solid fa-trash" data-icon="fa-trash"></i>
-                                        Xóa</button>
-                                </div>
+                            <div class="input-group flex-nowrap">
+                                <button type="button" class="btn btn-sm btn-secondary text-nowrap" data-toggle="add_tags"
+                                    data-fc="editTag" data-mtitle="Sửa từ khóa" data-tid="{$row.id}">
+                                    <i class="fa-solid fa-pen"></i> Sửa
+                                </button>
+                                <button type="button" class="btn btn-sm btn-secondary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <span class="visually-hidden">Thao tác</span>
+                                </button>
+                                <ul class="dropdown-menu">
+                                    {if $row.num_sources > 0}
+                                    <li><button type="button" class="dropdown-item" data-toggle="link_tags" data-tid="{$row.id}"><i class="fa-solid fa-tags fa-fw text-center text-info" data-icon="fa-tags"></i> Xem liên kết ({$row.num_sources})</button></li>
+                                    {/if}
+                                    <li><button type="button" class="dropdown-item" data-toggle="nv_del_tag" data-tid="{$row.id}"><i class="fa-solid fa-trash fa-fw text-center text-danger" data-icon="fa-trash"></i> Xóa</button></li>
+                                </ul>
                             </div>
                         </td>
                     </tr>
@@ -146,7 +164,7 @@
                     action="{$smarty.const.NV_BASE_ADMINURL}index.php?{$smarty.const.NV_LANG_VARIABLE}={$smarty.const.NV_LANG_DATA}&{$smarty.const.NV_NAME_VARIABLE}={$MODULE_NAME}&{$smarty.const.NV_OP_VARIABLE}={$OP}"
                     method="post" class="ajax-submit">
                     <input name="savetag" type="hidden" value="1">
-                    <input name="checkss" type="hidden" value="{$smarty.const.NV_CHECK_SESSION}">
+                    <input name="checkss" type="hidden" value="{$CHECKSESS}">
                     <div class="mb-3">
                         <label for="element_mtag_mtitle" class="form-label">Nhập từ khóa (mỗi dòng một từ khóa):</label>
                         <textarea class="form-control" name="mtitle" id="element_mtag_mtitle" rows="5"
@@ -175,7 +193,7 @@
                     action="{$smarty.const.NV_BASE_ADMINURL}index.php?{$smarty.const.NV_LANG_VARIABLE}={$smarty.const.NV_LANG_DATA}&{$smarty.const.NV_NAME_VARIABLE}={$MODULE_NAME}&{$smarty.const.NV_OP_VARIABLE}={$OP}"
                     method="post" class="ajax-submit">
                     <input name="savecat" type="hidden" value="1">
-                    <input name="checkss" type="hidden" value="{$smarty.const.NV_CHECK_SESSION}">
+                    <input name="checkss" type="hidden" value="{$CHECKSESS}">
                     <input name="id" type="hidden" value="0">
                     <div class="row mb-3">
                         <label for="element_stag_name" class="col-12 col-sm-3 col-form-label text-sm-end">Tên tag <span
@@ -266,7 +284,7 @@
                 $.post('{$smarty.const.NV_BASE_ADMINURL}index.php?{$smarty.const.NV_LANG_VARIABLE}={$smarty.const.NV_LANG_DATA}&{$smarty.const.NV_NAME_VARIABLE}={$MODULE_NAME}&{$smarty.const.NV_OP_VARIABLE}={$OP}', {
                     loadEditTag: 1,
                     id: tid,
-                    checkss: nv_md5_check('{$smarty.const.NV_CHECK_SESSION}')
+                    checkss: nv_md5_check('{$CHECKSESS}')
                 }, function (res) {
                     if (res.success) {
                         $('#element_stag_name').val(res.data.name);
@@ -292,7 +310,7 @@
             $.post('{$smarty.const.NV_BASE_ADMINURL}index.php?{$smarty.const.NV_LANG_VARIABLE}={$smarty.const.NV_LANG_DATA}&{$smarty.const.NV_NAME_VARIABLE}={$MODULE_NAME}&{$smarty.const.NV_OP_VARIABLE}={$OP}', {
                 tagLinks: 1,
                 id: tid,
-                checkss: nv_md5_check('{$smarty.const.NV_CHECK_SESSION}')
+                checkss: nv_md5_check('{$CHECKSESS}')
             }, function (res) {
                 if (res.success) {
                     $('#mdTagLinks .modal-body').html(res.html);
@@ -311,7 +329,7 @@
                 var tid = $(this).data('tid');
                 $.post('{$smarty.const.NV_BASE_ADMINURL}index.php?{$smarty.const.NV_LANG_VARIABLE}={$smarty.const.NV_LANG_DATA}&{$smarty.const.NV_NAME_VARIABLE}={$MODULE_NAME}&{$smarty.const.NV_OP_VARIABLE}={$OP}', {
                     del_tid: tid,
-                    checkss: nv_md5_check('{$smarty.const.NV_CHECK_SESSION}')
+                    checkss: nv_md5_check('{$CHECKSESS}')
                 }, function (res) {
                     if (res.success) {
                         location.reload();
@@ -340,7 +358,7 @@
             if (confirm('Bạn có chắc chắn muốn xóa ' + ids.length + ' từ khóa đã chọn?')) {
                 $.post('{$smarty.const.NV_BASE_ADMINURL}index.php?{$smarty.const.NV_LANG_VARIABLE}={$smarty.const.NV_LANG_DATA}&{$smarty.const.NV_NAME_VARIABLE}={$MODULE_NAME}&{$smarty.const.NV_OP_VARIABLE}={$OP}', {
                     del_listid: ids.join(','),
-                    checkss: nv_md5_check('{$smarty.const.NV_CHECK_SESSION}')
+                    checkss: nv_md5_check('{$CHECKSESS}')
                 }, function (res) {
                     if (res.success) {
                         location.reload();

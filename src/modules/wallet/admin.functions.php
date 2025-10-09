@@ -49,7 +49,7 @@ function getInfoUser($userid)
 function update_money($userid, $money, $money_unit, $currTranStatus, $oldTranStatus, $status)
 {
     global $db, $db_config, $module_data;
-    if ($money_unit == '' ) {
+    if ($money_unit == '') {
         $money_unit = 'VND';
     }
 
@@ -83,6 +83,7 @@ function update_money($userid, $money, $money_unit, $currTranStatus, $oldTranSta
         $stmt->bindValue(':tokenkey', '', PDO::PARAM_STR);
 
         $exc = $stmt->execute();
+        return $exc;
     } else {
         $row = $_query->fetch();
         $stmt = $db->prepare('UPDATE ' . $db_config['prefix'] . '_' . $module_data . '_money SET
@@ -118,6 +119,7 @@ function update_money($userid, $money, $money_unit, $currTranStatus, $oldTranSta
         }
 
         $exc = $stmt->execute();
+        return $exc;
     }
 }
 

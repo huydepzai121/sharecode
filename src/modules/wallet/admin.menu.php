@@ -89,4 +89,4 @@ $submenu['transaction'] = $nv_Lang->getModule('transaction');
 if ($IS_FULL_ADMIN or !empty($PERMISSION_ADMIN['is_mtransaction'])) {
 }
 $allow_func[] = 'add_transaction';
-// $submenu['add_transaction'] = $nv_Lang->getModule('add_transaction');
+$submenu['add_transaction'] = $nv_Lang->getModule('add_transaction');

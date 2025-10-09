@@ -16,20 +16,46 @@
     </div>
     <div class="card-body">
         {if $CATEGORIES}
-        <div class="table-responsive-lg table-card">
+        <div class="table-responsive-lg table-card pb-1">
             <table class="table table-striped align-middle table-sticky mb-0">
                 <thead class="text-muted">
                     <tr>
-                        <th class="text-nowrap text-center" style="width: 50px;">
+                        <th class="text-nowrap text-center" style="width: 1%;">
                             <input type="checkbox" data-toggle="checkAll" name="checkAll[]"
                                 class="form-check-input m-0 align-middle" aria-label="Chọn tất cả">
                         </th>
-                        <th class="text-nowrap text-center" style="width: 80px;">Thứ tự</th>
-                        <th class="text-nowrap" style="width: auto;">Tên danh mục</th>
-                        <th class="text-nowrap text-center" style="width: 100px;">Hình ảnh</th>
-                        <th class="text-nowrap text-center" style="width: 100px;">Trạng thái</th>
-                        <th class="text-nowrap text-center" style="width: 150px;">Thời gian</th>
-                        <th class="text-nowrap text-center" style="width: 120px;">Thao tác</th>
+                        <th class="text-nowrap text-center" style="width: 8%;">
+                            {if isset($BASE_URL_ORDER)}
+                            <a href="{$BASE_URL_ORDER}{if !isset($ARRAY_ORDER.field) or $ARRAY_ORDER.field neq 'weight' or !isset($ARRAY_ORDER.value) or $ARRAY_ORDER.value neq 'asc'}&amp;of=weight{if !isset($ARRAY_ORDER.field) or $ARRAY_ORDER.field neq 'weight' or empty($ARRAY_ORDER.value)}&amp;ov=asc{else}&amp;ov=desc{/if}{/if}" class="d-flex align-items-center justify-content-center">
+                                <span class="me-1">Thứ tự</span>
+                                {if !isset($ARRAY_ORDER.field) or $ARRAY_ORDER.field neq 'weight' or empty($ARRAY_ORDER.value)}<i class="fa-solid fa-sort"></i>{elseif $ARRAY_ORDER.value eq 'asc'}<i class="fa-solid fa-sort-up"></i>{else}<i class="fa-solid fa-sort-down"></i>{/if}
+                            </a>
+                            {else}
+                            <span>Thứ tự</span>
+                            {/if}
+                        </th>
+                        <th class="text-nowrap" style="width: auto;">
+                            {if isset($BASE_URL_ORDER)}
+                            <a href="{$BASE_URL_ORDER}{if !isset($ARRAY_ORDER.field) or $ARRAY_ORDER.field neq 'title' or !isset($ARRAY_ORDER.value) or $ARRAY_ORDER.value neq 'asc'}&amp;of=title{if !isset($ARRAY_ORDER.field) or $ARRAY_ORDER.field neq 'title' or empty($ARRAY_ORDER.value)}&amp;ov=asc{else}&amp;ov=desc{/if}{/if}" class="d-flex align-items-center justify-content-between">
+                                <span class="me-1">Tên danh mục</span>
+                                {if !isset($ARRAY_ORDER.field) or $ARRAY_ORDER.field neq 'title' or empty($ARRAY_ORDER.value)}<i class="fa-solid fa-sort"></i>{elseif $ARRAY_ORDER.value eq 'asc'}<i class="fa-solid fa-sort-up"></i>{else}<i class="fa-solid fa-sort-down"></i>{/if}
+                            </a>
+                            {else}
+                            <span>Tên danh mục</span>
+                            {/if}
+                        </th>
+                        <th class="text-nowrap text-center" style="width: 10%;">Trạng thái</th>
+                        <th class="text-nowrap text-center" style="width: 15%;">
+                            {if isset($BASE_URL_ORDER)}
+                            <a href="{$BASE_URL_ORDER}{if !isset($ARRAY_ORDER.field) or $ARRAY_ORDER.field neq 'add_time' or !isset($ARRAY_ORDER.value) or $ARRAY_ORDER.value neq 'desc'}&amp;of=add_time{if !isset($ARRAY_ORDER.field) or $ARRAY_ORDER.field neq 'add_time' or empty($ARRAY_ORDER.value)}&amp;ov=asc{else}&amp;ov=desc{/if}{/if}" class="d-flex align-items-center justify-content-center">
+                                <span class="me-1">Thời gian</span>
+                                {if !isset($ARRAY_ORDER.field) or $ARRAY_ORDER.field neq 'add_time' or empty($ARRAY_ORDER.value)}<i class="fa-solid fa-sort"></i>{elseif $ARRAY_ORDER.value eq 'asc'}<i class="fa-solid fa-sort-up"></i>{else}<i class="fa-solid fa-sort-down"></i>{/if}
+                            </a>
+                            {else}
+                            <span>Thời gian</span>
+                            {/if}
+                        </th>
+                        <th class="text-nowrap text-center" style="width: 1%;">Thao tác</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -38,7 +64,7 @@
                         data-level="{$category.level}" {if $category.parentid> 0}style="display: none;"{/if}>
                         <td class="text-center align-middle">
                             <input type="checkbox" data-toggle="checkSingle" name="checkSingle[]" value="{$category.id}"
-                                class="form-check-input m-0 align-middle" aria-label="Chọn danh mục">
+                                class="form-check-input m-0 align-middle" aria-label="Chọn mục này"{if isset($category.is_locked) and $category.is_locked} disabled{/if}>
                         </td>
                         <td class="text-center align-middle">
                             <span class="badge bg-primary change-weight-btn" style="cursor: pointer;"
@@ -74,15 +100,6 @@
                             </div>
                         </td>
                         <td class="text-center align-middle">
-                            {if $category.image}
-                            <img src="{$category.image}" alt="{$category.title}" class="img-thumbnail preview-image"
-                                style="max-width: 50px; max-height: 40px; cursor: pointer;" data-src="{$category.image}"
-                                data-title="{$category.title}" title="Click để xem ảnh lớn">
-                            {else}
-                            <span class="text-muted small">Không có</span>
-                            {/if}
-                        </td>
-                        <td class="text-center align-middle">
                             <span class="badge bg-{$category.status_class}">{$category.status_text}</span>
                         </td>
                         <td class="text-center align-middle">
@@ -92,17 +109,19 @@
                             </div>
                         </td>
                         <td class="text-center align-middle">
-                            <div class="btn-group" role="group">
-                                <button type="button" class="btn btn-sm btn-outline-secondary" title="Chỉnh sửa"
+                            <div class="input-group flex-nowrap">
+                                <button type="button" class="btn btn-sm btn-secondary text-nowrap" title="Sửa"
                                     data-bs-toggle="modal" data-bs-target="#modal-category" data-action="edit"
                                     data-id="{$category.id}">
-                                    <i class="fa-solid fa-pen"></i>
+                                    <i class="fa-solid fa-pen"></i> Sửa
                                 </button>
-                                <button type="button" class="btn btn-sm btn-outline-danger" title="Xóa"
-                                    data-toggle="delCategory" data-id="{$category.id}"
-                                    data-checksess="{$category.checksess}">
-                                    <i class="fa-solid fa-trash"></i>
+                                <button type="button" class="btn btn-sm btn-secondary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <span class="visually-hidden">Thao tác</span>
                                 </button>
+                                <ul class="dropdown-menu">
+                                    <li><button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#modal-category" data-action="add" data-parent="{$category.id}"><i class="fa-solid fa-plus fa-fw text-center text-success" data-icon="fa-plus"></i> Thêm danh mục con</button></li>
+                                    <li><button type="button" class="dropdown-item" data-toggle="delCategory" data-id="{$category.id}" data-checksess="{$category.checksess}"><i class="fa-solid fa-trash fa-fw text-center text-danger" data-icon="fa-trash"></i> Xóa</button></li>
+                                </ul>
                             </div>
                         </td>
                     </tr>
@@ -187,28 +206,7 @@
     </div>
 </div>
 
-<!-- Modal for Image Preview -->
-<div class="modal fade" id="modal-image-preview" tabindex="-1" aria-labelledby="modal-image-preview-label"
-    aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="modal-image-preview-label">
-                    <i class="fa-solid fa-image"></i> <span id="preview-title">Xem ảnh</span>
-                </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
-            </div>
-            <div class="modal-body text-center">
-                <img id="preview-image" src="" alt="" class="img-fluid" style="max-height: 70vh;">
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                    <i class="fa-solid fa-xmark"></i> Đóng
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
+
 
 <!-- Modal for Add/Edit Category -->
 <div class="modal fade" id="modal-category" tabindex="-1" aria-labelledby="modal-category-label" aria-hidden="true">
@@ -259,23 +257,6 @@
                         <textarea class="form-control" id="modal-description" name="description" rows="4"></textarea>
                     </div>
 
-                    <div class="mb-3">
-                        <label for="modal-image" class="form-label">Hình ảnh đại diện</label>
-                        <div class="input-group">
-                            <input type="text" class="form-control" id="modal-image" name="image" readonly>
-                            <button class="btn btn-outline-secondary" type="button" id="btn-select-image">
-                                <i class="fa-solid fa-image"></i> Chọn ảnh
-                            </button>
-                        </div>
-                        <div id="image-preview" class="mt-2 d-none">
-                            <img id="preview-img" src="" alt="Preview" class="img-thumbnail"
-                                style="max-width: 150px; max-height: 100px;">
-                            <button type="button" class="btn btn-sm btn-danger ms-2" id="btn-remove-image">
-                                <i class="fa-solid fa-trash"></i> Xóa ảnh
-                            </button>
-                        </div>
-                    </div>
-
                     <div class="mb-0">
                         <div class="form-check form-switch">
                             <input class="form-check-input" type="checkbox" role="switch" id="modal-status"
@@ -316,6 +297,8 @@
             form.removeClass('was-validated');
             modalAlert.addClass('d-none');
             $('#category-id').val(id);
+            // Reset trạng thái user-modified cho alias
+            $('#modal-alias').removeData('user-modified');
 
             if (action === 'edit') {
                 $('#modal-icon').removeClass('fa-plus').addClass('fa-edit');
@@ -337,18 +320,10 @@
                             $('#modal-title').val(response.data.title);
                             $('#modal-alias').val(response.data.alias);
                             $('#modal-description').val(response.data.description);
-                            $('#modal-image').val(response.data.image || '');
                             $('#modal-status').prop('checked', response.data.status == 1);
 
                             // Load parent options excluding current category
                             loadParentOptions(id, response.data.parentid || 0);
-
-                            // Show image preview if exists
-                            if (response.data.image) {
-                                showImagePreview('{$smarty.const.NV_BASE_SITEURL}' + response.data.image);
-                            } else {
-                                hideImagePreview();
-                            }
                         } else {
                             showAlert(response.mess || 'Lỗi khi tải dữ liệu danh mục');
                         }
@@ -362,19 +337,30 @@
                 $('#modal-title-text').text('Thêm danh mục mới');
                 $('#btn-save-text').text('Thêm mới');
                 $('#modal-parent').val(0);
-                $('#modal-image').val('');
                 $('#modal-status').prop('checked', true);
-                hideImagePreview();
             }
         });
 
-        // Auto-generate alias
+        // Auto-generate alias - sử dụng timeout để tránh lag khi gõ nhanh
+        var aliasTimeout;
         $('#modal-title').on('input', function () {
-            if ($('#modal-alias').val() === '') {
-                var title = $(this).val();
-                var alias = nv_create_alias(title);
-                $('#modal-alias').val(alias);
+            var titleInput = $(this);
+            var aliasInput = $('#modal-alias');
+
+            // Chỉ tự động tạo alias nếu user chưa tự nhập alias
+            if (aliasInput.data('user-modified') !== true) {
+                clearTimeout(aliasTimeout);
+                aliasTimeout = setTimeout(function() {
+                    var title = titleInput.val();
+                    var alias = nv_create_alias(title);
+                    aliasInput.val(alias);
+                }, 100); // Delay 100ms để tránh lag
             }
+        });
+
+        // Đánh dấu khi user tự sửa alias
+        $('#modal-alias').on('input', function () {
+            $(this).data('user-modified', $(this).val() !== '');
         });
 
         $('#btn-generate-alias').on('click', function () {
@@ -411,7 +397,6 @@
                 alias: $('#modal-alias').val(),
                 parent_id: $('#modal-parent').val(),
                 description: $('#modal-description').val(),
-                image: $('#modal-image').val(),
                 status: $('#modal-status').prop('checked') ? 1 : 0,
                 checkss: '{$smarty.const.NV_CHECK_SESSION}'
             };
@@ -734,41 +719,7 @@
             }
         }
 
-        // Image preview functionality
-        $('body').on('click', '.preview-image', function () {
-            var imageSrc = $(this).data('src');
-            var imageTitle = $(this).data('title');
 
-            $('#preview-image').attr('src', imageSrc).attr('alt', imageTitle);
-            $('#preview-title').text('Ảnh đại diện: ' + imageTitle);
-            $('#modal-image-preview').modal('show');
-        });
-
-        // Image selection handlers
-        $('#btn-select-image').on('click', function () {
-            var area = 'modal-image';
-            var path = 'uploads/sharecode';
-            var currentpath = 'uploads/sharecode';
-            var type = 'image';
-
-            nv_open_browse(script_name + "?" + nv_name_variable + "=upload&popup=1&area=" + area + "&path=" + path + "&type=" + type + "&currentpath=" + currentpath, "NVImg", 850, 420, "resizable=no,scrollbars=no,toolbar=no,location=no,status=no");
-            return false;
-        });
-
-        $('#btn-remove-image').on('click', function () {
-            $('#modal-image').val('');
-            hideImagePreview();
-        });
-
-        // Monitor image input changes
-        $('#modal-image').on('change', function () {
-            var imagePath = $(this).val();
-            if (imagePath) {
-                showImagePreview('{$smarty.const.NV_BASE_SITEURL}' + imagePath);
-            } else {
-                hideImagePreview();
-            }
-        });
 
         // Initialize tooltips
         if (typeof bootstrap !== 'undefined' && bootstrap.Tooltip) {
@@ -800,25 +751,19 @@
             text = text.replace(new RegExp(char, 'g'), map[char]);
         }
 
-        // Remove special characters and replace spaces with hyphens
+        // Keep alphanumeric characters, spaces, and hyphens
         text = text.replace(/[^a-z0-9\s-]/g, '');
+        // Replace multiple spaces with single hyphen
         text = text.replace(/\s+/g, '-');
+        // Replace multiple hyphens with single hyphen
         text = text.replace(/-+/g, '-');
-        text = text.replace(/^-|-$/g, '');
+        // Remove leading and trailing hyphens
+        text = text.replace(/^-+|-+$/g, '');
 
         return text;
     }
 
-    // Image preview functions
-    function showImagePreview(imageUrl) {
-        $('#preview-img').attr('src', imageUrl);
-        $('#image-preview').removeClass('d-none');
-    }
 
-    function hideImagePreview() {
-        $('#preview-img').attr('src', '');
-        $('#image-preview').addClass('d-none');
-    }
 
     // Load parent options excluding current category
     function loadParentOptions(excludeId, selectedId) {
