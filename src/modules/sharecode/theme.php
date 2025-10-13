@@ -71,6 +71,7 @@ function nv_theme_sharecode_list_view($sources, $categories, $q, $category, $pri
     $xtpl->parse('main.category_option');
 
     foreach ($categories as $cat) {
+        $cat['selected'] = ($category == $cat['id']) ? 'selected="selected"' : '';
         $xtpl->assign('CATEGORY', $cat);
         $xtpl->parse('main.category_option');
     }
@@ -137,15 +138,16 @@ function nv_theme_sharecode_list_view($sources, $categories, $q, $category, $pri
  * @param array $rating_breakdown
  * @param bool $can_review
  * @param bool $need_login_review
+ * @param bool $need_purchase_review
  * @param array $comments
  * @param int $total_comments
  * @param bool $can_comment
  * @param bool $need_login_comment
  * @return string
  */
-function nv_theme_sharecode_detail($source, $category, $tags, $reviews, $avg_rating, $total_reviews, $related_sources, $can_download, $author_info = [], $demo_images = [], $already_purchased = false, $need_login = false, $need_contact = false, $user_balance_data = null, $balance_after = 0, $balance_after_class = 'text-success', $can_pay = false, $need_topup = false, $rating_breakdown = [], $can_review = false, $need_login_review = false, $comments = [], $total_comments = 0, $can_comment = false, $need_login_comment = false, $is_admin = false, $is_author = false)
+function nv_theme_sharecode_detail($source, $category, $tags, $reviews, $avg_rating, $total_reviews, $related_sources, $can_download, $author_info = [], $demo_images = [], $already_purchased = false, $need_login = false, $need_contact = false, $user_balance_data = null, $balance_after = 0, $balance_after_class = 'text-success', $can_pay = false, $need_topup = false, $rating_breakdown = [], $can_review = false, $need_login_review = false, $need_purchase_review = false, $comments = [], $total_comments = 0, $can_comment = false, $need_login_comment = false, $is_admin = false, $is_author = false)
 {
-    global $module_file, $global_config, $lang_module, $module_name, $user_info;
+    global $module_file, $global_config, $lang_module, $module_name, $user_info, $module_info;
 
     $xtpl = new XTemplate('detail.tpl', NV_ROOTDIR . '/themes/' . $global_config['site_theme'] . '/modules/' . $module_file);
 
@@ -160,6 +162,8 @@ function nv_theme_sharecode_detail($source, $category, $tags, $reviews, $avg_rat
     $xtpl->assign('NV_LANG_DATA', NV_LANG_DATA);
     $xtpl->assign('NV_NAME_VARIABLE', NV_NAME_VARIABLE);
     $xtpl->assign('BASE_URL', NV_BASE_SITEURL);
+    $xtpl->assign('LINK_URL', NV_STATIC_URL . 'themes/' . $module_info['template']);
+    $xtpl->assign('TEMPLATE', $module_info['template']);
 
     // History URL để redirect sau khi thanh toán
     if (defined('NV_IS_USER')) {
@@ -190,31 +194,24 @@ function nv_theme_sharecode_detail($source, $category, $tags, $reviews, $avg_rat
 
     // Xử lý demo images
     if (!empty($demo_images)) {
-        foreach ($demo_images as $demo_img) {
+        // Parse demo images cho main gallery
+        foreach ($demo_images as $k => $demo_img) {
             $xtpl->assign('DEMO_IMAGE', $demo_img);
-            $xtpl->parse('main.demo_images.demo_image');
+            $xtpl->parse('main.demo_images.demo_image_others');
         }
         $xtpl->parse('main.demo_images');
+
+        // Parse demo images cho thumbnails
+        foreach ($demo_images as $k => $demo_img) {
+            $xtpl->assign('DEMO_IMAGE', $demo_img);
+            $xtpl->parse('main.demo_images_thumbs.demo_image_thumb');
+        }
+        $xtpl->parse('main.demo_images_thumbs');
     }
 
-    // Xử lý quyền download - Sử dụng block names riêng biệt để tránh duplicate content
+    // Xử lý quyền download - Sử dụng block names khớp với template
     if ($already_purchased) {
-        // Hiển thị thông báo đặc biệt cho tác giả và admin
-        if ($is_author) {
-            $xtpl->assign('SPECIAL_MESSAGE', 'Bạn là tác giả của mã nguồn này');
-            $xtpl->parse('main.special_messages.author_message');
-        } elseif ($is_admin) {
-            $xtpl->assign('SPECIAL_MESSAGE', 'Bạn có quyền admin - tải xuống miễn phí');
-            $xtpl->parse('main.special_messages.admin_message');
-        }
-
-        // Parse special messages block nếu có thông báo
-        if ($is_author || $is_admin) {
-            $xtpl->parse('main.special_messages');
-        }
-
-        // Hiển thị nút download riêng biệt
-        $xtpl->parse('main.download_button');
+        $xtpl->parse('main.already_purchased');
     } elseif ($need_login) {
         $login_url = NV_BASE_SITEURL . 'index.php?' . NV_LANG_VARIABLE . '=' . NV_LANG_DATA . '&' . NV_NAME_VARIABLE . '=users&' . NV_OP_VARIABLE . '=login';
         $xtpl->assign('LOGIN_URL', $login_url);
@@ -222,8 +219,13 @@ function nv_theme_sharecode_detail($source, $category, $tags, $reviews, $avg_rat
     } elseif ($need_contact) {
         // Contact information will be handled by JavaScript modalShow
         $xtpl->parse('main.need_contact');
-    } else {
+    } elseif ($can_download) {
         $xtpl->parse('main.can_download');
+    } else {
+        // Fallback: nếu không có điều kiện nào thỏa mãn, hiển thị nút login
+        $login_url = NV_BASE_SITEURL . 'index.php?' . NV_LANG_VARIABLE . '=' . NV_LANG_DATA . '&' . NV_NAME_VARIABLE . '=users&' . NV_OP_VARIABLE . '=login';
+        $xtpl->assign('LOGIN_URL', $login_url);
+        $xtpl->parse('main.need_login');
     }
 
     // Chuẩn bị dữ liệu cho nút yêu thích - chỉ hiển thị khi user đã đăng nhập
@@ -290,7 +292,7 @@ function nv_theme_sharecode_detail($source, $category, $tags, $reviews, $avg_rat
     // Xử lý reviews section
     if ($total_reviews > 0) {
         $xtpl->assign('TOTAL_REVIEWS', $total_reviews);
-        $xtpl->assign('AVG_RATING', $avg_rating);
+        $xtpl->assign('AVG_RATING', intval($avg_rating));
         $rating_stars = max(0, min(5, round(floatval($avg_rating))));
         $xtpl->assign('AVG_RATING_STARS', str_repeat('★', $rating_stars) . str_repeat('☆', 5 - $rating_stars));
 
@@ -317,6 +319,8 @@ function nv_theme_sharecode_detail($source, $category, $tags, $reviews, $avg_rat
         $login_url = NV_BASE_SITEURL . 'index.php?' . NV_LANG_VARIABLE . '=' . NV_LANG_DATA . '&' . NV_NAME_VARIABLE . '=users&' . NV_OP_VARIABLE . '=login';
         $xtpl->assign('LOGIN_URL', $login_url);
         $xtpl->parse('main.need_login_review');
+    } elseif ($need_purchase_review) {
+        $xtpl->parse('main.need_purchase_review');
     }
 
     if (!empty($reviews)) {

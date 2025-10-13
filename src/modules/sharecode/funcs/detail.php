@@ -136,7 +136,7 @@ $demo_images = [];
 if (!empty($source['demo_image'])) {
     $demo_image_data = json_decode($source['demo_image'], true);
     if (is_array($demo_image_data)) {
-        foreach ($demo_image_data as $img_path) {
+        foreach ($demo_image_data as $k => $img_path) {
             if (!empty($img_path)) {
                 $clean_path = ltrim($img_path, '/');
                 $full_path = NV_ROOTDIR . '/' . $clean_path;
@@ -146,7 +146,8 @@ if (!empty($source['demo_image'])) {
                         'url' => NV_BASE_SITEURL . $clean_path,
                         'path' => $clean_path,
                         'alt' => 'Demo ảnh - ' . $source['title'],
-                        'title' => 'Xem demo ảnh của ' . $source['title']
+                        'title' => 'Xem demo ảnh của ' . $source['title'],
+                        'index' => $k + 1
                     ];
                 }
             }
@@ -160,7 +161,8 @@ if (!empty($source['demo_image'])) {
                 'url' => NV_BASE_SITEURL . $clean_path,
                 'path' => $clean_path,
                 'alt' => 'Demo ảnh - ' . $source['title'],
-                'title' => 'Xem demo ảnh của ' . $source['title']
+                'title' => 'Xem demo ảnh của ' . $source['title'],
+                'index' => 1
             ];
         }
     }
@@ -173,7 +175,7 @@ switch ($source['fee_type']) {
         $source['price_icon'] = 'fa fa-gift';
         break;
     case 'contact':
-        $source['price_text'] = 'Có phí, liên hệ để biết giá';
+        $source['price_text'] = 'Liên hệ để biết giá';
         $source['price_class'] = 'contact';
         $source['price_icon'] = 'fa fa-phone';
         break;
@@ -386,6 +388,94 @@ if ($nv_Request->isset_request('admin_reply_review', 'post') && defined('NV_IS_A
     }
 }
 
+// Xử lý trả lời bình luận
+if ($nv_Request->isset_request('submit_reply', 'post')) {
+    if (!defined('NV_IS_USER')) {
+        nv_jsonOutput(['status' => 'error', 'message' => 'Vui lòng đăng nhập để trả lời']);
+    }
+
+    $comment_id = $nv_Request->get_int('comment_id', 'post', 0);
+    $reply_content = $nv_Request->get_textarea('reply_content', 'post', '');
+    $source_id = $nv_Request->get_int('source_id', 'post', 0);
+    $checksess = $nv_Request->get_title('checksess', 'post', '');
+
+    if ($checksess != NV_CHECK_SESSION) {
+        nv_jsonOutput(['status' => 'error', 'message' => 'Token xác thực không hợp lệ']);
+    }
+
+    if ($source_id <= 0 || $source_id != $source['id']) {
+        nv_jsonOutput(['status' => 'error', 'message' => 'Source ID không hợp lệ']);
+    }
+
+    if ($comment_id <= 0) {
+        nv_jsonOutput(['status' => 'error', 'message' => 'ID bình luận không hợp lệ']);
+    }
+
+    if (empty($reply_content)) {
+        nv_jsonOutput(['status' => 'error', 'message' => 'Vui lòng nhập nội dung trả lời']);
+    }
+
+    if (strlen($reply_content) < 5) {
+        nv_jsonOutput(['status' => 'error', 'message' => 'Nội dung trả lời phải có ít nhất 5 ký tự']);
+    }
+
+    // Kiểm tra comment có tồn tại và thuộc về source này không
+    $sql_check = "SELECT c.id, c.userid, c.username
+                  FROM " . NV_PREFIXLANG . "_" . $module_data . "_comments c
+                  WHERE c.id=" . $comment_id . " AND c.source_id=" . $source_id . " AND c.status=1";
+    $comment_info = $db->query($sql_check)->fetch();
+
+    if (!$comment_info) {
+        nv_jsonOutput(['status' => 'error', 'message' => 'Bình luận không tồn tại hoặc không thuộc về sản phẩm này']);
+    }
+
+    try {
+        // Thêm reply vào database
+        $sql_insert = "INSERT INTO " . NV_PREFIXLANG . "_" . $module_data . "_comments
+                      (source_id, userid, username, content, time_add, status, parent_id)
+                      VALUES (
+                          " . $source_id . ",
+                          " . $user_info['userid'] . ",
+                          " . $db->quote($user_info['username']) . ",
+                          " . $db->quote($reply_content) . ",
+                          " . NV_CURRENTTIME . ",
+                          1,
+                          " . $comment_id . "
+                      )";
+
+        if ($db->exec($sql_insert)) {
+            // Gửi email thông báo cho người được reply (nếu khác người reply)
+            if ($comment_info['userid'] != $user_info['userid'] && !empty($comment_info['username'])) {
+                // Lấy email của người được reply
+                $sql_email = "SELECT email FROM " . NV_USERS_GLOBALTABLE . " WHERE userid=" . $comment_info['userid'];
+                $user_email = $db->query($sql_email)->fetchColumn();
+
+                if (!empty($user_email)) {
+                    $subject = "Có người trả lời bình luận của bạn - " . $global_config['site_name'];
+                    $message = "Xin chào " . $comment_info['username'] . ",\n\n";
+                    $message .= $user_info['username'] . " đã trả lời bình luận của bạn cho sản phẩm: " . $source['title'] . "\n\n";
+                    $message .= "Nội dung trả lời:\n" . $reply_content . "\n\n";
+                    $message .= "Xem chi tiết tại: " . NV_MY_DOMAIN . NV_BASE_SITEURL . "index.php?" . NV_LANG_VARIABLE . "=" . NV_LANG_DATA . "&" . NV_NAME_VARIABLE . "=" . $module_name . "&" . NV_OP_VARIABLE . "=detail&alias=" . $source['alias'] . "\n\n";
+                    $message .= "Trân trọng,\n" . $global_config['site_name'];
+
+                    @nv_sendmail(
+                        [$global_config['site_name'], $global_config['site_email']],
+                        $user_email,
+                        $subject,
+                        $message
+                    );
+                }
+            }
+
+            nv_jsonOutput(['status' => 'success', 'message' => 'Trả lời bình luận thành công!']);
+        } else {
+            nv_jsonOutput(['status' => 'error', 'message' => 'Có lỗi xảy ra khi lưu trả lời']);
+        }
+    } catch (Exception $e) {
+        nv_jsonOutput(['status' => 'error', 'message' => 'Lỗi hệ thống: ' . $e->getMessage()]);
+    }
+}
+
 if ($nv_Request->isset_request('submit_review', 'post')) {
     if (!defined('NV_IS_USER')) {
         nv_jsonOutput(['status' => 'error', 'message' => 'Vui lòng đăng nhập để đánh giá']);
@@ -394,6 +484,11 @@ if ($nv_Request->isset_request('submit_review', 'post')) {
     $source_id = $nv_Request->get_int('source_id', 'post', 0);
     $rating = $nv_Request->get_int('rating', 'post', 0);
     $comment = $nv_Request->get_textarea('comment', 'post', '');
+    $checksess = $nv_Request->get_title('checksess', 'post', '');
+
+    if ($checksess != NV_CHECK_SESSION) {
+        nv_jsonOutput(['status' => 'error', 'message' => 'Token xác thực không hợp lệ']);
+    }
 
     if ($source_id <= 0 || $source_id != $source['id']) {
         nv_jsonOutput(['status' => 'error', 'message' => 'Source ID không hợp lệ']);
@@ -759,22 +854,35 @@ for ($i = 5; $i >= 1; $i--) {
 
 $can_review = false;
 $need_login_review = false;
+$need_purchase_review = false;
 $user_has_reviewed = false;
 
 if (!defined('NV_IS_USER')) {
     $need_login_review = true;
 } else {
+    // Kiểm tra user đã đánh giá chưa
     $sql_user_review = "SELECT id FROM " . NV_PREFIXLANG . "_" . $module_data . "_reviews
                         WHERE userid=" . $user_info['userid'] . " AND source_id=" . $source['id'];
     $user_has_reviewed = $db->query($sql_user_review)->fetchColumn();
 
     if (!$user_has_reviewed) {
-        $sql_purchase_check = "SELECT id FROM " . NV_PREFIXLANG . "_" . $module_data . "_purchases
-                              WHERE userid=" . $user_info['userid'] . " AND source_id=" . $source['id'] . " AND status='completed'";
-        $has_purchased = $db->query($sql_purchase_check)->fetchColumn();
+        // Kiểm tra có phải tác giả không
+        $is_author = ($user_info['userid'] == $source['userid']);
 
-        if ($has_purchased) {
-            $can_review = true;
+        if ($is_author) {
+            // Tác giả không thể đánh giá sản phẩm của chính mình
+            $can_review = false;
+        } else {
+            // Kiểm tra đã mua sản phẩm chưa
+            $sql_purchase_check = "SELECT id FROM " . NV_PREFIXLANG . "_" . $module_data . "_purchases
+                                  WHERE userid=" . $user_info['userid'] . " AND source_id=" . $source['id'] . " AND status='completed'";
+            $has_purchased = $db->query($sql_purchase_check)->fetchColumn();
+
+            if ($has_purchased) {
+                $can_review = true;
+            } else {
+                $need_purchase_review = true;
+            }
         }
     }
 }
@@ -935,7 +1043,7 @@ while ($row = $result->fetch()) {
 $is_admin = defined('NV_IS_ADMIN');
 $is_author = defined('NV_IS_USER') ? ($user_info['userid'] == $source['userid']) : false;
 
-$contents = nv_theme_sharecode_detail($source, $category, $tags, $reviews, $avg_rating, $total_reviews, $related_sources, $can_download, $author_info, $demo_images, $already_purchased, $need_login, $need_contact, $user_balance_data, $balance_after, $balance_after_class, $can_pay, $need_topup, $rating_breakdown, $can_review, $need_login_review, $comments, $total_comments, $can_comment, $need_login_comment, $is_admin, $is_author);
+$contents = nv_theme_sharecode_detail($source, $category, $tags, $reviews, $avg_rating, $total_reviews, $related_sources, $can_download, $author_info, $demo_images, $already_purchased, $need_login, $need_contact, $user_balance_data, $balance_after, $balance_after_class, $can_pay, $need_topup, $rating_breakdown, $can_review, $need_login_review, $need_purchase_review, $comments, $total_comments, $can_comment, $need_login_comment, $is_admin, $is_author);
 
 include NV_ROOTDIR . '/includes/header.php';
 echo nv_site_theme($contents);

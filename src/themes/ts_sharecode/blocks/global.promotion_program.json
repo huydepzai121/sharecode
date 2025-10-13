@@ -1,0 +1,29 @@
+{
+    "info": {
+        "name": "Chương trình ưu đãi",
+        "author": "VINADES.,JSC",
+        "website": "https://vinades.vn",
+        "description": "Block hiển thị chương trình ưu đãi với 3 ảnh, tiêu đề và mô tả"
+    },
+    "config": {
+        "title": "Chương trình ưu đãi đặc biệt",
+        "description": "Khám phá những ưu đãi hấp dẫn dành riêng cho khách hàng của chúng tôi. Cơ hội sở hữu xe Mercedes-Benz với mức giá tốt nhất.",
+        "image1": "",
+        "image2": "",
+        "image3": ""
+    },
+    "datafunction": "nv_promotion_program_config",
+    "submitfunction": "nv_promotion_program_submit",
+    "i18n": {
+        "en": {
+            "info": {
+                "name": "Promotion Program"
+            }
+        },
+        "vi": {
+            "info": {
+                "name": "Chương trình ưu đãi"
+            }
+        }
+    }
+}

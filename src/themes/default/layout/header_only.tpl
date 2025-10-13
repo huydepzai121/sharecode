@@ -5,8 +5,6 @@
         <!-- BEGIN: metatags --><meta {THEME_META_TAGS.name}="{THEME_META_TAGS.value}" content="{THEME_META_TAGS.content}">
         <!-- END: metatags -->
         <link rel="shortcut icon" href="{SITE_FAVICON}">
-        <!-- AOS.js CSS for scroll animations -->
-        <link rel="stylesheet" href="https://unpkg.com/aos@2.3.4/dist/aos.css">
         <!-- BEGIN: links -->
         <link<!-- BEGIN: attr --> {LINKS.key}<!-- BEGIN: val -->="{LINKS.value}"<!-- END: val --><!-- END: attr -->>
         <!-- END: links -->

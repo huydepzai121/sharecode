@@ -1,0 +1,10 @@
+{
+    "info": {
+        "name": "Video",
+        "author": "Nguyễn Lâm",
+        "website": "",
+        "description": "Hiển thị video trang chủ"
+    },
+    "datafunction": "nv_video_info_config",
+    "submitfunction": "nv_video_info_submit"
+}
