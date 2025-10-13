@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Máy chủ: 127.0.0.1
--- Thời gian đã tạo: Th10 12, 2025 lúc 05:59 PM
+-- Thời gian đã tạo: Th10 13, 2025 lúc 03:50 AM
 -- Phiên bản máy phục vụ: 11.7.2-MariaDB
 -- Phiên bản PHP: 8.2.4
 
@@ -154,7 +154,7 @@ CREATE TABLE `nv4_authors` (
 --
 
 INSERT INTO `nv4_authors` (`admin_id`, `editor`, `lev`, `lev_expired`, `after_exp_action`, `files_level`, `position`, `main_module`, `admin_theme`, `addtime`, `edittime`, `is_suspend`, `susp_reason`, `pre_check_num`, `pre_last_login`, `pre_last_ip`, `pre_last_agent`, `check_num`, `last_login`, `last_ip`, `last_agent`) VALUES
-(1, 'ckeditor5-classic', 1, 0, NULL, 'adobe,archives,audio,documents,images,real,video|1|1|1', 'Administrator', 'siteinfo', '', 0, 0, 0, '', '', 0, '', '', '5234c20f7645233bcdd9beaf88ad8d7d', 1760283435, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36');
+(1, 'ckeditor5-classic', 1, 0, NULL, 'adobe,archives,audio,documents,images,real,video|1|1|1', 'Administrator', 'siteinfo', '', 0, 0, 0, '', '', 0, '', '', 'f01baa926a1230a0e4554843fddc8072', 1760317158, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36');
 
 -- --------------------------------------------------------
 
@@ -460,7 +460,7 @@ INSERT INTO `nv4_config` (`lang`, `module`, `config_name`, `config_value`) VALUE
 ('sys', 'global', 'rewrite_enable', '1'),
 ('sys', 'global', 'rewrite_endurl', '/'),
 ('sys', 'global', 'rewrite_exturl', '.html'),
-('sys', 'global', 'rewrite_op_mod', 'sharecode'),
+('sys', 'global', 'rewrite_op_mod', 'home'),
 ('sys', 'global', 'rewrite_optional', '1'),
 ('sys', 'global', 'session_prefix', 'nv4s_o4JsXN'),
 ('sys', 'global', 'site_keywords', 'NukeViet, portal, mysql, php'),
@@ -497,7 +497,7 @@ INSERT INTO `nv4_config` (`lang`, `module`, `config_name`, `config_value`) VALUE
 ('sys', 'site', 'captcha_area', 'r,m,p'),
 ('sys', 'site', 'captcha_type', 'captcha'),
 ('sys', 'site', 'cronjobs_interval', '5'),
-('sys', 'site', 'cronjobs_last_time', '1760284632'),
+('sys', 'site', 'cronjobs_last_time', '1760320068'),
 ('sys', 'site', 'cronjobs_launcher', 'system'),
 ('sys', 'site', 'description_length', '170'),
 ('sys', 'site', 'dir_forum', ''),
@@ -621,7 +621,7 @@ INSERT INTO `nv4_config` (`lang`, `module`, `config_name`, `config_value`) VALUE
 ('vi', 'global', 'site_description', 'Chia sẻ thành công, kết nối đam mê'),
 ('vi', 'global', 'site_domain', 'sharecode.local'),
 ('vi', 'global', 'site_favicon', ''),
-('vi', 'global', 'site_home_module', 'sharecode'),
+('vi', 'global', 'site_home_module', 'home'),
 ('vi', 'global', 'site_keywords', ''),
 ('vi', 'global', 'site_logo', 'uploads/logo.png'),
 ('vi', 'global', 'site_name', 'HLT99'),
@@ -801,7 +801,7 @@ INSERT INTO `nv4_counter` (`c_type`, `c_val`, `last_update`, `c_count`, `vi_coun
 ('browser', 'bingbot', 0, 0, 0),
 ('browser', 'blackberry', 0, 0, 0),
 ('browser', 'bots', 0, 0, 0),
-('browser', 'chrome', 1760283331, 306, 306),
+('browser', 'chrome', 1760318977, 309, 309),
 ('browser', 'coccoc', 0, 0, 0),
 ('browser', 'coccocbot', 0, 0, 0),
 ('browser', 'edge', 0, 0, 0),
@@ -837,7 +837,7 @@ INSERT INTO `nv4_counter` (`c_type`, `c_val`, `last_update`, `c_count`, `vi_coun
 ('browser', 'w3cvalidator', 0, 0, 0),
 ('browser', 'webtv', 0, 0, 0),
 ('browser', 'yahooslurp', 0, 0, 0),
-('c_time', 'last', 0, 1760283331, 0),
+('c_time', 'last', 0, 1760318977, 0),
 ('c_time', 'start', 0, 0, 0),
 ('country', 'AD', 0, 0, 0),
 ('country', 'AE', 0, 0, 0),
@@ -1067,7 +1067,7 @@ INSERT INTO `nv4_counter` (`c_type`, `c_val`, `last_update`, `c_count`, `vi_coun
 ('country', 'ZA', 0, 0, 0),
 ('country', 'ZM', 0, 0, 0),
 ('country', 'ZW', 0, 0, 0),
-('country', 'ZZ', 1760283331, 314, 314),
+('country', 'ZZ', 1760318977, 317, 317),
 ('day', '01', 1756720960, 0, 0),
 ('day', '02', 1756828854, 0, 0),
 ('day', '03', 1756917578, 0, 0),
@@ -1080,7 +1080,7 @@ INSERT INTO `nv4_counter` (`c_type`, `c_val`, `last_update`, `c_count`, `vi_coun
 ('day', '10', 1760058044, 1, 1),
 ('day', '11', 1760198907, 8, 8),
 ('day', '12', 1760283331, 22, 22),
-('day', '13', 0, 0, 0),
+('day', '13', 1760318977, 3, 3),
 ('day', '14', 0, 0, 0),
 ('day', '15', 0, 0, 0),
 ('day', '16', 1755362787, 0, 0),
@@ -1100,35 +1100,35 @@ INSERT INTO `nv4_counter` (`c_type`, `c_val`, `last_update`, `c_count`, `vi_coun
 ('day', '30', 1756558403, 0, 0),
 ('day', '31', 1756636870, 0, 0),
 ('dayofweek', 'Friday', 1760058044, 20, 20),
-('dayofweek', 'Monday', 1759153368, 30, 30),
+('dayofweek', 'Monday', 1760318977, 33, 33),
 ('dayofweek', 'Saturday', 1760198907, 51, 51),
 ('dayofweek', 'Sunday', 1760283331, 128, 128),
 ('dayofweek', 'Thursday', 1760025001, 17, 17),
 ('dayofweek', 'Tuesday', 1756828854, 38, 38),
 ('dayofweek', 'Wednesday', 1758044446, 30, 30),
-('hour', '00', 1759081062, 0, 0),
+('hour', '00', 1760290629, 1, 1),
 ('hour', '01', 1758998687, 0, 0),
 ('hour', '02', 1757099539, 0, 0),
 ('hour', '03', 0, 0, 0),
 ('hour', '04', 0, 0, 0),
 ('hour', '05', 0, 0, 0),
 ('hour', '06', 0, 0, 0),
-('hour', '07', 0, 0, 0),
-('hour', '08', 1760147984, 0, 0),
+('hour', '07', 1760317033, 1, 1),
+('hour', '08', 1760318977, 1, 1),
 ('hour', '09', 1755917976, 0, 0),
-('hour', '10', 1760240383, 2, 2),
-('hour', '11', 1760245169, 2, 2),
+('hour', '10', 1760240383, 0, 0),
+('hour', '11', 1760245169, 0, 0),
 ('hour', '12', 1759036353, 0, 0),
-('hour', '13', 1760251104, 2, 2),
-('hour', '14', 1760254722, 3, 3),
-('hour', '15', 1760258325, 3, 3),
-('hour', '16', 1760261975, 3, 3),
-('hour', '17', 1760266266, 3, 3),
-('hour', '18', 1760268075, 1, 1),
+('hour', '13', 1760251104, 0, 0),
+('hour', '14', 1760254722, 0, 0),
+('hour', '15', 1760258325, 0, 0),
+('hour', '16', 1760261975, 0, 0),
+('hour', '17', 1760266266, 0, 0),
+('hour', '18', 1760268075, 0, 0),
 ('hour', '19', 1759149558, 0, 0),
-('hour', '20', 1760276289, 1, 1),
-('hour', '21', 1760279180, 1, 1),
-('hour', '22', 1760283331, 1, 1),
+('hour', '20', 1760276289, 0, 0),
+('hour', '21', 1760279180, 0, 0),
+('hour', '22', 1760283331, 0, 0),
 ('hour', '23', 1760198907, 0, 0),
 ('month', 'Apr', 0, 0, 0),
 ('month', 'Aug', 1756636870, 84, 84),
@@ -1140,7 +1140,7 @@ INSERT INTO `nv4_counter` (`c_type`, `c_val`, `last_update`, `c_count`, `vi_coun
 ('month', 'Mar', 0, 0, 0),
 ('month', 'May', 0, 0, 0),
 ('month', 'Nov', 0, 0, 0),
-('month', 'Oct', 1760283331, 32, 32),
+('month', 'Oct', 1760318977, 35, 35),
 ('month', 'Sep', 1759153368, 135, 135),
 ('os', 'android', 0, 0, 0),
 ('os', 'apple', 0, 0, 0),
@@ -1161,7 +1161,7 @@ INSERT INTO `nv4_counter` (`c_type`, `c_val`, `last_update`, `c_count`, `vi_coun
 ('os', 'sunos', 0, 0, 0),
 ('os', 'unknown', 0, 0, 0),
 ('os', 'win', 0, 0, 0),
-('os', 'win10', 1760283331, 306, 306),
+('os', 'win10', 1760318977, 309, 309),
 ('os', 'win2000', 0, 0, 0),
 ('os', 'win2003', 0, 0, 0),
 ('os', 'win7', 0, 0, 0),
@@ -1169,8 +1169,8 @@ INSERT INTO `nv4_counter` (`c_type`, `c_val`, `last_update`, `c_count`, `vi_coun
 ('os', 'wince', 0, 0, 0),
 ('os', 'winvista', 0, 0, 0),
 ('os', 'winxp', 0, 0, 0),
-('total', 'hits', 1760283331, 314, 314),
-('year', '2025', 1760283331, 314, 314),
+('total', 'hits', 1760318977, 317, 317),
+('year', '2025', 1760318977, 317, 317),
 ('year', '2026', 0, 0, 0),
 ('year', '2027', 0, 0, 0),
 ('year', '2028', 0, 0, 0),
@@ -1208,18 +1208,18 @@ CREATE TABLE `nv4_cronjobs` (
 --
 
 INSERT INTO `nv4_cronjobs` (`id`, `start_time`, `inter_val`, `inter_val_type`, `run_file`, `run_func`, `params`, `del`, `is_sys`, `act`, `last_time`, `last_result`, `vi_cron_name`) VALUES
-(1, 1752944348, 5, 0, 'online_expired_del.php', 'cron_online_expired_del', '', 0, 1, 1, 1760284632, 1, 'Xóa các dòng ghi trạng thái online đã cũ trong CSDL'),
+(1, 1752944348, 5, 0, 'online_expired_del.php', 'cron_online_expired_del', '', 0, 1, 1, 1760320068, 1, 'Xóa các dòng ghi trạng thái online đã cũ trong CSDL'),
 (2, 1752944348, 1440, 0, 'dump_autobackup.php', 'cron_dump_autobackup', '', 0, 1, 1, 1760238522, 1, 'Tự động lưu CSDL'),
-(3, 1752944348, 60, 0, 'temp_download_destroy.php', 'cron_auto_del_temp_download', '', 0, 1, 1, 1760283331, 1, 'Xóa các file tạm trong thư mục tmp'),
-(4, 1752944348, 30, 0, 'ip_logs_destroy.php', 'cron_del_ip_logs', '', 0, 1, 1, 1760283331, 1, 'Xóa IP log files, Xóa các file nhật ký truy cập'),
+(3, 1752944348, 60, 0, 'temp_download_destroy.php', 'cron_auto_del_temp_download', '', 0, 1, 1, 1760317033, 1, 'Xóa các file tạm trong thư mục tmp'),
+(4, 1752944348, 30, 0, 'ip_logs_destroy.php', 'cron_del_ip_logs', '', 0, 1, 1, 1760318930, 1, 'Xóa IP log files, Xóa các file nhật ký truy cập'),
 (5, 1752944348, 1440, 0, 'error_log_destroy.php', 'cron_auto_del_error_log', '', 0, 1, 1, 1760238522, 1, 'Xóa các file error_log quá hạn'),
 (6, 1752944348, 360, 0, 'error_log_sendmail.php', 'cron_auto_sendmail_error_log', '', 0, 1, 0, 0, 0, 'Gửi email các thông báo lỗi cho admin'),
-(7, 1752944348, 60, 0, 'ref_expired_del.php', 'cron_ref_expired_del', '', 0, 1, 1, 1760283331, 1, 'Xóa các referer quá hạn'),
-(8, 1752944348, 60, 0, 'check_version.php', 'cron_auto_check_version', '', 0, 1, 1, 1760283331, 1, 'Kiểm tra phiên bản NukeViet'),
+(7, 1752944348, 60, 0, 'ref_expired_del.php', 'cron_ref_expired_del', '', 0, 1, 1, 1760317033, 1, 'Xóa các referer quá hạn'),
+(8, 1752944348, 60, 0, 'check_version.php', 'cron_auto_check_version', '', 0, 1, 1, 1760317033, 1, 'Kiểm tra phiên bản NukeViet'),
 (9, 1752944348, 1440, 0, 'notification_autodel.php', 'cron_notification_autodel', '', 0, 1, 1, 1760238522, 1, 'Xóa thông báo cũ'),
 (10, 1752944348, 1440, 0, 'remove_expired_inform.php', 'cron_remove_expired_inform', '', 0, 1, 1, 1760238522, 1, 'Xóa thông báo quá hạn'),
-(11, 1752944348, 60, 0, 'apilogs_autodel.php', 'cron_apilogs_autodel', '', 0, 1, 1, 1760283331, 1, 'Xóa các API-log hết hạn'),
-(12, 1752944348, 60, 0, 'expadmin_handling.php', 'cron_expadmin_handling', '', 0, 1, 1, 1760283331, 1, 'Xử lý admin quá hạn');
+(11, 1752944348, 60, 0, 'apilogs_autodel.php', 'cron_apilogs_autodel', '', 0, 1, 1, 1760317033, 1, 'Xóa các API-log hết hạn'),
+(12, 1752944348, 60, 0, 'expadmin_handling.php', 'cron_expadmin_handling', '', 0, 1, 1, 1760317033, 1, 'Xử lý admin quá hạn');
 
 -- --------------------------------------------------------
 
@@ -2309,7 +2309,42 @@ INSERT INTO `nv4_logs` (`id`, `lang`, `module_name`, `name_key`, `note_action`, 
 (844, 'vi', 'users', '[admin] Đăng nhập theo kiểu thông thường', ' Client IP:127.0.0.1', '', 0, 1760283371),
 (845, 'vi', 'login', '[admin] Đăng nhập', ' Client IP:127.0.0.1', '', 0, 1760283435),
 (846, 'vi', 'menu', 'Edit row menu', 'Row menu id: 27', '', 1, 1760283499),
-(847, 'vi', 'menu', 'Add row menu', 'Row menu id: 30 of Menu id: 2', '', 1, 1760283519);
+(847, 'vi', 'menu', 'Add row menu', 'Row menu id: 30 of Menu id: 2', '', 1, 1760283519),
+(848, 'vi', 'login', '[admin] Đăng nhập', ' Client IP:127.0.0.1', '', 0, 1760290639),
+(849, 'vi', 'login', '[admin] Đăng nhập', ' Client IP:127.0.0.1', '', 0, 1760317158),
+(850, 'vi', 'menu', 'Add menu-block', 'Menu-block id: 3', '', 1, 1760317173),
+(851, 'vi', 'menu', 'delete menu-block id: 3', 'Download', '', 1, 1760317176),
+(852, 'vi', 'menu', 'Add row menu', 'Row menu id: 31 of Menu id: 2', '', 1, 1760317184),
+(853, 'vi', 'menu', 'Add row menu', 'Row menu id: 32 of Menu id: 2', '', 1, 1760317205),
+(854, 'vi', 'menu', 'Add row menu', 'Row menu id: 33 of Menu id: 2', '', 1, 1760317213),
+(855, 'vi', 'menu', 'Add row menu', 'Row menu id: 34 of Menu id: 2', '', 1, 1760317216),
+(856, 'vi', 'menu', 'Add row menu', 'Row menu id: 35 of Menu id: 2', '', 1, 1760317226),
+(857, 'vi', 'menu', 'Add row menu', 'Row menu id: 36 of Menu id: 2', '', 1, 1760317255),
+(858, 'vi', 'menu', 'Add row menu', 'Row menu id: 37 of Menu id: 2', '', 1, 1760317275),
+(859, 'vi', 'menu', 'Add row menu', 'Row menu id: 38 of Menu id: 2', '', 1, 1760317290),
+(860, 'vi', 'menu', 'Add row menu', 'Row menu id: 39 of Menu id: 2', '', 1, 1760317298),
+(861, 'vi', 'menu', 'Edit row menu', 'Row menu id: 37', '', 1, 1760317318),
+(862, 'vi', 'menu', 'Edit row menu', 'Row menu id: 38', '', 1, 1760317330),
+(863, 'vi', 'menu', 'Edit row menu', 'Row menu id: 37', '', 1, 1760317336),
+(864, 'vi', 'menu', 'Add row menu', 'Row menu id: 40 of Menu id: 2', '', 1, 1760317361),
+(865, 'vi', 'menu', 'Del row menu', 'Row menu id: 30 of Menu-block id: 2', '', 1, 1760317380),
+(866, 'vi', 'menu', 'Add row menu', 'Row menu id: 41 of Menu id: 2', '', 1, 1760317442),
+(867, 'vi', 'menu', 'Change weight row menu', 'Row menu id: 29, new weight: 7', '', 1, 1760317460),
+(868, 'vi', 'menu', 'Del row menu', 'Row menu id: 28 of Menu-block id: 2', '', 1, 1760317478),
+(869, 'vi', 'menu', 'Edit row menu', 'Row menu id: 27', '', 1, 1760317489),
+(870, 'vi', 'menu', 'Add row menu', 'Row menu id: 42 of Menu id: 2', '', 1, 1760317623),
+(871, 'vi', 'menu', 'Change weight row menu', 'Row menu id: 41, new weight: 1', '', 1, 1760317629),
+(872, 'vi', 'menu', 'Add row menu', 'Row menu id: 43 of Menu id: 2', '', 1, 1760317655),
+(873, 'vi', 'menu', 'Edit row menu', 'Row menu id: 25', '', 1, 1760317975),
+(874, 'vi', 'menu', 'Add row menu', 'Row menu id: 44 of Menu id: 2', '', 1, 1760318105),
+(875, 'vi', 'menu', 'Change weight row menu', 'Row menu id: 44, new weight: 5', '', 1, 1760318110),
+(876, 'vi', 'upload', 'Xóa file', 'uploads/sharecode/2025_10/z6928425336064_acd77aeddf4c7b718ab42442e1c127c2.jpg', '', 1, 1760318617),
+(877, 'vi', 'upload', 'Xóa file', 'uploads/sharecode/2025_10/camera_20251007_201426.jpg', '', 1, 1760318620),
+(878, 'vi', 'upload', 'Xóa file', 'uploads/sharecode/2025_10/bc8be542-20cd-49e1-b263-4fd3e306a5d5.jpg', '', 1, 1760318623),
+(879, 'vi', 'upload', 'Xóa file', 'uploads/sharecode/2025_10/5ecfcc3b-a95d-479e-b7fd-4f6e436f37e8.png', '', 1, 1760318626),
+(880, 'vi', 'menu', 'Edit row menu', 'Row menu id: 27', '', 1, 1760320097),
+(881, 'vi', 'menu', 'Edit row menu', 'Row menu id: 27', '', 1, 1760320107),
+(882, 'vi', 'settings', 'Change System setting', '', '', 1, 1760320126);
 
 -- --------------------------------------------------------
 
@@ -2384,7 +2419,7 @@ CREATE TABLE `nv4_sessions` (
 --
 
 INSERT INTO `nv4_sessions` (`session_id`, `userid`, `username`, `onl_time`) VALUES
-('84nq6lotk6tcv41od1futole4d', 1, 'admin', 1760284728);
+('6afelg8drnlsjiiv0baopkkl55', 1, 'admin', 1760320181);
 
 -- --------------------------------------------------------
 
@@ -2580,11 +2615,7 @@ INSERT INTO `nv4_upload_file` (`name`, `ext`, `type`, `filesize`, `src`, `srcwid
 ('logo_mb_new.png', 'png', 'image', 25894, 'assets/wallet/logo_mb_new.png', 80, 36, '1331|598', 1, 1752944779, 27, 'logo_mb_new.png', 'Logo MB new'),
 ('080ec03b-b...jpg', 'jpg', 'image', 388127, 'assets/sharecode/2025_10/080ec03b-be49-476b-86de-2b64b1843b60.jpg', 45, 80, '844|1500', 1, 1760242152, 34, '080ec03b-be49-476b-86de-2b64b1843b60.jpg', '080ec03b be49 476b 86de 2b64b1843b60'),
 ('553753892_...png', 'png', 'image', 255500, 'assets/sharecode/2025_10/553753892_1203131581872536_446472913000822586_n.png', 80, 55, '528|361', 1, 1760242152, 34, '553753892_1203131581872536_446472913000822586_n.png', '553753892 1203131581872536 446472913000822586 n'),
-('5ecfcc3b-a...png', 'png', 'image', 2160000, 'assets/sharecode/2025_10/5ecfcc3b-a95d-479e-b7fd-4f6e436f37e8.png', 80, 53, '1500|1000', 1, 1760242150, 34, '5ecfcc3b-a95d-479e-b7fd-4f6e436f37e8.png', '5ecfcc3b a95d 479e b7fd 4f6e436f37e8'),
-('bc8be542-2...jpg', 'jpg', 'image', 393623, 'assets/sharecode/2025_10/bc8be542-20cd-49e1-b263-4fd3e306a5d5.jpg', 80, 60, '1500|1126', 1, 1760242153, 34, 'bc8be542-20cd-49e1-b263-4fd3e306a5d5.jpg', 'bc8be542 20cd 49e1 b263 4fd3e306a5d5'),
-('camera_202...jpg', 'jpg', 'image', 232681, 'assets/sharecode/2025_10/camera_20251007_201426.jpg', 80, 45, '1500|844', 1, 1760242154, 34, 'camera_20251007_201426.jpg', 'camera 20251007 201426'),
-('ffb18f9bc4...jpg', 'jpg', 'image', 465455, 'assets/sharecode/2025_10/ffb18f9bc4604e3e1771.jpg', 60, 80, '1125|1500', 1, 1760242155, 34, 'ffb18f9bc4604e3e1771.jpg', 'ffb18f9bc4604e3e1771'),
-('z692842533...jpg', 'jpg', 'image', 325441, 'assets/sharecode/2025_10/z6928425336064_acd77aeddf4c7b718ab42442e1c127c2.jpg', 60, 80, '1125|1500', 1, 1760242156, 34, 'z6928425336064_acd77aeddf4c7b718ab42442e1c127c2.jpg', 'z6928425336064 acd77aeddf4c7b718ab42442e1c127c2');
+('ffb18f9bc4...jpg', 'jpg', 'image', 465455, 'assets/sharecode/2025_10/ffb18f9bc4604e3e1771.jpg', 60, 80, '1125|1500', 1, 1760242155, 34, 'ffb18f9bc4604e3e1771.jpg', 'ffb18f9bc4604e3e1771');
 
 -- --------------------------------------------------------
 
@@ -8145,12 +8176,24 @@ INSERT INTO `nv4_vi_menu_rows` (`id`, `parentid`, `mid`, `title`, `link`, `icon`
 (22, 2, 1, 'Sản phẩm', '/index.php?language=vi&nv=news&op=San-pham', '', '', '', 7, 18, 1, '', '6', 'news', 'San-pham', 1, '', 1, 1),
 (23, 0, 1, 'History', '/index.php?language=vi&nv=sharecode&op=history', '', '', '', 8, 24, 0, '', '6', 'sharecode', 'history', 1, '', 0, 1),
 (24, 19, 1, 'ShareCode', '/index.php?language=vi&nv=sharecode', '', '', '', 1, 15, 2, '', '6', 'sharecode', '', 1, '', 0, 1),
-(25, 0, 2, 'Trang chủ', '', '', '', '', 1, 1, 0, '', '6', '', '', 1, '', 0, 1),
+(25, 0, 2, 'Trang chủ', '/', '', '', '', 1, 1, 0, '', '6', '', '', 1, '', 0, 1),
 (26, 0, 2, 'Tin tức', '/index.php?language=vi&nv=news', '', '', '', 2, 2, 0, '', '6', 'news', '', 1, '', 0, 1),
-(27, 0, 2, 'Tổng hợp dự án', '/index.php?language=vi&nv=sharecode', '', '', '', 3, 3, 0, '', '6', 'sharecode', '', 1, '', 0, 1),
-(28, 0, 2, 'Kiến thức', '', '', '', '', 4, 4, 0, '', '6', '', '', 1, '', 0, 1),
-(29, 0, 2, 'Liên hệ', '', '', '', '', 5, 5, 0, '', '6', '', '', 1, '', 0, 1),
-(30, 0, 2, 'Ví tiền', '/index.php?language=vi&nv=wallet&op=main', '', '', '', 6, 6, 0, '', '6', 'wallet', 'main', 1, '', 0, 1);
+(27, 0, 2, 'ShareCode', '/index.php?language=vi&nv=sharecode', '', '', '', 3, 3, 0, '', '6', 'sharecode', '', 1, '', 0, 1),
+(29, 0, 2, 'Liên hệ', '', '', '', '', 7, 18, 0, '', '6', '', '', 1, '', 0, 1),
+(42, 36, 2, 'Lịch sử nạp tiền', '/index.php?language=vi&nv=wallet&op=historyexchange', '', '', '', 6, 16, 1, '', '6', 'wallet', 'historyexchange', 1, '', 0, 1),
+(41, 36, 2, 'Code đã mua', '', '', '', '', 1, 11, 1, '', '6', '', '', 1, '', 0, 1),
+(31, 0, 2, 'Download', '', '', '', '', 4, 4, 0, '32,33,34,35', '6', '', '', 1, '', 0, 1),
+(32, 31, 2, 'Full Code', '', '', '', '', 1, 5, 1, '', '6', '', '', 1, '', 0, 1),
+(33, 31, 2, 'Themes', '', '', '', '', 2, 6, 1, '', '6', '', '', 1, '', 0, 1),
+(34, 31, 2, 'Block', '', '', '', '', 3, 7, 1, '', '6', '', '', 1, '', 0, 1),
+(35, 31, 2, 'Modules', '', '', '', '', 4, 8, 1, '', '6', '', '', 1, '', 0, 1),
+(36, 0, 2, 'Thành viên', '/index.php?language=vi&nv=users', '', '', '', 6, 10, 0, '42,41,37,38,39,40,43', '6', 'users', '', 1, '', 0, 1),
+(37, 36, 2, 'Đăng nhập', '/index.php?language=vi&nv=users&op=login', '', '', '', 2, 12, 1, '', '5', 'users', 'login', 1, '', 0, 1),
+(38, 36, 2, 'Đăng ký', '/index.php?language=vi&nv=users&op=register', '', '', '', 3, 13, 1, '', '5', 'users', 'register', 1, '', 0, 1),
+(39, 36, 2, 'Khôi phục mật khẩu', '/index.php?language=vi&nv=users&op=lostpass', '', '', '', 4, 14, 1, '', '6', 'users', 'lostpass', 1, '', 0, 1),
+(40, 36, 2, 'Ví tiền', '/index.php?language=vi&nv=wallet', '', '', '', 5, 15, 1, '', '4', 'wallet', '', 1, '', 0, 1),
+(43, 36, 2, 'Yêu thích', '', '', '', '', 7, 17, 1, '', '6', '', '', 1, '', 0, 1),
+(44, 0, 2, 'Hướng dẫn', '', '', '', '', 5, 9, 0, '', '6', '', '', 1, '', 0, 1);
 
 -- --------------------------------------------------------
 
@@ -8883,7 +8926,7 @@ CREATE TABLE `nv4_vi_news_2` (
 INSERT INTO `nv4_vi_news_2` (`id`, `catid`, `listcatid`, `topicid`, `admin_id`, `author`, `sourceid`, `addtime`, `edittime`, `status`, `weight`, `publtime`, `exptime`, `archive`, `title`, `alias`, `hometext`, `homeimgfile`, `homeimgalt`, `homeimgthumb`, `inhome`, `allowed_comm`, `allowed_rating`, `external_link`, `hitstotal`, `hitscm`, `total_rating`, `click_rating`, `instant_active`, `instant_template`, `instant_creatauto`) VALUES
 (13, 2, '2', 0, 1, 'VINADES', 0, 1453194455, 1453194455, 1, 13, 1453194455, 0, 2, 'NukeViet 4.0 có gì mới?', 'nukeviet-4-0-co-gi-moi', 'NukeViet 4 là phiên bản NukeViet được cộng đồng đánh giá cao, hứa hẹn nhiều điểm vượt trội về công nghệ đến thời điểm hiện tại. NukeViet 4 thay đổi gần như hoàn toàn từ nhân hệ thống đến chức năng, giao diện người dùng. Vậy, có gì mới trong phiên bản này?', 'chuc-mung-nukeviet-thong-tu-20-bo-tttt.jpg', '', 1, 1, '4', 1, 0, 2, 0, 0, 0, 0, '', 0),
 (14, 2, '2', 0, 1, 'VINADES', 0, 1501837620, 1501837620, 1, 14, 1501837620, 0, 2, 'NukeViet 4.2 có gì mới?', 'nukeviet-4-2-co-gi-moi', 'NukeViet 4.2 là phiên bản nâng cấp của phiên bản NukeViet 4.0 tập trung vào việc fix các vấn đề bất cập còn tồn tại của NukeViet 4.0, Thêm các tính năng mới để tăng cường bảo mật của hệ thống cũng như tối ưu trải nghiệm của người dùng.', 'chuc-mung-nukeviet-thong-tu-20-bo-tttt.jpg', '', 1, 1, '4', 1, 1, 2, 0, 0, 0, 0, '', 0),
-(15, 2, '2', 0, 1, 'VINADES', 0, 1510215907, 1510215907, 1, 15, 1510215907, 0, 2, 'NukeViet 4.3 có gì mới?', 'nukeviet-4-3-co-gi-moi', 'NukeViet 4.3 là phiên bản nâng cấp của phiên bản NukeViet 4.2 tập trung vào việc fix các vấn đề bất cập còn tồn tại, tối ưu trải nghiệm của người dùng.', 'chuc-mung-nukeviet-thong-tu-20-bo-tttt.jpg', '', 1, 1, '4', 1, 1, 2, 0, 0, 0, 0, '', 0);
+(15, 2, '2', 0, 1, 'VINADES', 0, 1510215907, 1510215907, 1, 15, 1510215907, 0, 2, 'NukeViet 4.3 có gì mới?', 'nukeviet-4-3-co-gi-moi', 'NukeViet 4.3 là phiên bản nâng cấp của phiên bản NukeViet 4.2 tập trung vào việc fix các vấn đề bất cập còn tồn tại, tối ưu trải nghiệm của người dùng.', 'chuc-mung-nukeviet-thong-tu-20-bo-tttt.jpg', '', 1, 1, '4', 1, 1, 3, 0, 0, 0, 0, '', 0);
 
 -- --------------------------------------------------------
 
@@ -9459,7 +9502,7 @@ INSERT INTO `nv4_vi_news_rows` (`id`, `catid`, `listcatid`, `topicid`, `admin_id
 (12, 1, '1,3', 0, 1, '', 0, 1445391217, 1445393997, 1, 10, 1445391180, 0, 2, 'Hỗ trợ tập huấn và triển khai NukeViet cho các Phòng, Sở GD&amp;ĐT', 'ho-tro-tap-huan-va-trien-khai-nukeviet-cho-cac-phong-so-gd-dt', 'Trên cơ sở Hướng dẫn thực hiện nhiệm vụ CNTT năm học 2015 - 2016 của Bộ Giáo dục và Đào tạo, Công ty cổ phần phát triển nguồn mở Việt Nam và các doanh nghiệp phát triển NukeViet trong cộng đồng NukeViet đang tích cực công tác hỗ trợ cho các phòng GD&ĐT, Sở GD&ĐT triển khai 2 nội dung chính: Hỗ trợ công tác đào tạo tập huấn hướng dẫn sử dụng NukeViet và Hỗ trợ triển khai NukeViet cho các trường, Phòng và Sở GD&ĐT', 'tap-huan-pgd-ha-dong-2015.jpg', 'Tập huấn triển khai NukeViet tại Phòng Giáo dục và Đào tạo Hà Đông - Hà Nội', 1, 1, '4', 1, 0, 1, 0, 0, 0, 0, '', 0),
 (13, 2, '2', 0, 1, 'VINADES', 0, 1453194455, 1453194455, 1, 13, 1453194455, 0, 2, 'NukeViet 4.0 có gì mới?', 'nukeviet-4-0-co-gi-moi', 'NukeViet 4 là phiên bản NukeViet được cộng đồng đánh giá cao, hứa hẹn nhiều điểm vượt trội về công nghệ đến thời điểm hiện tại. NukeViet 4 thay đổi gần như hoàn toàn từ nhân hệ thống đến chức năng, giao diện người dùng. Vậy, có gì mới trong phiên bản này?', 'chuc-mung-nukeviet-thong-tu-20-bo-tttt.jpg', '', 1, 1, '4', 1, 0, 2, 0, 0, 0, 0, '', 0),
 (14, 2, '2', 0, 1, 'VINADES', 0, 1501837620, 1501837620, 1, 14, 1501837620, 0, 2, 'NukeViet 4.2 có gì mới?', 'nukeviet-4-2-co-gi-moi', 'NukeViet 4.2 là phiên bản nâng cấp của phiên bản NukeViet 4.0 tập trung vào việc fix các vấn đề bất cập còn tồn tại của NukeViet 4.0, Thêm các tính năng mới để tăng cường bảo mật của hệ thống cũng như tối ưu trải nghiệm của người dùng.', 'chuc-mung-nukeviet-thong-tu-20-bo-tttt.jpg', '', 1, 1, '4', 1, 1, 2, 0, 0, 0, 0, '', 0),
-(15, 2, '2', 0, 1, 'VINADES', 0, 1510215907, 1510215907, 1, 15, 1510215907, 0, 2, 'NukeViet 4.3 có gì mới?', 'nukeviet-4-3-co-gi-moi', 'NukeViet 4.3 là phiên bản nâng cấp của phiên bản NukeViet 4.2 tập trung vào việc fix các vấn đề bất cập còn tồn tại, tối ưu trải nghiệm của người dùng.', 'chuc-mung-nukeviet-thong-tu-20-bo-tttt.jpg', '', 1, 1, '4', 1, 1, 2, 0, 0, 0, 0, '', 0);
+(15, 2, '2', 0, 1, 'VINADES', 0, 1510215907, 1510215907, 1, 15, 1510215907, 0, 2, 'NukeViet 4.3 có gì mới?', 'nukeviet-4-3-co-gi-moi', 'NukeViet 4.3 là phiên bản nâng cấp của phiên bản NukeViet 4.2 tập trung vào việc fix các vấn đề bất cập còn tồn tại, tối ưu trải nghiệm của người dùng.', 'chuc-mung-nukeviet-thong-tu-20-bo-tttt.jpg', '', 1, 1, '4', 1, 1, 3, 0, 0, 0, 0, '', 0);
 
 -- --------------------------------------------------------
 
@@ -10286,7 +10329,7 @@ CREATE TABLE `nv4_vi_sharecode_sources` (
 --
 
 INSERT INTO `nv4_vi_sharecode_sources` (`id`, `catid`, `title`, `alias`, `description`, `content`, `avatar`, `background_image`, `demo_image`, `file_path`, `file_name`, `file_size`, `download_link`, `download_link_type`, `external_source_link`, `demo_link`, `keywords`, `fee_type`, `fee_amount`, `contact_phone`, `contact_email`, `contact_skype`, `contact_telegram`, `contact_zalo`, `contact_facebook`, `contact_website`, `contact_address`, `num_view`, `num_download`, `avg_rating`, `status`, `userid`, `username`, `edit_time`, `add_time`) VALUES
-(9, 7, 'Code đồ án Code PHP & MySQL Website Bán Sách Full code + Database mới nhất 2025 1', 'code-do-an-code-php-mysql-website-ban-sach-full-code-database-moi-nhat-2025-1', 'Code đồ án Code PHP & MySQL Website Bán Sách Full code + Database mới nhất 2025 1', '<p style=\"margin-left:0px;\">Website Bán Sách bao có một số chức năng chính như sau:</p><pre><code class=\"language-plaintext\">- email admin : admin\r\n- mật khẩu admin : 123123123\r\n- tên người dùng: abcd1234\r\n- mật khẩu : Abcd1234@</code></pre><p style=\"margin-left:0px;\">+ Đặt hàng, giỏ hàng , quên mặt khẩu , đặt lại mật khẩu, sửa thông tin</p><p style=\"margin-left:0px;\">+ Quản lý doanh thu ( xem thống kê )</p><p style=\"margin-left:0px;\">+ Quản lý sách ( thêm sửa xóa )</p><p style=\"margin-left:0px;\">+ Quản lý tác giả ( thêm sửa xóa )</p><p style=\"margin-left:0px;\">+ Quản lý nhà xuất bản ( thêm sửa xóa )</p><p style=\"margin-left:0px;\">+ Quản lý thể loại ( xóa thêm sửa )</p><p style=\"margin-left:0px;\">+ Quản lý Đơn hàng ( xem chi tiết và duyệt đơn hàng )</p><p style=\"margin-left:0px;\">+ Quản lý Giao hàng ( giao hàng hoặc chưa giao )</p>', '/uploads/sharecode/code-do-an-code-php-mysql-website-ban-sach-full-code-mvc-database-22437.jpg', '', '[\"\\/uploads\\/sharecode\\/code-do-an-code-php-mysql-website-ban-sach-full-code-mvc-database-22437-1.jpg\",\"\\/uploads\\/sharecode\\/2025_10\\/z6928425336064_acd77aeddf4c7b718ab42442e1c127c2.jpg\",\"\\/uploads\\/sharecode\\/2025_10\\/ffb18f9bc4604e3e1771.jpg\",\"\\/uploads\\/sharecode\\/2025_10\\/camera_20251007_201426.jpg\",\"\\/uploads\\/sharecode\\/2025_10\\/bc8be542-20cd-49e1-b263-4fd3e306a5d5.jpg\",\"\\/uploads\\/sharecode\\/2025_10\\/080ec03b-be49-476b-86de-2b64b1843b60.jpg\",\"\\/uploads\\/sharecode\\/2025_10\\/553753892_1203131581872536_446472913000822586_n.png\"]', '', '', 0, 'https://www.facebook.com/share/p/16sE731bep/', 'external', 'https://github.com/example/ecommerce-template', 'https://diemdanh.io.vn/', '', 'contact', 100000.00, '0868378653', '', '', '', '', '', '', '', 334, 7, 0.00, 1, 1, '', 1760261021, 1759060751),
+(9, 7, 'Code đồ án Code PHP & MySQL Website Bán Sách Full code + Database mới nhất 2025 1', 'code-do-an-code-php-mysql-website-ban-sach-full-code-database-moi-nhat-2025-1', 'Code đồ án Code PHP & MySQL Website Bán Sách Full code + Database mới nhất 2025 1', '<p style=\"margin-left:0px;\">Website Bán Sách bao có một số chức năng chính như sau:</p><pre><code class=\"language-plaintext\">- email admin : admin\r\n- mật khẩu admin : 123123123\r\n- tên người dùng: abcd1234\r\n- mật khẩu : Abcd1234@</code></pre><p style=\"margin-left:0px;\">+ Đặt hàng, giỏ hàng , quên mặt khẩu , đặt lại mật khẩu, sửa thông tin</p><p style=\"margin-left:0px;\">+ Quản lý doanh thu ( xem thống kê )</p><p style=\"margin-left:0px;\">+ Quản lý sách ( thêm sửa xóa )</p><p style=\"margin-left:0px;\">+ Quản lý tác giả ( thêm sửa xóa )</p><p style=\"margin-left:0px;\">+ Quản lý nhà xuất bản ( thêm sửa xóa )</p><p style=\"margin-left:0px;\">+ Quản lý thể loại ( xóa thêm sửa )</p><p style=\"margin-left:0px;\">+ Quản lý Đơn hàng ( xem chi tiết và duyệt đơn hàng )</p><p style=\"margin-left:0px;\">+ Quản lý Giao hàng ( giao hàng hoặc chưa giao )</p>', '/uploads/sharecode/code-do-an-code-php-mysql-website-ban-sach-full-code-mvc-database-22437.jpg', '', '[\"\\/uploads\\/sharecode\\/2025_10\\/ffb18f9bc4604e3e1771.jpg\",\"\\/uploads\\/sharecode\\/2025_10\\/080ec03b-be49-476b-86de-2b64b1843b60.jpg\",\"\\/uploads\\/sharecode\\/2025_10\\/553753892_1203131581872536_446472913000822586_n.png\"]', '', '', 0, 'https://www.facebook.com/share/p/16sE731bep/', 'external', 'https://github.com/example/ecommerce-template', 'https://diemdanh.io.vn/', '', 'contact', 100000.00, '0868378653', '', '', '', '', '', '', '', 342, 7, 0.00, 1, 1, '', 1760318643, 1759060751),
 (7, 15, 'Code đồ án Code PHP & MySQL Website Bán Sách Full code + Database mới nhất 2025', 'code-do-an-code-php-mysql-website-ban-sach-full-code-database-moi-nhat-2025', 'Code đồ án Code PHP & MySQL Website Bán Sách Full code + Database mới nhất 2025', '<p style=\"margin-left:0px;\">Website Bán Sách bao có một số chức năng chính như sau:</p><p style=\"margin-left:0px;\">- email admin :&nbsp;admin</p><p style=\"margin-left:0px;\">- mật khẩu admin : 123123123</p><p style=\"margin-left:0px;\">- tên người dùng: abcd1234</p><p style=\"margin-left:0px;\">- mật khẩu : Abcd1234@</p><p style=\"margin-left:0px;\">+ Đặt hàng, giỏ hàng , quên mặt khẩu , đặt lại mật khẩu, sửa thông tin&nbsp;</p><p style=\"margin-left:0px;\">+ Quản lý doanh thu ( xem thống kê )</p><p style=\"margin-left:0px;\">+ Quản lý sách ( thêm sửa xóa )</p><p style=\"margin-left:0px;\">+ Quản lý tác giả ( thêm sửa xóa )</p><p style=\"margin-left:0px;\">+ Quản lý nhà xuất bản ( thêm sửa xóa )</p><p style=\"margin-left:0px;\">+ Quản lý thể loại ( xóa thêm sửa )</p><p style=\"margin-left:0px;\">+ Quản lý Đơn hàng ( xem chi tiết và duyệt đơn hàng )</p><p style=\"margin-left:0px;\">+ Quản lý Giao hàng ( giao hàng hoặc chưa giao )</p>', '/uploads/sharecode/code-do-an-code-php-mysql-website-ban-sach-full-code-mvc-database-22437.jpg', '', '[\"\\/uploads\\/sharecode\\/code-do-an-code-php-mysql-website-ban-sach-full-code-mvc-database-22437-1.jpg\"]', '', '', 0, 'https://www.facebook.com/share/p/16sE731bep/', 'external', 'https://github.com/example/ecommerce-template', 'https://diemdanh.io.vn/', 'nukeviet,dsa,PHP MySQL Website,Ban Sach Source Code,Full Code Database,Do An PHP,E-commerce PHP,Web Ban Hang,PHP Project,MySQL Database', 'paid', 100000.00, '', '', '', '', '', '', '', '', 13, 1, 0.00, 1, 1, '', 1759066146, 1759060751),
 (10, 7, 'Code đồ án Code PHP & MySQL Website Bán Sách Full code + Database mới nhất 2025 2', 'code-do-an-code-php-mysql-website-ban-sach-full-code-database-moi-nhat-2025-2', 'Code đồ án Code PHP & MySQL Website Bán Sách Full code + Database mới nhất 2025 2', '<p style=\"margin-left:0px;\">Website Bán Sách bao có...</p>', '/uploads/sharecode/code-do-an-code-php-mysql-website-ban-sach-full-code-mvc-database-22437.jpg', '', '[\"/uploads/sharecode/code-do-an-code-php-mysql-website-ban-sach-full-code-mvc-database-22437-1.jpg\"]', '', '', 0, 'https://www.facebook.com/share/p/16sE731bep/', 'external', 'https://github.com/example/ecommerce-template', 'https://diemdanh.io.vn/', 'nukeviet,dsa,PHP MySQL Website,Ban Sach Source Code,Full Code Database,Do An PHP,E-commerce PHP,Web Ban Hang,PHP Project,MySQL Database', 'paid', 100000.00, '', '', '', '', '', '', '', '', 19, 4, 0.00, 1, 1, '', 1759066146, 1759060751),
 (11, 7, 'Code đồ án Code PHP & MySQL Website Bán Sách Full code + Database mới nhất 2025 3', 'code-do-an-code-php-mysql-website-ban-sach-full-code-database-moi-nhat-2025-3', 'Code đồ án Code PHP & MySQL Website Bán Sách Full code + Database mới nhất 2025 3', '<p style=\"margin-left:0px;\">Website Bán Sách bao có...</p>', '/uploads/sharecode/code-do-an-code-php-mysql-website-ban-sach-full-code-mvc-database-22437.jpg', '', '[\"/uploads/sharecode/code-do-an-code-php-mysql-website-ban-sach-full-code-mvc-database-22437-1.jpg\"]', '', '', 0, 'https://www.facebook.com/share/p/16sE731bep/', 'external', 'https://github.com/example/ecommerce-template', 'https://diemdanh.io.vn/', 'nukeviet,dsa,PHP MySQL Website,Ban Sach Source Code,Full Code Database,Do An PHP,E-commerce PHP,Web Ban Hang,PHP Project,MySQL Database', 'paid', 100000.00, '', '', '', '', '', '', '', '', 8, 1, 0.00, 1, 1, '', 1759066146, 1759060751),
@@ -22146,7 +22189,7 @@ ALTER TABLE `nv4_language_file`
 -- AUTO_INCREMENT cho bảng `nv4_logs`
 --
 ALTER TABLE `nv4_logs`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=848;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=883;
 
 --
 -- AUTO_INCREMENT cho bảng `nv4_notification`
@@ -22266,13 +22309,13 @@ ALTER TABLE `nv4_vi_freecontent_rows`
 -- AUTO_INCREMENT cho bảng `nv4_vi_menu`
 --
 ALTER TABLE `nv4_vi_menu`
-  MODIFY `id` smallint(5) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` smallint(5) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT cho bảng `nv4_vi_menu_rows`
 --
 ALTER TABLE `nv4_vi_menu_rows`
-  MODIFY `id` mediumint(5) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=31;
+  MODIFY `id` mediumint(5) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=45;
 
 --
 -- AUTO_INCREMENT cho bảng `nv4_vi_modfuncs`
