@@ -494,34 +494,49 @@ function nv_site_theme($contents, $full = true)
             $xtpl->assign('THEME_SEARCH_URL', nv_url_rewrite(NV_BASE_SITEURL . 'index.php?' . NV_LANG_VARIABLE . '=' . NV_LANG_DATA . '&amp;' . NV_NAME_VARIABLE . '=seek', true) . '?q=');
         }
 
-        // Lấy danh sách xe cho header search
-        $search_cars_list = '';
-        if (isset($site_mods['car-interface'])) {
+        // Lấy danh sách sản phẩm ShareCode cho header search
+        $search_sharecode_list = '';
+        if (isset($site_mods['sharecode'])) {
             global $db;
             try {
-                $sql = 'SELECT c.id, c.title, c.price, cat.title as category_title
-                        FROM ' . NV_PREFIXLANG . '_car_interface_cars c
-                        LEFT JOIN ' . NV_PREFIXLANG . '_car_interface_categories cat ON c.category_id = cat.id
-                        WHERE c.status = 1
-                        ORDER BY cat.weight ASC, c.weight ASC, c.title ASC
+                $sql = 'SELECT s.id, s.title, s.fee_type, s.fee_amount, c.title as category_title
+                        FROM ' . NV_PREFIXLANG . '_sharecode_sources s
+                        LEFT JOIN ' . NV_PREFIXLANG . '_sharecode_categories c ON s.catid = c.id
+                        WHERE s.status = 1
+                        ORDER BY s.add_time DESC
                         LIMIT 50';
                 $result = $db->query($sql);
+                $count = 0;
                 while ($row = $result->fetch()) {
-                    $price_formatted = !empty($row['price']) ? number_format($row['price'], 0, ',', '.') . ' VNĐ' : 'Liên hệ';
-                    $search_cars_list .= '<option value="' . $row['id'] . '">' . htmlspecialchars($row['title']);
-                    if (!empty($row['category_title'])) {
-                        $search_cars_list .= ' (' . htmlspecialchars($row['category_title']) . ')';
+                    $count++;
+                    // Format giá theo fee_type
+                    if ($row['fee_type'] == 'free') {
+                        $price_formatted = 'Miễn phí';
+                    } elseif ($row['fee_type'] == 'paid') {
+                        $price_formatted = !empty($row['fee_amount']) ? number_format($row['fee_amount'], 0, ',', '.') . ' VNĐ' : 'Liên hệ';
+                    } else {
+                        $price_formatted = 'Liên hệ';
                     }
-                    $search_cars_list .= ' - ' . $price_formatted . '</option>' . "\n";
+
+                    $search_sharecode_list .= '<option value="' . intval($row['id']) . '">' . htmlspecialchars($row['title']);
+                    if (!empty($row['category_title'])) {
+                        $search_sharecode_list .= ' (' . htmlspecialchars($row['category_title']) . ')';
+                    }
+                    $search_sharecode_list .= ' - ' . $price_formatted . '</option>' . "\n";
+                }
+
+                // Debug: Nếu không có dữ liệu
+                if ($count == 0) {
+                    $search_sharecode_list = '<option value="">Không có sản phẩm ShareCode nào (status=1)</option>';
                 }
             } catch (Exception $e) {
-                // Nếu có lỗi, tạo một option mặc định
-                $search_cars_list = '<option value="">Không có dữ liệu xe</option>';
+                // Nếu có lỗi, tạo một option mặc định với thông tin lỗi
+                $search_sharecode_list = '<option value="">Lỗi: ' . htmlspecialchars($e->getMessage()) . '</option>';
             }
         } else {
-            $search_cars_list = '<option value="">Module car-interface chưa được kích hoạt</option>';
+            $search_sharecode_list = '<option value="">Module ShareCode chưa được kích hoạt</option>';
         }
-        $xtpl->assign('SEARCH_CARS_LIST', $search_cars_list);
+        $xtpl->assign('SEARCH_SHARECODE_LIST', $search_sharecode_list);
 
         // Breadcrumbs
         if (!$home) {

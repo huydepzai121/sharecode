@@ -49,66 +49,51 @@ $(document).ready(function() {
     //     $(this).parent().find(">ul").slideToggle(200);
     // });
 
+    // Handle search button click
     $('.link-search').on('click', function(e) {
         e.preventDefault();
-        $('#search-container').slideToggle(300);
-        $('#search-input').focus();
+        console.log('Search button clicked');
+        $('#search-container').slideToggle(300, function() {
+            if ($(this).is(':visible')) {
+                console.log('Search container shown');
+                $('#search-input').select2('open');
+            }
+        });
     });
 
+    // Handle close button click
     $('#search-close').on('click', function(e) {
         e.preventDefault();
         $('#search-container').slideUp(300);
     });
 
-    // Handle car selection in header search
+    // Handle ShareCode source selection in header search
     $('#search-input').on('change', function() {
-        var carId = $(this).val();
-        if (carId) {
-            // Check if we have the required variables
+        var sourceId = $(this).val();
+        console.log('Source selected:', sourceId);
+        if (sourceId) {
+            // Check if we have the required NukeViet variables
             if (typeof nv_base_siteurl !== 'undefined' && typeof nv_lang_variable !== 'undefined' &&
                 typeof nv_lang_data !== 'undefined' && typeof nv_name_variable !== 'undefined' &&
                 typeof nv_fc_variable !== 'undefined') {
-                // Redirect to car detail page
-                var carDetailUrl = nv_base_siteurl + 'index.php?' + nv_lang_variable + '=' + nv_lang_data + '&' + nv_name_variable + '=car-interface&' + nv_fc_variable + '=detail&id=' + carId;
-                window.location.href = carDetailUrl;
+                // Redirect to ShareCode detail page using NukeViet variables
+                var sourceDetailUrl = nv_base_siteurl + 'index.php?' + nv_lang_variable + '=' + nv_lang_data + '&' + nv_name_variable + '=sharecode&' + nv_fc_variable + '=detail&id=' + sourceId;
+                window.location.href = sourceDetailUrl;
             } else {
                 // Fallback URL construction
                 var baseUrl = window.location.origin + window.location.pathname.replace(/\/[^\/]*$/, '/');
-                var carDetailUrl = baseUrl + 'index.php?language=vi&nv=car-interface&op=detail&id=' + carId;
-                window.location.href = carDetailUrl;
+                var sourceDetailUrl = baseUrl + 'index.php?language=vi&nv=sharecode&op=detail&id=' + sourceId;
+                console.log('Redirecting to (fallback):', sourceDetailUrl);
+                window.location.href = sourceDetailUrl;
             }
         }
     });
 
-    // Close search when clicking outside
-    $(document).on('click', function(e) {
-        if (!$(e.target).closest('#search-container, .link-search').length) {
-            $('#search-container').slideUp(300);
-        }
-    });
-
-    // Alternative search functionality using vanilla JavaScript
-    document.addEventListener('click', function(e) {
-        if (e.target.closest('.link-search')) {
-            e.preventDefault();
-            console.log('Search clicked (vanilla JS)');
-            var searchContainer = document.getElementById('search-container');
-            if (searchContainer) {
-                if (searchContainer.style.display === 'none' || searchContainer.style.display === '') {
-                    searchContainer.style.display = 'block';
-                } else {
-                    searchContainer.style.display = 'none';
-                }
-            }
-        }
-
-        if (e.target.closest('#search-close')) {
-            e.preventDefault();
-            console.log('Close clicked (vanilla JS)');
-            var searchContainer = document.getElementById('search-container');
-            if (searchContainer) {
-                searchContainer.style.display = 'none';
-            }
+    // Close search when clicking outside the search box
+    $('#search-container').on('click', function(e) {
+        // Nếu click vào chính container (background đen) chứ không phải search-box
+        if (e.target.id === 'search-container') {
+            $(this).slideUp(300);
         }
     });
 

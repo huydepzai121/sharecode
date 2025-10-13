@@ -98,9 +98,28 @@ while ($row = $result->fetch()) {
     $detail_url = NV_BASE_SITEURL . 'index.php?' . NV_LANG_VARIABLE . '=' . NV_LANG_DATA . '&' . NV_NAME_VARIABLE . '=' . $module_name . '&' . NV_OP_VARIABLE . '=detail/' . $row['alias'];
     $row['link'] = nv_url_rewrite($detail_url, true);
 
-    $row['rating_stars'] = '';
-    if ($row['avg_rating'] > 0) {
-        $row['rating_stars'] = str_repeat('★', round($row['avg_rating'])) . str_repeat('☆', 5 - round($row['avg_rating']));
+    // Tạo stars array cho rating loop trong template
+    $row['stars'] = [];
+    $rating_value = isset($row['avg_rating']) ? round($row['avg_rating']) : 0;
+    for ($i = 1; $i <= 5; $i++) {
+        $row['stars'][] = [
+            'class' => ($i <= $rating_value) ? 'filled' : 'empty'
+        ];
+    }
+
+    // Kiểm tra xem user có thể download không (miễn phí hoặc đã mua)
+    $row['can_download'] = false;
+    if ($row['is_free']) {
+        $row['can_download'] = true;
+    } elseif (defined('NV_IS_USER')) {
+        // Kiểm tra xem user đã mua chưa
+        $check_purchase = $db->query("SELECT id FROM " . NV_PREFIXLANG . "_" . $module_data . "_purchases
+                                       WHERE source_id = " . $row['id'] . "
+                                       AND userid = " . intval($user_info['userid']) . "
+                                       AND status = 1")->fetchColumn();
+        if ($check_purchase) {
+            $row['can_download'] = true;
+        }
     }
 
     $sources[] = $row;
@@ -150,7 +169,8 @@ foreach ($sorts as $sort_key => $sort_name) {
     $sort_links[$sort_key] = [
         'name' => $sort_name,
         'link' => nv_url_rewrite($sort_url, true),
-        'active' => $sort == $sort_key
+        'active' => $sort == $sort_key,
+        'selected' => ($sort == $sort_key) ? 'selected="selected"' : ''
     ];
 }
 

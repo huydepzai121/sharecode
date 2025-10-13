@@ -16,71 +16,17 @@
        </div>
     </header>
 
-    <div id="search-container" class="search-container" style="display: none; background: rgba(0, 0, 0, 0.9); position: fixed; top: 70px; left: 0; right: 0; z-index: 9999; padding: 20px 0; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);">
+    <div id="search-container" class="search-container" style="display: none; background: rgba(0, 0, 0, 0.9); position: fixed; top: 0; left: 0; right: 0; bottom: 0; width: 100%; height: 100%; z-index: 9999; padding: 100px 20px 20px 20px;">
         <div class="search-box" style="position: relative; max-width: 600px; margin: 0 auto;">
             <div class="search-input-wrapper" style="position: relative; display: flex; align-items: center;">
                 <select id="search-input" class="search-input form-control" autocomplete="off">
-                    <option value="">-- Vui lòng chọn xe để tìm kiếm --</option>
-                    {SEARCH_CARS_LIST}
+                    <option value="">-- Vui lòng chọn sản phẩm ShareCode --</option>
+                    {SEARCH_SHARECODE_LIST}
                 </select>
-                <!-- <button type="button" class="search-close-btn" id="search-close" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); background: none; border: none; font-size: 20px; color: #666; cursor: pointer; padding: 5px;">
-                    <em class="fa fa-times"></em>
-                </button> -->
             </div>
             <div id="search-results" class="search-results"></div>
         </div>
     </div>
-
-    <script>
-    // Inline search functionality
-    document.addEventListener('DOMContentLoaded', function() {
-        console.log('Search script loaded');
-
-        // Search button click
-        document.addEventListener('click', function(e) {
-            if (e.target.closest('.link-search')) {
-                e.preventDefault();
-                console.log('Search button clicked');
-                var searchContainer = document.getElementById('search-container');
-                if (searchContainer) {
-                    if (searchContainer.style.display === 'none' || searchContainer.style.display === '') {
-                        searchContainer.style.display = 'block';
-                        console.log('Search container shown');
-                    } else {
-                        searchContainer.style.display = 'none';
-                        console.log('Search container hidden');
-                    }
-                } else {
-                    console.log('Search container not found');
-                }
-            }
-
-            if (e.target.closest('#search-close')) {
-                e.preventDefault();
-                console.log('Close button clicked');
-                var searchContainer = document.getElementById('search-container');
-                if (searchContainer) {
-                    searchContainer.style.display = 'none';
-                }
-            }
-        });
-
-        // Car selection
-        var searchInput = document.getElementById('search-input');
-        if (searchInput) {
-            searchInput.addEventListener('change', function() {
-                var carId = this.value;
-                console.log('Car selected:', carId);
-                if (carId) {
-                    // Redirect to car detail page
-                    var baseUrl = window.location.origin + window.location.pathname.replace(/\/[^\/]*$/, '/');
-                    var carDetailUrl = baseUrl + 'index.php?language=vi&nv=car-interface&op=detail&id=' + carId;
-                    window.location.href = carDetailUrl;
-                }
-            });
-        }
-    });
-    </script>
 
     <div id="header_about">
         [VIDEO_HEADER]

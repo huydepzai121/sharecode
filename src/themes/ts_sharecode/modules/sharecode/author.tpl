@@ -1,395 +1,335 @@
 <!-- BEGIN: main -->
-<div class="author-profile">
-    <!-- Author Header -->
-    <div class="author-header">
+<div class="author-page">
+    <div class="author-header-simple">
         <div class="container">
-            <div class="row">
-                <div class="col-xs-24 col-sm-6 text-center">
-                    <div class="author-avatar">
-                        <img src="{AUTHOR.avatar_url}" alt="{AUTHOR.display_name}" class="img-circle" style="width: 120px; height: 120px; object-fit: cover;">
-                    </div>
+            <div class="author-header-inner">
+                <div class="author-avatar">
+                    <img src="{AUTHOR.avatar_url}" alt="{AUTHOR.display_name}" class="img-responsive">
                 </div>
-                <div class="col-xs-24 col-sm-18">
-                    <div class="author-info">
+                <div class="author-details">
+                    <div class="author-title-row">
                         <h1 class="author-name">{AUTHOR.display_name}</h1>
-                        <p class="author-username text-muted">@{AUTHOR.username}</p>
-                        
-                        <!-- BEGIN: has_rating -->
-                        <div class="author-rating">
-                            <span class="rating-stars">{AUTHOR.rating_stars}</span>
-                            <span class="rating-value">({AUTHOR.avg_rating}/5)</span>
-                            <span class="text-muted">• {AUTHOR.total_reviews} đánh giá</span>
-                        </div>
-                        <!-- END: has_rating -->
-                        
-                        <div class="author-stats">
-                            <div class="row">
-                                <div class="col-xs-12 col-sm-6">
-                                    <div class="stat-item">
-                                        <div class="stat-number">{AUTHOR.total_codes}</div>
-                                        <div class="stat-label">Mã nguồn</div>
-                                    </div>
-                                </div>
-                                <div class="col-xs-12 col-sm-6">
-                                    <div class="stat-item">
-                                        <div class="stat-number">{AUTHOR.total_downloads}</div>
-                                        <div class="stat-label">Lượt tải</div>
-                                    </div>
-                                </div>
-                                <div class="col-xs-12 col-sm-6">
-                                    <div class="stat-item">
-                                        <div class="stat-number">{AUTHOR.total_views}</div>
-                                        <div class="stat-label">Lượt xem</div>
-                                    </div>
-                                </div>
-                                <div class="col-xs-12 col-sm-6">
-                                    <div class="stat-item">
-                                        <div class="stat-number">{AUTHOR.join_date}</div>
-                                        <div class="stat-label">Tham gia</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                        <span class="author-username">@{AUTHOR.username}</span>
+                    </div>
+                    <!-- BEGIN: has_rating -->
+                    <div class="author-rating">
+                        <span class="rating-stars">{AUTHOR.rating_stars}</span>
+                        <span class="rating-value">({AUTHOR.avg_rating}/5)</span>
+                        <span class="rating-count">• {AUTHOR.total_reviews} đánh giá</span>
+                    </div>
+                    <!-- END: has_rating -->
+                    <div class="author-meta">
+                        <span class="meta-item">
+                            <i class="fa fa-code"></i> {AUTHOR.total_codes} mã nguồn
+                        </span>
+                        <span class="meta-item">
+                            <i class="fa fa-download"></i> {AUTHOR.total_downloads} lượt tải
+                        </span>
+                        <span class="meta-item">
+                            <i class="fa fa-eye"></i> {AUTHOR.total_views} lượt xem
+                        </span>
+                        <span class="meta-item">
+                            <i class="fa fa-calendar"></i> Tham gia {AUTHOR.join_date}
+                        </span>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Content -->
-    <div class="container" style="margin-top: 30px;">
-        <div class="row">
-            <div class="col-xs-24">
-                <!-- Filters -->
-                <div class="content-filters">
-                    <div class="row">
-                        <div class="col-xs-24 col-sm-16">
-                            <h3>Mã nguồn của {AUTHOR.display_name} <span class="badge">{TOTAL_SOURCES}</span></h3>
-                        </div>
-                        <div class="col-xs-24 col-sm-8">
-                            <form method="get" class="filter-form">
-                                <input type="hidden" name="{NV_LANG_VARIABLE}" value="{NV_LANG_DATA}">
-                                <input type="hidden" name="{NV_NAME_VARIABLE}" value="{MODULE_NAME}">
-                                <input type="hidden" name="{NV_OP_VARIABLE}" value="author">
-                                <input type="hidden" name="id" value="{AUTHOR.id}">
-                                
-                                <div class="row">
-                                    <div class="col-xs-12">
-                                        <select name="category" class="form-control" onchange="this.form.submit()">
-                                            <option value="">Tất cả danh mục</option>
-                                            <!-- BEGIN: category_filter -->
-                                            <option value="{CATEGORY.id}" {CATEGORY.selected}>{CATEGORY.title}</option>
-                                            <!-- END: category_filter -->
-                                        </select>
-                                    </div>
-                                    <div class="col-xs-12">
-                                        <select name="sort" class="form-control" onchange="this.form.submit()">
-                                            <!-- BEGIN: sort_option -->
-                                            <option value="{SORT.key}" {SORT.selected}>{SORT.name}</option>
-                                            <!-- END: sort_option -->
-                                        </select>
-                                    </div>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
+    <div class="author-toolbar">
+        <div class="container">
+            <div class="author-toolbar-row">
+                <div class="toolbar-left">
+                    <span class="results-count">
+                        <i class="fa fa-list"></i> {TOTAL_SOURCES} sản phẩm
+                    </span>
                 </div>
+                <div class="toolbar-right">
+                    <form method="get" class="toolbar-form">
+                        <input type="hidden" name="id" value="{AUTHOR.id}">
 
-                <!-- Sources Grid -->
-                <!-- BEGIN: sources -->
-                <div class="sources-grid">
-                    <div class="row">
-                        <!-- BEGIN: source -->
-                        <div class="col-xs-24 col-sm-12 col-md-8">
-                            <div class="source-card">
-                                <div class="source-image">
-                                    <a href="{SOURCE.link}">
-                                        <img src="{SOURCE.image_url}" alt="{SOURCE.title}" class="img-responsive">
-                                    </a>
-                                </div>
-                                <div class="source-content">
-                                    <h4 class="source-title">
-                                        <a href="{SOURCE.link}">{SOURCE.title}</a>
-                                    </h4>
-                                    
-                                    <div class="source-meta">
-                                        <div class="source-category">
-                                            <i class="fa fa-folder-o"></i>
-                                            <a href="{SOURCE.category_link}">{SOURCE.category_title}</a>
-                                        </div>
-                                        <div class="source-date">
-                                            <i class="fa fa-calendar"></i>
-                                            {SOURCE.add_time_format}
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="source-price">
-                                        <!-- BEGIN: free_price -->
-                                        <span class="price free">Miễn phí</span>
-                                        <!-- END: free_price -->
-                                        <!-- BEGIN: paid_price -->
-                                        <span class="price paid">{SOURCE.price_text}</span>
-                                        <!-- END: paid_price -->
-                                    </div>
-                                    
-                                    <!-- BEGIN: rating -->
-                                    <div class="source-rating">
-                                        <span class="rating-stars">{SOURCE.rating_stars}</span>
-                                        <span class="rating-count">({SOURCE.total_reviews})</span>
-                                    </div>
-                                    <!-- END: rating -->
-                                    
-                                    <div class="source-stats">
-                                        <span class="downloads">
-                                            <i class="fa fa-download"></i> {SOURCE.num_download}
-                                        </span>
-                                        <span class="views">
-                                            <i class="fa fa-eye"></i> {SOURCE.num_view}
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
+                        <div class="control-item">
+                            <label for="author-category-filter"><i class="fa fa-folder-open"></i> Danh mục:</label>
+                            <select id="author-category-filter" name="category" class="form-control" onchange="this.form.submit()">
+                                <option value="">Tất cả danh mục</option>
+                                <!-- BEGIN: category_filter -->
+                                <option value="{CATEGORY.id}" {CATEGORY.selected}>{CATEGORY.title}</option>
+                                <!-- END: category_filter -->
+                            </select>
                         </div>
-                        <!-- END: source -->
-                    </div>
-                </div>
-                <!-- END: sources -->
 
-                <!-- BEGIN: no_sources -->
-                <div class="no-sources text-center">
-                    <i class="fa fa-code fa-5x text-muted"></i>
-                    <h3>Chưa có mã nguồn</h3>
-                    <p class="text-muted">Tác giả này chưa có mã nguồn nào được phê duyệt.</p>
+                        <div class="control-item">
+                            <label for="author-sort-select"><i class="fa fa-sort"></i> Sắp xếp:</label>
+                            <select id="author-sort-select" name="sort" class="form-control" onchange="this.form.submit()">
+                                <!-- BEGIN: sort_option -->
+                                <option value="{SORT.key}" {SORT.selected}>{SORT.name}</option>
+                                <!-- END: sort_option -->
+                            </select>
+                        </div>
+                    </form>
                 </div>
-                <!-- END: no_sources -->
-
-                <!-- Pagination -->
-                <!-- BEGIN: pagination -->
-                <div class="pagination-wrapper text-center">
-                    {GENERATE_PAGE}
-                </div>
-                <!-- END: pagination -->
             </div>
+        </div>
+    </div>
+
+    <div class="author-content">
+        <div class="container">
+            <!-- BEGIN: sources -->
+            <div class="sources-list">
+                <!-- BEGIN: source -->
+                <div class="source-item">
+                    <div class="source-image">
+                        <div class="source-price hidden">
+                            <span class="price-badge badge-{SOURCE.price_badge}">
+                                <i class="fa fa-tag"></i> {SOURCE.price_text}
+                            </span>
+                        </div>
+                        <a href="{SOURCE.link}">
+                            <img src="{SOURCE.image_url}" alt="{SOURCE.title}" class="img-responsive">
+                        </a>
+                    </div>
+
+                    <div class="source-content">
+                        <div class="source-header">
+                            <h3 class="source-title">
+                                <a href="{SOURCE.link}">{SOURCE.title}</a>
+                            </h3>
+                        </div>
+
+                        <div class="source-meta">
+                            <span class="source-category">
+                                <i class="fa fa-folder"></i> {SOURCE.category_title}
+                            </span>
+                            <span class="source-date">
+                                <i class="fa fa-calendar"></i> {SOURCE.add_time_format}
+                            </span>
+                        </div>
+
+                        <div class="star-rating">
+                            <!-- BEGIN: rating_stars -->
+                            <i class="fa fa-star star {STAR.class}"></i>
+                            <!-- END: rating_stars -->
+                            <span class="rating-text">({SOURCE.total_reviews} đánh giá)</span>
+                        </div>
+
+                        <div class="source-stats">
+                            <span class="stat-item">
+                                <i class="fa fa-eye"></i> {SOURCE.num_view}
+                            </span>
+                            <span class="stat-item">
+                                <i class="fa fa-download"></i> {SOURCE.num_download}
+                            </span>
+                        </div>
+
+                        <div class="source-actions">
+                            <a href="{SOURCE.link}" class="btn btn-primary">
+                                <i class="fa fa-eye"></i> Xem chi tiết
+                            </a>
+                            <!-- BEGIN: can_download -->
+                            <a href="{SOURCE.link}#download" class="btn btn-success">
+                                <i class="fa fa-download"></i> Tải xuống
+                            </a>
+                            <!-- END: can_download -->
+                        </div>
+                    </div>
+                </div>
+                <!-- END: source -->
+            </div>
+            <!-- END: sources -->
+
+            <!-- BEGIN: no_sources -->
+            <div class="no-results">
+                <div class="text-center">
+                    <i class="fa fa-search fa-5x text-muted"></i>
+                    <h3>Không tìm thấy kết quả nào</h3>
+                    <p>Tác giả này chưa có mã nguồn nào được phê duyệt.</p>
+                </div>
+            </div>
+            <!-- END: no_sources -->
+
+            <!-- BEGIN: pagination -->
+            <div class="pagination-wrapper">
+                {PAGINATION}
+            </div>
+            <!-- END: pagination -->
         </div>
     </div>
 </div>
 
 <style>
-.author-profile {
-    margin-bottom: 30px;
+.author-page {
+    background: #f8f9fa;
 }
 
-.author-header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    padding: 40px 0;
-    margin-bottom: 0;
+.author-header-simple {
+    background: #fff;
+    border-bottom: 1px solid #e9ecef;
+    padding: 30px 0;
+}
+
+.author-header-inner {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
 }
 
 .author-avatar img {
-    border: 4px solid rgba(255,255,255,0.2);
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.author-details {
+    flex: 1;
+    min-width: 220px;
+}
+
+.author-title-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 8px;
 }
 
 .author-name {
-    color: white;
-    margin-bottom: 5px;
-    font-size: 2.5em;
-    font-weight: 300;
+    font-size: 24px;
+    margin: 0;
+    color: #2c3e50;
 }
 
 .author-username {
-    color: rgba(255,255,255,0.8);
-    font-size: 1.2em;
-    margin-bottom: 15px;
+    background: #eef2ff;
+    color: #6366f1;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 13px;
 }
 
 .author-rating {
-    margin-bottom: 20px;
-}
-
-.rating-stars {
-    color: #ffc107;
-    font-size: 1.2em;
-}
-
-.rating-value {
-    color: white;
-    font-weight: bold;
-    margin-left: 5px;
-}
-
-.author-stats {
-    margin-top: 20px;
-}
-
-.stat-item {
-    text-align: center;
-    margin-bottom: 10px;
-}
-
-.stat-number {
-    font-size: 2em;
-    font-weight: bold;
-    color: white;
-}
-
-.stat-label {
-    color: rgba(255,255,255,0.8);
-    font-size: 0.9em;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-}
-
-.content-filters {
-    background: #f8f9fa;
-    padding: 20px;
-    border-radius: 8px;
-    margin-bottom: 30px;
-}
-
-.content-filters h3 {
-    margin-top: 0;
-    color: #333;
-}
-
-.filter-form .form-control {
-    border-radius: 20px;
-}
-
-.sources-grid .source-card {
-    background: white;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    overflow: hidden;
-    margin-bottom: 30px;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.sources-grid .source-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 5px 20px rgba(0,0,0,0.2);
-}
-
-.source-image {
-    height: 200px;
-    overflow: hidden;
-}
-
-.source-image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 0.3s ease;
-}
-
-.source-card:hover .source-image img {
-    transform: scale(1.05);
-}
-
-.source-content {
-    padding: 20px;
-}
-
-.source-title {
-    margin: 0 0 15px 0;
-    font-size: 1.2em;
-}
-
-.source-title a {
-    color: #333;
-    text-decoration: none;
-}
-
-.source-title a:hover {
-    color: #007bff;
-}
-
-.source-meta {
-    margin-bottom: 15px;
-}
-
-.source-meta > div {
-    margin-bottom: 5px;
-    font-size: 0.9em;
-    color: #666;
-}
-
-.source-meta i {
-    width: 16px;
-    margin-right: 5px;
-}
-
-.source-meta a {
-    color: #007bff;
-    text-decoration: none;
-}
-
-.source-price {
-    margin-bottom: 10px;
-}
-
-.price {
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 0.9em;
-    font-weight: bold;
-}
-
-.price.free {
-    background: #28a745;
-    color: white;
-}
-
-.price.paid {
-    background: #ffc107;
-    color: #333;
-}
-
-.source-rating {
-    margin-bottom: 10px;
-}
-
-.rating-stars {
-    color: #ffc107;
-}
-
-.rating-count {
-    color: #666;
-    font-size: 0.9em;
-}
-
-.source-stats {
     display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: #495057;
+}
+
+.author-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-top: 10px;
+    font-size: 14px;
+    color: #6c757d;
+}
+
+.author-meta .meta-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.author-meta .meta-item i {
+    color: #667eea;
+}
+
+.author-toolbar {
+    background: #fff;
+    border-bottom: 1px solid #e9ecef;
+    padding: 20px 0;
+    margin-bottom: 30px;
+}
+
+.author-toolbar-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
     justify-content: space-between;
-    font-size: 0.9em;
-    color: #666;
-    padding-top: 10px;
-    border-top: 1px solid #eee;
+    gap: 15px;
 }
 
-.no-sources {
-    padding: 60px 20px;
+.results-count {
+    font-size: 16px;
+    font-weight: 500;
+    color: #495057;
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
-.pagination-wrapper {
-    margin-top: 40px;
+.results-count i {
+    color: #667eea;
+}
+
+.toolbar-right {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.toolbar-form {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.toolbar-form .control-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.toolbar-form label {
+    margin: 0;
+    font-weight: 500;
+    color: #495057;
+    white-space: nowrap;
+}
+
+.toolbar-form select {
+    min-width: 180px;
+}
+
+.author-content {
+    padding: 30px 0 50px;
+}
+
+.source-actions .btn + .btn {
+    margin-left: 10px;
 }
 
 @media (max-width: 768px) {
-    .author-header {
-        padding: 30px 0;
+    .author-header-simple {
+        padding: 20px 0;
     }
-    
+
     .author-name {
-        font-size: 2em;
+        font-size: 20px;
     }
-    
-    .content-filters .row > div {
-        margin-bottom: 15px;
+
+    .author-toolbar {
+        padding: 15px 0;
     }
-    
-    .filter-form .row > div {
-        margin-bottom: 10px;
+
+    .toolbar-form select {
+        min-width: 150px;
+        width: 100%;
+    }
+
+    .source-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .source-actions .btn + .btn {
+        margin-left: 0;
     }
 }
 </style>

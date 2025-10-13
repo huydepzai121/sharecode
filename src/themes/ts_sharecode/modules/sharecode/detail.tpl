@@ -176,9 +176,15 @@
                         </a>
                         <!-- END: need_login -->
 
-                        <button class="btn btn-outline-danger btn-lg btn-block favorite-btn">
-                            <i class="bx bx-heart"></i> Thêm vào yêu thích
+                        <!-- BEGIN: favorite_button -->
+                        <button class="btn btn-lg btn-block {FAVORITE.class}" id="favorite-btn"
+                            data-source-id="{FAVORITE.source_id}"
+                            data-action="{FAVORITE.action}"
+                            data-checkss="{FAVORITE.checkss}"
+                            data-ajax-url="{FAVORITE.ajax_url}">
+                            <i class="bx {FAVORITE.icon}"></i> {FAVORITE.text}
                         </button>
+                        <!-- END: favorite_button -->
                     </div>
                 </div>
             </div>
@@ -1377,7 +1383,7 @@
                         $btn.data('action', response.action);
                         $btn.removeClass('btn-danger btn-outline-danger').addClass(response.class);
 
-                        $btn.html('<i class="fa ' + response.icon + '"></i> <span>' + response.text + '</span>');
+                        $btn.html('<i class="bx ' + response.icon + '"></i> <span>' + response.text + '</span>');
 
                         $btn.data('checkss', response.checkss);
 

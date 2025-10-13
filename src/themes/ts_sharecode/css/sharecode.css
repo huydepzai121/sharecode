@@ -450,6 +450,10 @@
     font-size: 14px;
 }
 
+.star-rating .star.filled {
+    color: #ffc107;
+}
+
 .star-rating .star.empty {
     color: #e0e0e0;
 }
@@ -1278,5 +1282,318 @@
     .product-info-section {
         box-shadow: none;
         border: 1px solid #ddd;
+    }
+}
+
+/* ===== HISTORY PAGE STYLES ===== */
+
+/* Page Header */
+.page-header-section {
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid rgba(0,0,0,0.08);
+}
+
+.page-title-wrapper {
+    display: table;
+    width: 100%;
+}
+
+.page-icon {
+    display: table-cell;
+    vertical-align: middle;
+    padding-right: 15px;
+    transition: all 0.3s ease;
+}
+
+.page-icon:hover {
+    transform: scale(1.1);
+}
+
+.page-info {
+    display: table-cell;
+    vertical-align: middle;
+}
+
+.page-title {
+    margin: 0 0 5px 0;
+    font-size: 28px;
+    font-weight: bold;
+    color: #333;
+}
+
+.page-subtitle {
+    margin: 0;
+    font-size: 14px;
+}
+
+.stats-badge-wrapper {
+    margin-top: 15px;
+}
+
+.stats-badge {
+    background: rgba(220, 53, 69, 0.1);
+    color: #dc3545;
+    border: 1px solid rgba(220, 53, 69, 0.25);
+    padding: 8px 15px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+/* Stats Panel */
+.stats-panel {
+    margin-bottom: 30px;
+}
+
+.stats-box {
+    background: white;
+    border: 1px solid #e9ecef;
+    border-radius: 12px;
+    padding: 25px 20px;
+    margin-bottom: 15px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    text-align: center;
+}
+
+.stats-box:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+}
+
+.stats-icon {
+    margin-bottom: 15px;
+    transition: all 0.3s ease;
+}
+
+.stats-box:hover .stats-icon {
+    transform: scale(1.1);
+}
+
+.stats-number {
+    color: #333;
+    font-weight: bold;
+    margin: 10px 0 5px 0;
+    font-size: 24px;
+}
+
+.stats-label {
+    color: #6c757d;
+    font-size: 13px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* History Purchase Items - Using source-item pattern */
+.sources-list.history-list .source-item {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+}
+
+.sources-list.history-list .source-image {
+    flex-shrink: 0;
+    width: 200px;
+    height: 150px;
+}
+
+.sources-list.history-list .source-content {
+    flex: 1;
+}
+
+.source-description {
+    color: #6c757d;
+    margin-bottom: 20px;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+/* Purchase Meta - Transaction specific info */
+.purchase-meta {
+    margin-bottom: 20px;
+    padding: 20px;
+    background: rgba(13, 110, 253, 0.03);
+    border-radius: 8px;
+    border: 1px solid rgba(13, 110, 253, 0.1);
+}
+
+.meta-group {
+    margin-bottom: 0;
+}
+
+.meta-item {
+    margin-bottom: 10px;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+}
+
+.meta-item:last-child {
+    margin-bottom: 0;
+}
+
+.meta-item i {
+    width: 20px;
+    margin-right: 8px;
+}
+
+.meta-item strong {
+    color: #495057;
+    margin-right: 8px;
+    min-width: 120px;
+}
+
+.price-tag {
+    color: #28a745;
+    font-weight: bold;
+    font-size: 15px;
+}
+
+.transaction-id {
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    background: rgba(0,0,0,0.05);
+    padding: 2px 6px;
+    border-radius: 3px;
+}
+
+.status-completed {
+    color: #28a745;
+    font-weight: 600;
+    background: rgba(40, 167, 69, 0.1);
+    padding: 4px 10px;
+    border-radius: 15px;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Empty State */
+.empty-state {
+    padding: 60px 20px;
+    text-align: center;
+}
+
+.empty-icon {
+    margin-bottom: 25px;
+    transition: all 0.3s ease;
+}
+
+.empty-state:hover .empty-icon {
+    transform: scale(1.1);
+}
+
+.empty-title {
+    color: #333;
+    margin-bottom: 15px;
+    font-weight: 600;
+}
+
+.empty-description {
+    margin-bottom: 25px;
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 1.6;
+}
+
+.empty-action {
+    font-weight: 600;
+    padding: 12px 30px;
+    border-radius: 25px;
+    transition: all 0.3s ease;
+}
+
+.empty-action:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 123, 255, 0.3);
+}
+
+/* Animations */
+.fadeInUp {
+    animation: fadeInUp 0.6s ease forwards;
+    opacity: 0;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* History Page Responsive Design */
+@media (max-width: 1199px) {
+    .sources-list.history-list {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .sources-list.history-list .source-item {
+        flex-direction: column;
+    }
+
+    .sources-list.history-list .source-image {
+        width: 100%;
+        height: 200px;
+    }
+}
+
+@media (max-width: 768px) {
+    .page-title-wrapper {
+        display: block;
+        text-align: center;
+    }
+
+    .page-icon {
+        display: block;
+        text-align: center;
+        padding-right: 0;
+        margin-bottom: 15px;
+    }
+
+    .page-info {
+        display: block;
+        text-align: center;
+    }
+
+    .stats-badge-wrapper {
+        text-align: center;
+        margin-top: 20px;
+    }
+
+    .sources-list.history-list {
+        grid-template-columns: 1fr;
+    }
+
+    .sources-list.history-list .source-item {
+        flex-direction: column;
+    }
+
+    .sources-list.history-list .source-image {
+        width: 100%;
+        height: 180px;
+    }
+
+    .meta-item {
+        flex-direction: column;
+        align-items: flex-start;
+        margin-bottom: 15px;
+    }
+
+    .meta-item strong {
+        min-width: auto;
+        margin-bottom: 5px;
+    }
+
+    .source-actions .btn {
+        width: 100%;
+        margin-right: 0;
+        margin-bottom: 10px;
     }
 }

@@ -1,0 +1,30 @@
+{
+    "info": {
+        "name": "ShareCode: Sản phẩm mới nhất",
+        "author": "VINADES.,JSC",
+        "website": "https://vinades.vn",
+        "description": "Block hiển thị sản phẩm ShareCode mới nhất hoặc chọn thủ công các sản phẩm cụ thể. Hỗ trợ 2 chế độ: tự động lấy sản phẩm mới nhất hoặc chọn thủ công danh sách sản phẩm. Cho phép tùy chỉnh số lượng hiển thị, tiêu đề và mô tả section."
+    },
+    "config": {
+        "display_mode": "latest",
+        "num_items": 6,
+        "selected_sources": [],
+        "section_title": "San pham ShareCode moi nhat",
+        "section_description": "Kham pha cac san pham ShareCode moi duoc cap nhat, lua chon thu cong hoac tu dong."
+    },
+    "datafunction": "nv_block_sharecode_latest_config",
+    "submitfunction": "nv_block_sharecode_latest_config_submit",
+    "i18n": {
+        "en": {
+            "info": {
+                "name": "ShareCode: Latest Products"
+            }
+        },
+        "vi": {
+            "info": {
+                "name": "ShareCode: Sản phẩm mới nhất"
+            }
+        }
+    }
+}
+

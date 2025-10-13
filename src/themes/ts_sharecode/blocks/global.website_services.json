@@ -1,0 +1,64 @@
+{
+    "info": {
+        "name": "Website Services Block",
+        "author": "VINADES.,JSC",
+        "description": "Block hiển thị 10 dịch vụ thiết kế website với grid layout và animation",
+        "version": "1.0.1"
+    },
+    "default_config": {
+        "title": "THIẾT KẾ WEBSITE TRỌN GÓI",
+        "description": "Chúng tôi cung cấp giải pháp thiết kế website chuyên nghiệp cho mọi lĩnh vực kinh doanh"
+    },
+    "services": [
+        {
+            "title": "Website Bán Hàng",
+            "icon": "fa-shopping-cart",
+            "color": "#e74c3c"
+        },
+        {
+            "title": "Website Bất Động Sản",
+            "icon": "fa-building",
+            "color": "#3498db"
+        },
+        {
+            "title": "Website Ô Tô",
+            "icon": "fa-car",
+            "color": "#2c3e50"
+        },
+        {
+            "title": "Website Công Ty",
+            "icon": "fa-briefcase",
+            "color": "#16a085"
+        },
+        {
+            "title": "Cổng Thông Tin",
+            "icon": "fa-newspaper-o",
+            "color": "#f39c12"
+        },
+        {
+            "title": "Website Dịch Vụ",
+            "icon": "fa-cogs",
+            "color": "#9b59b6"
+        },
+        {
+            "title": "Website Thời Trang",
+            "icon": "fa-scissors",
+            "color": "#e91e63"
+        },
+        {
+            "title": "Website Trường Học",
+            "icon": "fa-graduation-cap",
+            "color": "#27ae60"
+        },
+        {
+            "title": "Website Y Khoa",
+            "icon": "fa-heartbeat",
+            "color": "#c0392b"
+        },
+        {
+            "title": "Website Tổng Hợp",
+            "icon": "fa-globe",
+            "color": "#34495e"
+        }
+    ]
+}

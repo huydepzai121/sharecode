@@ -623,18 +623,17 @@ function nv_theme_sharecode_category_view($category, $sources, $total_sources, $
         foreach ($sources as $source) {
             $xtpl->assign('SOURCE', $source);
 
-            // Price badge display (chỉ badge, không có actions)
-            if (isset($source['is_free']) && $source['is_free']) {
-                $xtpl->parse('main.sources.source.badge_free');
-            } elseif (isset($source['is_contact']) && $source['is_contact']) {
-                $xtpl->parse('main.sources.source.badge_contact');
-            } elseif (isset($source['is_paid']) && $source['is_paid']) {
-                $xtpl->parse('main.sources.source.badge_paid');
+            // Rating stars loop
+            if (isset($source['stars']) && !empty($source['stars'])) {
+                foreach ($source['stars'] as $star) {
+                    $xtpl->assign('STAR', $star);
+                    $xtpl->parse('main.sources.source.rating_stars');
+                }
             }
 
-            // Rating
-            if (isset($source['avg_rating']) && $source['avg_rating'] > 0) {
-                $xtpl->parse('main.sources.source.rating');
+            // Can download button (cho sản phẩm miễn phí hoặc đã mua)
+            if (isset($source['can_download']) && $source['can_download']) {
+                $xtpl->parse('main.sources.source.can_download');
             }
 
             $xtpl->parse('main.sources.source');
