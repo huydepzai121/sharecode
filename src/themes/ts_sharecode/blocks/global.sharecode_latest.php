@@ -104,9 +104,9 @@ if (!nv_function_exists('nv_block_sharecode_latest_config')) {
         $html[] = '            <label class="form-check-label fw-semibold" for="display_mode_latest">Lấy sản phẩm cụ thể</label>';
         $html[] = '        </div>';
         $html[] = '        <div class="border rounded p-3 bg-light mt-2 ms-2' . $latestHidden . '" id="latest_mode_container">';
-        $html[] = '            <label class="form-label mb-1" for="config_num_items">So luong san pham (1 - 12):</label>';
+        $html[] = '            <label class="form-label mb-1" for="config_num_items">Số lượng sản phẩm hiển thị (1 - 12):</label>';
         $html[] = '            <input type="number" min="1" max="12" class="form-control" style="max-width: 140px;" name="config_num_items" id="config_num_items" value="' . (int) $data_block['num_items'] . '" />';
-        $html[] = '            <small class="text-muted d-block mt-2">Block se tự động lấy sản phẩm mới nhất theo thời gian đăng.</small>';
+        $html[] = '            <small class="text-muted d-block mt-2">Block sẽ tự động lấy sản phẩm mới nhất theo thời gian đăng.</small>';
         $html[] = '        </div>';
         $html[] = '        <div class="form-check mt-3">';
         $html[] = '            <input class="form-check-input" type="radio" name="config_display_mode" id="display_mode_manual" value="manual"' . ($data_block['display_mode'] === 'manual' ? ' checked="checked"' : '') . ' />';
