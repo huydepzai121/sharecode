@@ -688,12 +688,12 @@
     <div class="modal-dialog modal-md" role="document">
         <div class="modal-content">
             <div class="modal-header">
+                <h4 class="modal-title" id="downloadModalLabel">
+                    <i class="fa fa-credit-card"></i> Xác nhận thanh toán
+                </h4>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="closeDownloadModal()">
                     <span aria-hidden="true">&times;</span>
                 </button>
-                <h4 class="modal-title" id="downloadModalLabel">
-                    <i class="fa fa-credit-card text-primary"></i> Xác nhận thanh toán
-                </h4>
             </div>
             <div class="modal-body">
                 <div class="panel panel-info">

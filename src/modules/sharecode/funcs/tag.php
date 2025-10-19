@@ -10,7 +10,9 @@ if (empty($array_op)) {
     nv_redirect_location(NV_BASE_SITEURL . 'index.php?' . NV_LANG_VARIABLE . '=' . NV_LANG_DATA . '&' . NV_NAME_VARIABLE . '=' . $module_name);
 }
 
-$sql = "SELECT * FROM " . NV_PREFIXLANG . "_" . $module_data . "_tags WHERE alias=" . $db->quote($array_op[1]);
+// Chuyển alias về chữ thường để tìm kiếm
+$tag_alias = strtolower($array_op[1]);
+$sql = "SELECT * FROM " . NV_PREFIXLANG . "_" . $module_data . "_tags WHERE alias=" . $db->quote($tag_alias);
 $tag = $db->query($sql)->fetch();
 
 if (empty($tag)) {
@@ -18,7 +20,7 @@ if (empty($tag)) {
 }
 
 $per_page = 12;
-$base_url = NV_BASE_SITEURL . 'index.php?' . NV_LANG_VARIABLE . '=' . NV_LANG_DATA . '&' . NV_NAME_VARIABLE . '=' . $module_name . '&' . NV_OP_VARIABLE . '=' . $array_op[0] . '/' . $array_op[1] . '/';
+$base_url = NV_BASE_SITEURL . 'index.php?' . NV_LANG_VARIABLE . '=' . NV_LANG_DATA . '&' . NV_NAME_VARIABLE . '=' . $module_name . '&' . NV_OP_VARIABLE . '=' . $array_op[0] . '/' . $tag['alias'] . '/';
 
 $sql = "SELECT COUNT(DISTINCT s.id) 
         FROM " . NV_PREFIXLANG . "_" . $module_data . "_sources s
@@ -112,7 +114,7 @@ $description = 'Danh sách mã nguồn có tag: ' . $tag['name'];
 $array_mod_title[] = [
     'catid' => 0,
     'title' => 'Tag: ' . $tag['name'],
-    'link' => NV_BASE_SITEURL . 'index.php?' . NV_LANG_VARIABLE . '=' . NV_LANG_DATA . '&' . NV_NAME_VARIABLE . '=' . $module_name . '&' . NV_OP_VARIABLE . '=' . $array_op[0] . '/' . $array_op[1]
+    'link' => NV_BASE_SITEURL . 'index.php?' . NV_LANG_VARIABLE . '=' . NV_LANG_DATA . '&' . NV_NAME_VARIABLE . '=' . $module_name . '&' . NV_OP_VARIABLE . '=' . $array_op[0] . '/' . $tag['alias']
 ];
 
 $sql = "SELECT t.*, COUNT(st.source_id) as total_sources
@@ -127,7 +129,7 @@ $result = $db->query($sql);
 $related_tags = [];
 
 while ($row = $result->fetch()) {
-    $tag_url = NV_BASE_SITEURL . 'index.php?' . NV_LANG_VARIABLE . '=' . NV_LANG_DATA . '&' . NV_NAME_VARIABLE . '=' . $module_name . '&' . NV_OP_VARIABLE . '=' . $array_op[0] . '/' . $array_op[1];
+    $tag_url = NV_BASE_SITEURL . 'index.php?' . NV_LANG_VARIABLE . '=' . NV_LANG_DATA . '&' . NV_NAME_VARIABLE . '=' . $module_name . '&' . NV_OP_VARIABLE . '=' . $array_op[0] . '/' . $row['alias'];
     $row['link'] = nv_url_rewrite($tag_url, true);
     $related_tags[] = $row;
 }

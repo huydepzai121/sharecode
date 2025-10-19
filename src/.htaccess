@@ -164,9 +164,13 @@ ErrorDocument 504 /error.php?code=504
   RewriteCond %{REQUEST_FILENAME} !-d
   RewriteRule ^admin/(.*)/$ admin/index.php [L]
   RewriteRule ^admin/$ admin/index.php [L]
+
+  # Redirect tag URLs without trailing slash to version with trailing slash
+  RewriteRule ^([a-zA-Z0-9\-]+)/tag/([a-zA-Z0-9\-]+)$ /$1/tag/$2/ [L,R=301]
+
   RewriteRule (.*)(/|\.html)$ index.php [L]
 
-  RewriteRule (.*)tag/([^?]+)$ index.php [L]
+  RewriteRule (.*)tag/([^?/]+)/$ index.php [L]
   RewriteRule ^([a-zA-Z0-9\-\/]+)/([a-zA-Z0-9\-]+)$ /$1/$2/ [L,R=301]
   RewriteRule ^([a-zA-Z0-9\-]+)$ /$1/ [L,R=301]
 </IfModule>

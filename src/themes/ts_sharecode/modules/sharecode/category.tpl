@@ -1,7 +1,8 @@
 <!-- BEGIN: main -->
-<div class="container">
-    <!-- Main category header -->
-    <div class="category-header-simple">
+<div class="search-results-section">
+    <div class="container">
+        <!-- Main category header -->
+        <div class="category-header-simple">
         <div class="container-fluid">
             <h1 class="category-title-simple">
                 <i class="fa fa-folder-open"></i> {CATEGORY.title}
@@ -68,10 +69,8 @@
     </div>
 
     <!-- BEGIN: sources -->
-    <div class="search-results-section">
-        <div class="container-fluid">
-            <!-- Sources List (giống main.tpl) -->
-            <div class="sources-list">
+    <!-- Sources List (giống main.tpl) -->
+    <div class="sources-list">
                 <!-- BEGIN: source -->
                 <div class="source-item">
                     <div class="source-image">
@@ -128,8 +127,6 @@
                 <!-- END: source -->
             </div>
             <!-- END: sources -->
-        </div>
-    </div>
     <!-- BEGIN: no_sources -->
     <div class="no-results">
         <div class="text-center">
@@ -140,11 +137,12 @@
     </div>
     <!-- END: no_sources -->
 
-    <!-- BEGIN: pagination -->
-    <div class="pagination-wrapper">
-        {GENERATE_PAGE}
+        <!-- BEGIN: pagination -->
+        <div class="pagination-wrapper">
+            {GENERATE_PAGE}
+        </div>
+        <!-- END: pagination -->
     </div>
-    <!-- END: pagination -->
 </div>
 
 <style>

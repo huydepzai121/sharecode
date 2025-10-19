@@ -142,7 +142,7 @@ while ($row = $result->fetch()) {
         $row['image_url'] = NV_BASE_SITEURL . 'themes/default/images/no_image.gif';
     }
 
-    $detail_url = NV_BASE_SITEURL . 'index.php?' . NV_LANG_VARIABLE . '=' . NV_LANG_DATA . '&' . NV_NAME_VARIABLE . '=' . $module_name . '&' . NV_OP_VARIABLE . '=detail&alias=' . $row['alias'];
+    $detail_url = NV_BASE_SITEURL . 'index.php?' . NV_LANG_VARIABLE . '=' . NV_LANG_DATA . '&' . NV_NAME_VARIABLE . '=' . $module_name . '&' . NV_OP_VARIABLE . '=detail/' . $row['alias'];
     $row['detail_url'] = nv_url_rewrite($detail_url, true);
 
     $token = md5($row['source_id'] . $user_info['userid'] . $global_config['sitekey'] . date('Ymd'));
@@ -177,7 +177,7 @@ $sql_stats = "SELECT
               WHERE userid=" . $target_userid . " AND status='completed'";
 $stats = $db->query($sql_stats)->fetch();
 
-$stats['total_spent_format'] = number_format($stats['total_spent'], 0, '.', ',') . ' VNĐ';
+$stats['total_spent_format'] = number_format((float)$stats['total_spent'], 0, '.', ',') . ' VNĐ';
 
 $contents = nv_theme_sharecode_history($purchases, $generate_page, $stats, $total_purchases);
 

@@ -1,6 +1,7 @@
 <!-- BEGIN: main -->
-<div class="author-page">
-    <div class="author-header-simple">
+<div class="search-results-section">
+    <div class="author-page">
+        <div class="author-header-simple">
         <div class="container">
             <div class="author-header-inner">
                 <div class="author-avatar">
@@ -159,7 +160,7 @@
 
 <style>
 .author-page {
-    background: #f8f9fa;
+    background: transparent;
 }
 
 .author-header-simple {

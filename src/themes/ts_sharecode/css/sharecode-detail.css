@@ -1783,3 +1783,263 @@
 .modal-backdrop.show {
     opacity: 0.5 !important;
 }
+
+/* Download Modal - z-index cao hơn backdrop để tránh bị chặn tương tác */
+#downloadModal {
+    z-index: 10002 !important;
+}
+
+#downloadModal .modal-dialog {
+    z-index: 10003 !important;
+    max-width: 550px;
+    margin: 50px auto;
+}
+
+#downloadModal .modal-content {
+    z-index: 10004 !important;
+    background: #fff !important;
+    border-radius: 12px !important;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2) !important;
+    border: none !important;
+    overflow: hidden;
+}
+
+/* Modal Header - Gradient đẹp mắt */
+#downloadModal .modal-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    color: white !important;
+    border-radius: 12px 12px 0 0 !important;
+    padding: 20px 25px !important;
+    border: none !important;
+    position: relative;
+}
+
+#downloadModal .modal-header .modal-title {
+    font-size: 20px !important;
+    font-weight: 600 !important;
+    margin: 0 !important;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+#downloadModal .modal-header .modal-title i {
+    font-size: 24px;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+#downloadModal .modal-header .close {
+    color: white !important;
+    opacity: 0.9 !important;
+    font-size: 28px !important;
+    text-shadow: none !important;
+    background: none !important;
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    line-height: 1 !important;
+    position: absolute;
+    right: 20px;
+    top: 20px;
+}
+
+#downloadModal .modal-header .close:hover {
+    opacity: 1 !important;
+    transform: rotate(90deg);
+    transition: all 0.3s ease;
+}
+
+/* Modal Body - Spacing và styling tốt hơn */
+#downloadModal .modal-body {
+    padding: 25px !important;
+    background: #f8f9fa !important;
+}
+
+/* Panel thông tin sản phẩm */
+#downloadModal .panel-info {
+    border: none !important;
+    border-radius: 8px !important;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+    margin-bottom: 20px !important;
+}
+
+#downloadModal .panel-info .panel-body {
+    background: white !important;
+    padding: 20px !important;
+}
+
+#downloadModal .panel-info h5 {
+    color: #667eea !important;
+    font-size: 16px !important;
+    font-weight: 600 !important;
+    margin: 0 0 8px 0 !important;
+    line-height: 1.4 !important;
+}
+
+#downloadModal .panel-info .text-muted {
+    color: #6c757d !important;
+    font-size: 13px !important;
+    margin: 0 !important;
+}
+
+#downloadModal .panel-info h4 {
+    color: #667eea !important;
+    font-size: 24px !important;
+    font-weight: 700 !important;
+    margin: 0 !important;
+}
+
+/* Panel số dư */
+#downloadModal .panel-default {
+    border: none !important;
+    border-radius: 8px !important;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+    margin-bottom: 15px !important;
+}
+
+#downloadModal .panel-default .panel-body {
+    background: white !important;
+    padding: 18px 20px !important;
+}
+
+#downloadModal .panel-default .row {
+    margin: 0 !important;
+}
+
+#downloadModal .panel-default hr {
+    margin: 12px 0 !important;
+    border-color: #e9ecef !important;
+}
+
+#downloadModal .panel-default span {
+    font-size: 14px !important;
+    color: #495057 !important;
+}
+
+#downloadModal .panel-default strong {
+    font-size: 16px !important;
+    font-weight: 600 !important;
+}
+
+/* Alert cảnh báo */
+#downloadModal .alert-warning {
+    background: #fff3cd !important;
+    border: 1px solid #ffc107 !important;
+    border-radius: 8px !important;
+    padding: 15px !important;
+    margin: 0 !important;
+}
+
+#downloadModal .alert-warning i {
+    margin-right: 8px;
+}
+
+/* Modal Footer - Buttons đẹp hơn */
+#downloadModal .modal-footer {
+    background: white !important;
+    border-top: 1px solid #e9ecef !important;
+    padding: 20px 25px !important;
+    border-radius: 0 0 12px 12px !important;
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+}
+
+#downloadModal .modal-footer .btn {
+    border-radius: 6px !important;
+    padding: 10px 20px !important;
+    font-weight: 500 !important;
+    font-size: 14px !important;
+    transition: all 0.3s ease !important;
+    border: none !important;
+}
+
+#downloadModal .modal-footer .btn-default {
+    background: #e9ecef !important;
+    color: #495057 !important;
+}
+
+#downloadModal .modal-footer .btn-default:hover {
+    background: #dee2e6 !important;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+#downloadModal .modal-footer .btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    color: white !important;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4) !important;
+}
+
+#downloadModal .modal-footer .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(102, 126, 234, 0.5) !important;
+}
+
+#downloadModal .modal-footer .btn-warning {
+    background: #ffc107 !important;
+    color: #212529 !important;
+}
+
+#downloadModal .modal-footer .btn-warning:hover {
+    background: #ffb300 !important;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(255, 193, 7, 0.4);
+}
+
+#downloadModal .modal-footer .btn-info {
+    background: #17a2b8 !important;
+    color: white !important;
+}
+
+#downloadModal .modal-footer .btn-info:hover {
+    background: #138496 !important;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(23, 162, 184, 0.4);
+}
+
+#downloadModal .modal-footer .btn i {
+    margin-right: 6px;
+}
+
+/* Responsive cho mobile */
+@media (max-width: 576px) {
+    #downloadModal .modal-dialog {
+        margin: 20px 10px !important;
+        max-width: calc(100% - 20px) !important;
+    }
+
+    #downloadModal .modal-header {
+        padding: 15px 20px !important;
+    }
+
+    #downloadModal .modal-header .modal-title {
+        font-size: 18px !important;
+    }
+
+    #downloadModal .modal-body {
+        padding: 20px 15px !important;
+    }
+
+    #downloadModal .modal-footer {
+        padding: 15px !important;
+        flex-direction: column;
+    }
+
+    #downloadModal .modal-footer .btn {
+        width: 100%;
+        margin: 5px 0 !important;
+    }
+
+    #downloadModal .panel-info h4 {
+        font-size: 20px !important;
+    }
+}
+

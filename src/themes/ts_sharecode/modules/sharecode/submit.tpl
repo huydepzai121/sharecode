@@ -2,13 +2,14 @@
 <link rel="stylesheet" href="{ASSETS_STATIC_URL}/js/select2/select2.min.css">
 <link rel="stylesheet" href="{NV_BASE_SITEURL}themes/{TEMPLATE}/modules/{MODULE_NAME}/css/submit.css">
 <script type="text/javascript" src="{ASSETS_STATIC_URL}/js/select2/select2.min.js"></script>
-<div id="sharecode-submit" class="container">
-    <div class="submit-header">
-        <h1 class="submit-title">
-            <i class="fa fa-upload"></i> Đăng bán sản phẩm
-        </h1>
-        <p class="submit-subtitle">Chia sẻ code của bạn với cộng đồng và kiếm thu nhập</p>
-    </div>
+<div class="search-results-section">
+    <div id="sharecode-submit" class="container">
+        <div class="submit-header">
+            <h1 class="submit-title">
+                <i class="fa fa-upload"></i> Đăng bán sản phẩm
+            </h1>
+            <p class="submit-subtitle">Chia sẻ code của bạn với cộng đồng và kiếm thu nhập</p>
+        </div>
 
     <!-- BEGIN: errors -->
     <div class="alert alert-danger">
@@ -354,6 +355,7 @@
                 </div>
             </div>
         </form>
+    </div>
     </div>
 </div>
 
@@ -972,4 +974,301 @@
         });
     });
 </script>
+
+<style>
+/* ===== SUBMIT PAGE UNIFIED STYLES ===== */
+
+/* Submit Header - Unified with other pages */
+#sharecode-submit .submit-header {
+    background: #ffffff;
+    border: 1px solid #e9ecef;
+    color: #2c3e50;
+    padding: 40px 30px;
+    text-align: center;
+    border-radius: 12px;
+    margin-bottom: 30px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+}
+
+#sharecode-submit .submit-title {
+    font-size: 32px;
+    font-weight: 700;
+    margin: 0 0 10px 0;
+    color: #2c3e50;
+}
+
+#sharecode-submit .submit-title i {
+    color: #007bff;
+    margin-right: 10px;
+}
+
+#sharecode-submit .submit-subtitle {
+    font-size: 16px;
+    color: #6c757d;
+    margin: 0;
+}
+
+/* Form Container */
+#sharecode-submit .submit-form-container {
+    background: transparent;
+    padding: 0;
+}
+
+/* Panel Styles - Unified */
+#sharecode-submit .panel {
+    margin-bottom: 25px;
+    background-color: #fff;
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+#sharecode-submit .panel:hover {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+    transform: translateY(-2px);
+}
+
+#sharecode-submit .panel-heading {
+    padding: 18px 25px;
+    border-bottom: 1px solid #e9ecef;
+    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+}
+
+#sharecode-submit .panel-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #2c3e50;
+    margin: 0;
+}
+
+#sharecode-submit .panel-title i {
+    color: #007bff;
+    margin-right: 8px;
+}
+
+#sharecode-submit .panel-body {
+    padding: 25px;
+}
+
+/* Panel Warning */
+#sharecode-submit .panel-warning .panel-heading {
+    background: linear-gradient(135deg, #fff3cd 0%, #ffffff 100%);
+    border-bottom: 1px solid #ffc107;
+}
+
+#sharecode-submit .panel-warning .panel-title {
+    color: #856404;
+}
+
+#sharecode-submit .panel-warning .panel-title i {
+    color: #ffc107;
+}
+
+/* Buttons */
+#sharecode-submit .btn {
+    border-radius: 8px;
+    font-weight: 600;
+    padding: 10px 20px;
+    transition: all 0.3s ease;
+}
+
+#sharecode-submit .btn-primary {
+    background: #007bff;
+    border: 1px solid #007bff;
+    color: white;
+}
+
+#sharecode-submit .btn-primary:hover {
+    background: #0056b3;
+    border-color: #0056b3;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+}
+
+#sharecode-submit .btn-default:hover {
+    background: #f8f9fa;
+}
+
+#sharecode-submit .btn-success {
+    background: #28a745;
+    border-color: #28a745;
+}
+
+#sharecode-submit .btn-success:hover {
+    background: #218838;
+    border-color: #1e7e34;
+}
+
+#sharecode-submit .btn-danger {
+    background: #dc3545;
+    border-color: #dc3545;
+}
+
+#sharecode-submit .btn-danger:hover {
+    background: #c82333;
+    border-color: #bd2130;
+}
+
+#sharecode-submit .btn-lg {
+    padding: 15px 40px;
+    font-size: 16px;
+    border-radius: 50px;
+}
+
+/* Image Upload Areas */
+#sharecode-submit .image-upload-area {
+    border: 2px dashed #dee2e6;
+    border-radius: 12px;
+    padding: 30px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: #f8f9fa;
+    min-height: 180px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#sharecode-submit .image-upload-area:hover {
+    border-color: #007bff;
+    background: rgba(0, 123, 255, 0.05);
+    transform: scale(1.02);
+}
+
+#sharecode-submit .image-upload-preview {
+    color: #6c757d;
+}
+
+#sharecode-submit .image-upload-preview i {
+    color: #007bff;
+    margin-bottom: 15px;
+}
+
+#sharecode-submit .upload-buttons {
+    margin-top: 15px;
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+/* Select2 Dropdown Fix */
+.select2-container {
+    z-index: 9999 !important;
+}
+
+.select2-dropdown {
+    z-index: 9999 !important;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.select2-container--default .select2-results__option--highlighted[aria-selected] {
+    background-color: #007bff;
+}
+
+.select2-container--default .select2-selection--multiple {
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    min-height: 50px;
+    padding: 6px 10px;
+}
+
+.select2-container--default .select2-selection--multiple .select2-selection__rendered {
+    padding: 0;
+    line-height: 1.6;
+}
+
+.select2-container--default.select2-container--focus .select2-selection--multiple {
+    border-color: #007bff;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+.select2-container--default .select2-selection--multiple .select2-selection__choice {
+    background-color: #007bff;
+    border: none;
+    color: white;
+    border-radius: 4px;
+    padding: 5px 12px;
+    margin: 3px 4px 3px 0;
+    line-height: 1.5;
+}
+
+.select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
+    color: white;
+    margin-right: 8px;
+    font-size: 16px;
+}
+
+.select2-container--default .select2-selection--multiple .select2-selection__choice__remove:hover {
+    color: #ffcccc;
+}
+
+.select2-container--default .select2-search--inline .select2-search__field {
+    margin-top: 3px;
+    line-height: 1.6;
+    padding: 2px 0;
+    height: 28px !important;
+}
+
+.select2-container .select2-search--inline .select2-search__field {
+    height: 28px !important;
+}
+
+/* Alerts */
+#sharecode-submit .alert {
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 25px;
+}
+
+#sharecode-submit .alert-danger {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+#sharecode-submit .alert-info {
+    background: rgba(13, 202, 240, 0.1);
+    color: #055160;
+    border: 1px solid rgba(13, 202, 240, 0.2);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    #sharecode-submit .submit-header {
+        padding: 30px 20px;
+    }
+
+    #sharecode-submit .submit-title {
+        font-size: 24px;
+    }
+
+    #sharecode-submit .panel-body {
+        padding: 20px 15px;
+    }
+
+    #sharecode-submit .btn-lg {
+        width: 100%;
+        padding: 12px 30px;
+    }
+}
+
+@media (max-width: 480px) {
+    #sharecode-submit .submit-header {
+        padding: 25px 15px;
+    }
+
+    #sharecode-submit .submit-title {
+        font-size: 20px;
+    }
+
+    #sharecode-submit .panel-title {
+        font-size: 16px;
+    }
+}
+</style>
 <!-- END: main -->

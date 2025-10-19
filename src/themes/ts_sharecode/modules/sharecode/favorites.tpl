@@ -3,12 +3,13 @@
 <link rel="stylesheet" href="{NV_BASE_SITEURL}themes/{TEMPLATE}/assets/vendor/boxicons/css/boxicons.min.css">
 <link rel="stylesheet" href="{NV_BASE_SITEURL}themes/{TEMPLATE}/assets/vendor/remixicon/remixicon.css">
 
-<div class="container">
-    <div class="favorites-page">
-        <div class="page-header">
-            <h1><i class="bx bxs-heart text-danger"></i> Sản phẩm yêu thích</h1>
-            <p class="text-muted">Tổng số: <strong>{TOTAL_FAVORITES}</strong></p>
-        </div>
+<div class="search-results-section">
+    <div class="container">
+        <div class="favorites-page">
+            <div class="page-header">
+                <h1><i class="bx bxs-heart text-danger"></i> Sản phẩm yêu thích</h1>
+                <p class="text-muted">Tổng số: <strong>{TOTAL_FAVORITES}</strong></p>
+            </div>
 
         <!-- BEGIN: favorites -->
         <!-- Danh sách favorites: Sử dụng CSS Grid giống main.tpl -->
@@ -104,7 +105,8 @@
             </div>
         </div>
         <!-- END: generate_page -->
-    </div>    
+        </div>
+    </div>
 </div>
 
 <script>
@@ -189,20 +191,20 @@
     .favorites-page .page-header {
         margin-bottom: 30px;
         padding: 30px 20px;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
+        background: #ffffff;
+        border: 1px solid #e9ecef;
         border-radius: 8px;
     }
 
     .favorites-page .page-header h1 {
-        color: white;
+        color: #2c3e50;
         font-weight: 300;
         margin: 0;
         font-size: 28px;
     }
 
     .favorites-page .page-header p {
-        color: rgba(255, 255, 255, 0.9);
+        color: #6c757d;
         margin: 5px 0 0 0;
     }
 

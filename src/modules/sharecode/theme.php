@@ -753,6 +753,7 @@ function nv_theme_sharecode_tag($tag, $sources, $related_tags, $sort_links, $cur
     $xtpl->assign('LANG', $lang_module);
     $xtpl->assign('MODULE_NAME', $module_name);
     $xtpl->assign('TAG', $tag);
+    $xtpl->assign('TAG_NAME', $tag['name']);
     $xtpl->assign('TOTAL_SOURCES', number_format($total_sources));
     $xtpl->assign('NV_LANG_VARIABLE', NV_LANG_VARIABLE);
     $xtpl->assign('NV_LANG_DATA', NV_LANG_DATA);
@@ -780,18 +781,26 @@ function nv_theme_sharecode_tag($tag, $sources, $related_tags, $sort_links, $cur
     // Sources
     if (!empty($sources)) {
         foreach ($sources as $source) {
-            $xtpl->assign('SOURCE', $source);
+            // Rating stars
+            if ($source['avg_rating'] > 0) {
+                $full_stars = floor($source['avg_rating']);
+                $empty_stars = 5 - $full_stars;
 
-            // Price display
-            if ($source['fee_type'] == 'free') {
-                $xtpl->parse('main.sources.source.free_price');
-            } else {
-                $xtpl->parse('main.sources.source.paid_price');
+                for ($i = 0; $i < $full_stars; $i++) {
+                    $xtpl->assign('STAR', ['class' => 'filled']);
+                    $xtpl->parse('main.sources.source.rating_stars');
+                }
+                for ($i = 0; $i < $empty_stars; $i++) {
+                    $xtpl->assign('STAR', ['class' => 'empty']);
+                    $xtpl->parse('main.sources.source.rating_stars');
+                }
             }
 
-            // Rating
-            if ($source['avg_rating'] > 0) {
-                $xtpl->parse('main.sources.source.rating');
+            $xtpl->assign('SOURCE', $source);
+
+            // Can download check
+            if ($source['fee_type'] == 'free') {
+                $xtpl->parse('main.sources.source.can_download');
             }
 
             $xtpl->parse('main.sources.source');
