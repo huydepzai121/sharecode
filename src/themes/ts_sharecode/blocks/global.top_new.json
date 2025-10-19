@@ -1,0 +1,26 @@
+{
+    "info": {
+        "name": "Block tin tức",
+        "author": "Nguyễn Lâm",
+        "website": "https://hoclaptrinh99.com/",
+        "description": "Block hiển thị 6 bài viết tin tức"
+    },
+    "config": {
+        "title": "Tin tức",
+        "description": "Tất cả thông tin mới nhất"
+    },
+    "datafunction": "nv_block_data_config_top_new",
+    "submitfunction": "nv_block_data_config_top_new_submit",
+    "i18n": {
+        "en": {
+            "info": {
+                "name": "News"
+            }
+        },
+        "vi": {
+            "info": {
+                "name": "Block tin tức"
+            }
+        }
+    }
+}

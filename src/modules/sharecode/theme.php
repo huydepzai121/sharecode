@@ -51,7 +51,7 @@ function nv_theme_sharecode_list_view($sources, $categories, $q, $category, $pri
         'name' => 'Tên A-Z',
         'rating' => 'Đánh giá cao'
     ];
-    
+
     foreach ($sort_options as $key => $label) {
         $selected = ($sort == $key) ? 'selected="selected"' : '';
         $xtpl->assign('SORT', [
@@ -69,8 +69,9 @@ function nv_theme_sharecode_list_view($sources, $categories, $q, $category, $pri
         'selected' => ($category == 0) ? 'selected="selected"' : ''
     ]);
     $xtpl->parse('main.category_option');
-    
+
     foreach ($categories as $cat) {
+        $cat['selected'] = ($category == $cat['id']) ? 'selected="selected"' : '';
         $xtpl->assign('CATEGORY', $cat);
         $xtpl->parse('main.category_option');
     }
@@ -81,7 +82,7 @@ function nv_theme_sharecode_list_view($sources, $categories, $q, $category, $pri
         'free' => 'Miễn phí',
         'paid' => 'Có phí'
     ];
-    
+
     foreach ($price_filters as $key => $label) {
         $checked = ($price_filter == $key) ? 'checked="checked"' : '';
         $xtpl->assign('PRICE_FILTER', [
@@ -124,11 +125,29 @@ function nv_theme_sharecode_list_view($sources, $categories, $q, $category, $pri
  * @param int $total_reviews
  * @param array $related_sources
  * @param bool $can_download
+ * @param array $author_info
+ * @param array $demo_images
+ * @param bool $already_purchased
+ * @param bool $need_login
+ * @param bool $need_contact
+ * @param array $user_balance_data
+ * @param float $balance_after
+ * @param string $balance_after_class
+ * @param bool $can_pay
+ * @param bool $need_topup
+ * @param array $rating_breakdown
+ * @param bool $can_review
+ * @param bool $need_login_review
+ * @param bool $need_purchase_review
+ * @param array $comments
+ * @param int $total_comments
+ * @param bool $can_comment
+ * @param bool $need_login_comment
  * @return string
  */
-function nv_theme_sharecode_detail($source, $category, $tags, $reviews, $avg_rating, $total_reviews, $related_sources, $can_download)
+function nv_theme_sharecode_detail($source, $category, $tags, $reviews, $avg_rating, $total_reviews, $related_sources, $can_download, $author_info = [], $demo_images = [], $already_purchased = false, $need_login = false, $need_contact = false, $user_balance_data = null, $balance_after = 0, $balance_after_class = 'text-success', $can_pay = false, $need_topup = false, $rating_breakdown = [], $can_review = false, $need_login_review = false, $need_purchase_review = false, $comments = [], $total_comments = 0, $can_comment = false, $need_login_comment = false, $is_admin = false, $is_author = false)
 {
-    global $module_file, $global_config, $lang_module, $module_name, $user_info;
+    global $module_file, $global_config, $lang_module, $module_name, $user_info, $module_info;
 
     $xtpl = new XTemplate('detail.tpl', NV_ROOTDIR . '/themes/' . $global_config['site_theme'] . '/modules/' . $module_file);
 
@@ -136,58 +155,310 @@ function nv_theme_sharecode_detail($source, $category, $tags, $reviews, $avg_rat
     $xtpl->assign('MODULE_NAME', $module_name);
     $xtpl->assign('SOURCE', $source);
     $xtpl->assign('CATEGORY', $category);
+    $xtpl->assign('AUTHOR', $author_info);
     $xtpl->assign('AVG_RATING', $avg_rating);
     $xtpl->assign('TOTAL_REVIEWS', $total_reviews);
     $xtpl->assign('NV_LANG_VARIABLE', NV_LANG_VARIABLE);
     $xtpl->assign('NV_LANG_DATA', NV_LANG_DATA);
     $xtpl->assign('NV_NAME_VARIABLE', NV_NAME_VARIABLE);
     $xtpl->assign('BASE_URL', NV_BASE_SITEURL);
+    $xtpl->assign('LINK_URL', NV_STATIC_URL . 'themes/' . $module_info['template']);
+    $xtpl->assign('TEMPLATE', $module_info['template']);
 
-    // Download button
-    if ($can_download) {
-        $xtpl->parse('main.can_download');
+    // History URL để redirect sau khi thanh toán
+    if (defined('NV_IS_USER')) {
+        $history_url = NV_BASE_SITEURL . 'index.php?' . NV_LANG_VARIABLE . '=' . NV_LANG_DATA . '&' . NV_NAME_VARIABLE . '=' . $module_name . '&' . NV_OP_VARIABLE . '=history&userid=' . $user_info['userid'];
     } else {
-        if ($source['fee_type'] == 'paid' && $user_info['userid'] == 0) {
-            $xtpl->parse('main.need_login');
-        } else {
-            $xtpl->parse('main.cannot_download');
-        }
+        $history_url = NV_BASE_SITEURL . 'index.php?' . NV_LANG_VARIABLE . '=' . NV_LANG_DATA . '&' . NV_NAME_VARIABLE . '=' . $module_name;
     }
+    $xtpl->assign('HISTORY_URL', $history_url);
 
-    // Demo link
-    if (!empty($source['demo_link'])) {
-        $xtpl->assign('DEMO_LINK', $source['demo_link']);
-        $xtpl->parse('main.demo_link');
-    }
-
-    // Price display
+    // Xử lý giá
     if ($source['fee_type'] == 'free') {
         $xtpl->parse('main.free_price');
+    } elseif ($source['fee_type'] == 'contact') {
+        $xtpl->parse('main.contact_price');
     } else {
         $xtpl->parse('main.paid_price');
     }
 
-    // Tags
+    // Xử lý hiển thị link mã nguồn - chỉ hiện khi đã mua
+    if ($already_purchased && !empty($source['external_source_link'])) {
+        $xtpl->parse('main.source_link_purchased');
+    }
+
+    // Xử lý hiển thị giá khi có phí
+    if ($source['fee_type'] == 'paid' && $source['fee_amount'] > 0) {
+        $xtpl->parse('main.has_fee_amount');
+    }
+
+    // Xử lý demo images
+    if (!empty($demo_images)) {
+        // Parse demo images cho main gallery
+        foreach ($demo_images as $k => $demo_img) {
+            $xtpl->assign('DEMO_IMAGE', $demo_img);
+            $xtpl->parse('main.demo_images.demo_image_others');
+        }
+        $xtpl->parse('main.demo_images');
+
+        // Parse demo images cho thumbnails
+        foreach ($demo_images as $k => $demo_img) {
+            $xtpl->assign('DEMO_IMAGE', $demo_img);
+            $xtpl->parse('main.demo_images_thumbs.demo_image_thumb');
+        }
+        $xtpl->parse('main.demo_images_thumbs');
+    }
+
+    // Xử lý quyền download - Sử dụng block names khớp với template
+    if ($already_purchased) {
+        $xtpl->parse('main.already_purchased');
+    } elseif ($need_login) {
+        $login_url = NV_BASE_SITEURL . 'index.php?' . NV_LANG_VARIABLE . '=' . NV_LANG_DATA . '&' . NV_NAME_VARIABLE . '=users&' . NV_OP_VARIABLE . '=login';
+        $xtpl->assign('LOGIN_URL', $login_url);
+        $xtpl->parse('main.need_login');
+    } elseif ($need_contact) {
+        // Contact information will be handled by JavaScript modalShow
+        $xtpl->parse('main.need_contact');
+    } elseif ($can_download) {
+        $xtpl->parse('main.can_download');
+    } else {
+        // Fallback: nếu không có điều kiện nào thỏa mãn, hiển thị nút login
+        $login_url = NV_BASE_SITEURL . 'index.php?' . NV_LANG_VARIABLE . '=' . NV_LANG_DATA . '&' . NV_NAME_VARIABLE . '=users&' . NV_OP_VARIABLE . '=login';
+        $xtpl->assign('LOGIN_URL', $login_url);
+        $xtpl->parse('main.need_login');
+    }
+
+    // Chuẩn bị dữ liệu cho nút yêu thích - chỉ hiển thị khi user đã đăng nhập
+    if (defined('NV_IS_USER')) {
+        $is_favorite = false;
+        if (function_exists('nv_sharecode_is_favorite')) {
+            $is_favorite = nv_sharecode_is_favorite($source['id'], $user_info['userid']);
+        }
+        $favorite_action = $is_favorite ? 'remove' : 'add';
+        $favorite_text = $is_favorite ? 'Xóa khỏi yêu thích' : 'Thêm vào yêu thích';
+        $favorite_class = $is_favorite ? 'btn-danger' : 'btn-danger';
+        $favorite_icon = $is_favorite ? 'fa-heart' : 'fa-heart-o';
+
+        $favorite_data = [
+            'is_favorite' => $is_favorite,
+            'action' => $favorite_action,
+            'text' => $favorite_text,
+            'class' => $favorite_class,
+            'icon' => $favorite_icon,
+            'source_id' => $source['id'],
+            'checkss' => md5($source['id'] . '_' . $favorite_action . '_' . NV_CHECK_SESSION . '_' . $user_info['userid']),
+            'ajax_url' => NV_BASE_SITEURL . 'index.php?' . NV_LANG_VARIABLE . '=' . NV_LANG_DATA . '&' . NV_NAME_VARIABLE . '=' . $module_name . '&' . NV_OP_VARIABLE . '=favorites'
+        ];
+
+        $xtpl->assign('FAVORITE', $favorite_data);
+        $xtpl->parse('main.favorite_button');
+    }
+
+    // Chuẩn bị data cho modal
+    if ($source['fee_type'] == 'free') {
+        $xtpl->parse('main.free_modal');
+    } elseif ($source['fee_type'] == 'contact') {
+        $xtpl->parse('main.contact_modal');
+    } else {
+        $xtpl->parse('main.paid_modal');
+    }
+
+    if ($user_balance_data !== null && is_array($user_balance_data)) {
+        $current_balance = isset($user_balance_data['balance']) ? floatval($user_balance_data['balance']) : 0;
+        $xtpl->assign('USER_BALANCE', number_format($current_balance, 0, '.', ','));
+        $xtpl->assign('BALANCE_AFTER', number_format($balance_after, 0, '.', ','));
+        $xtpl->assign('BALANCE_AFTER_CLASS', $balance_after_class);
+        $xtpl->parse('main.user_balance');
+    }
+
+    if ($need_topup) {
+        $topup_url = NV_BASE_SITEURL . 'index.php?' . NV_LANG_VARIABLE . '=' . NV_LANG_DATA . '&' . NV_NAME_VARIABLE . '=wallet&' . NV_OP_VARIABLE . '=recharge';
+        $xtpl->assign('TOPUP_URL', $topup_url);
+        $xtpl->parse('main.need_topup');
+        $xtpl->parse('main.insufficient_balance');
+    } elseif ($can_pay) {
+        $xtpl->parse('main.can_pay');
+    }
+
+    // Xử lý tags
     if (!empty($tags)) {
         foreach ($tags as $tag) {
-            $tag['link'] = NV_BASE_SITEURL . 'index.php?' . NV_LANG_VARIABLE . '=' . NV_LANG_DATA . '&amp;' . NV_NAME_VARIABLE . '=' . $module_name . '&amp;' . NV_OP_VARIABLE . '=tag&amp;t=' . urlencode($tag['name']);
-
             $xtpl->assign('TAG', $tag);
             $xtpl->parse('main.tags.tag');
         }
         $xtpl->parse('main.tags');
     }
 
-    // Reviews
+    // Xử lý reviews section
+    if ($total_reviews > 0) {
+        $xtpl->assign('TOTAL_REVIEWS', $total_reviews);
+        $xtpl->assign('AVG_RATING', intval($avg_rating));
+        $rating_stars = max(0, min(5, round(floatval($avg_rating))));
+        $xtpl->assign('AVG_RATING_STARS', str_repeat('★', $rating_stars) . str_repeat('☆', 5 - $rating_stars));
+
+        // Rating breakdown
+        if (!empty($rating_breakdown)) {
+            for ($i = 5; $i >= 1; $i--) {
+                $xtpl->assign('RATING_' . $i . '_COUNT', isset($rating_breakdown[$i]['count']) ? $rating_breakdown[$i]['count'] : 0);
+                $xtpl->assign('RATING_' . $i . '_PERCENT', isset($rating_breakdown[$i]['percent']) ? $rating_breakdown[$i]['percent'] : 0);
+            }
+        }
+
+        // Hiển thị rating trong hero
+        $xtpl->parse('main.has_reviews');
+        $xtpl->parse('main.reviews_summary');
+    } else {
+        // Hiển thị "chưa có đánh giá" trong hero
+        $xtpl->parse('main.no_reviews_hero');
+    }
+
+    // Form đánh giá
+    if ($can_review) {
+        $xtpl->parse('main.can_review');
+    } elseif ($need_login_review) {
+        $login_url = NV_BASE_SITEURL . 'index.php?' . NV_LANG_VARIABLE . '=' . NV_LANG_DATA . '&' . NV_NAME_VARIABLE . '=users&' . NV_OP_VARIABLE . '=login';
+        $xtpl->assign('LOGIN_URL', $login_url);
+        $xtpl->parse('main.need_login_review');
+    } elseif ($need_purchase_review) {
+        $xtpl->parse('main.need_purchase_review');
+    }
+
     if (!empty($reviews)) {
         foreach ($reviews as $review) {
             $xtpl->assign('REVIEW', $review);
-            $xtpl->parse('main.reviews.review');
+
+            // Xử lý admin reply block
+            if ($review['has_admin_reply']) {
+                $xtpl->parse('main.reviews_list.review.has_admin_reply');
+
+                // Nếu là admin, cho phép sửa reply
+                if ($is_admin) {
+                    $xtpl->parse('main.reviews_list.review.has_admin_reply.is_admin');
+                }
+            }
+
+            // Admin form reply - chỉ hiển thị cho admin
+            if ($is_admin) {
+                // Nếu chưa có admin reply, hiển thị nút "Trả lời"
+                if (!$review['has_admin_reply']) {
+                    $xtpl->parse('main.reviews_list.review.is_admin.no_admin_reply');
+                }
+
+                // Luôn hiển thị form reply cho admin (ẩn bằng CSS)
+                $xtpl->parse('main.reviews_list.review.is_admin');
+            }
+
+            $xtpl->parse('main.reviews_list.review');
         }
-        $xtpl->parse('main.reviews');
+        $xtpl->parse('main.reviews_list');
+    } else {
+        $xtpl->parse('main.no_reviews');
     }
 
-    // Related sources
+    $xtpl->assign('TOTAL_COMMENTS', $total_comments);
+
+    if ($can_comment) {
+        $xtpl->parse('main.can_comment');
+    } elseif ($need_login_comment) {
+        $login_url = NV_BASE_SITEURL . 'index.php?' . NV_LANG_VARIABLE . '=' . NV_LANG_DATA . '&' . NV_NAME_VARIABLE . '=users&' . NV_OP_VARIABLE . '=login';
+        $xtpl->assign('LOGIN_URL', $login_url);
+        $xtpl->parse('main.need_login_comment');
+    }
+
+    // Danh sách comments
+    if (!empty($comments)) {
+        foreach ($comments as $comment) {
+            // Kiểm tra có thể trả lời comment này không
+            // Admin có thể reply tất cả comment, User có thể reply comment không phải của mình
+            $comment['can_reply'] = false;
+            if ($is_admin) {
+                // Admin có thể reply tất cả comment
+                $comment['can_reply'] = true;
+            } elseif ($can_comment && defined('NV_IS_USER')) {
+                // User có thể reply comment không phải của mình
+                $comment['can_reply'] = ($comment['userid'] != $user_info['userid']);
+            }
+
+            $comment['is_own_comment'] = defined('NV_IS_USER') && $comment['userid'] == $user_info['userid'];
+            $xtpl->assign('COMMENT', $comment);
+
+            // Hiển thị badge "Bạn" nếu là comment của user hiện tại
+            if ($comment['is_own_comment']) {
+                $xtpl->parse('main.comments_list.comment.is_own_comment');
+            }
+
+            // Hiển thị badge "Admin" nếu là comment của admin
+            if (!empty($comment['is_admin_comment'])) {
+                $xtpl->parse('main.comments_list.comment.is_admin_comment');
+            }
+
+            // Hiển thị nút reply nếu có thể trả lời
+            if ($comment['can_reply']) {
+                $xtpl->parse('main.comments_list.comment.can_reply_comment');
+            }
+
+            // Hiển thị admin reply nếu có
+            if ($comment['has_admin_reply']) {
+                if (!empty($comment['admin_reply_username'])) {
+                    $xtpl->parse('main.comments_list.comment.has_admin_reply.admin_name');
+                }
+                $xtpl->parse('main.comments_list.comment.has_admin_reply');
+            }
+
+            // Xử lý replies
+            if (!empty($comment['replies'])) {
+                foreach ($comment['replies'] as $reply) {
+                    // Kiểm tra có thể trả lời reply này không
+                    $reply['can_reply'] = false;
+                    if ($is_admin) {
+                        // Admin có thể reply tất cả
+                        $reply['can_reply'] = true;
+                    } elseif ($can_comment && defined('NV_IS_USER')) {
+                        // User có thể reply reply không phải của mình
+                        $reply['can_reply'] = ($reply['userid'] != $user_info['userid']);
+                    }
+
+                    $reply['is_own_comment'] = defined('NV_IS_USER') && $reply['userid'] == $user_info['userid'];
+                    $xtpl->assign('REPLY', $reply);
+
+                    // Hiển thị badge "Bạn" nếu là reply của user hiện tại
+                    if ($reply['is_own_comment']) {
+                        $xtpl->parse('main.comments_list.comment.replies.reply.is_own_comment');
+                    }
+
+                    // Hiển thị badge "Admin" nếu là reply của admin
+                    if (!empty($reply['is_admin_comment'])) {
+                        $xtpl->parse('main.comments_list.comment.replies.reply.is_admin_comment');
+                    }
+
+                    // Hiển thị nút reply cho reply nếu có thể trả lời
+                    if ($reply['can_reply']) {
+                        $xtpl->parse('main.comments_list.comment.replies.reply.can_reply_reply');
+                    }
+
+                    // Hiển thị admin reply cho reply nếu có
+                    if ($reply['has_admin_reply']) {
+                        if (!empty($reply['admin_reply_username'])) {
+                            $xtpl->parse('main.comments_list.comment.replies.reply.has_admin_reply.admin_name');
+                        }
+                        $xtpl->parse('main.comments_list.comment.replies.reply.has_admin_reply');
+                    }
+
+                    $xtpl->parse('main.comments_list.comment.replies.reply');
+                }
+                $xtpl->parse('main.comments_list.comment.replies');
+            }
+
+            // Reply forms are now handled by JavaScript
+
+            $xtpl->parse('main.comments_list.comment');
+        }
+        $xtpl->parse('main.comments_list');
+    } else {
+        $xtpl->parse('main.no_comments');
+    }
+
+    // Xử lý related sources
     if (!empty($related_sources)) {
         foreach ($related_sources as $related) {
             $xtpl->assign('RELATED', $related);
@@ -196,23 +467,15 @@ function nv_theme_sharecode_detail($source, $category, $tags, $reviews, $avg_rat
         $xtpl->parse('main.related_sources');
     }
 
-    // Thêm modal thanh toán
-    if (!empty($user_info)) {
-        // User đã đăng nhập - hiển thị modal thanh toán
-        $xtpl->assign('PAYMENT_MODAL', [
-            'source_title' => $source['title'],
-            'source_price' => number_format($source['fee_amount']),
-            'source_id' => $source['id'],
-            'is_free' => $source['fee_type'] == 'free',
-            'user_balance' => isset($source['user_balance']) ? $source['user_balance'] : null,
-            'can_purchase' => isset($source['can_purchase']) ? $source['can_purchase'] : false,
-            'insufficient_funds' => isset($source['insufficient_funds_notice']) ? $source['insufficient_funds_notice'] : '',
-            'purchase_notice' => isset($source['purchase_notice']) ? $source['purchase_notice'] : ''
-        ]);
-        $xtpl->parse('main.payment_modal');
-    } else {
-        // User chưa đăng nhập - yêu cầu đăng nhập
-        $xtpl->parse('main.login_required');
+    // Demo link
+    if (!empty($source['demo_link'])) {
+        $xtpl->assign('DEMO_LINK', $source['demo_link']);
+        $xtpl->parse('main.demo_link');
+    }
+
+    // Admin features
+    if ($is_admin) {
+        $xtpl->parse('main.is_admin');
     }
 
     $xtpl->parse('main');
@@ -320,6 +583,90 @@ function nv_theme_sharecode_main($stats = [], $popular_tags = [])
 }
 
 /**
+ * nv_theme_sharecode_category_view()
+ * Render trang danh sách theo danh mục
+ */
+function nv_theme_sharecode_category_view($category, $sources, $total_sources, $generate_page, $base_url, $sort_links = [], $subcategories = [])
+{
+    global $module_file, $global_config, $lang_module, $module_name;
+
+    $xtpl = new XTemplate('category.tpl', NV_ROOTDIR . '/themes/' . $global_config['site_theme'] . '/modules/' . $module_file);
+
+    $xtpl->assign('LANG', $lang_module);
+    $xtpl->assign('MODULE_NAME', $module_name);
+    $xtpl->assign('CATEGORY', $category);
+    $xtpl->assign('SOURCES', $sources);
+    $xtpl->assign('TOTAL_SOURCES', number_format($total_sources));
+    $xtpl->assign('GENERATE_PAGE', $generate_page);
+    $xtpl->assign('BASE_URL', $base_url);
+    $xtpl->assign('NV_LANG_VARIABLE', NV_LANG_VARIABLE);
+    $xtpl->assign('NV_LANG_DATA', NV_LANG_DATA);
+    $xtpl->assign('NV_NAME_VARIABLE', NV_NAME_VARIABLE);
+    $xtpl->assign('NV_BASE_SITEURL', NV_BASE_SITEURL);
+
+    // Category description
+    if (!empty($category['description'])) {
+        $xtpl->parse('main.category_description');
+    }
+
+    // Subcategories
+    if (!empty($subcategories)) {
+        foreach ($subcategories as $subcat) {
+            $xtpl->assign('SUBCAT', $subcat);
+            $xtpl->parse('main.subcategories.subcat');
+        }
+        $xtpl->parse('main.subcategories');
+    }
+
+    // Sources
+    if (!empty($sources)) {
+        foreach ($sources as $source) {
+            $xtpl->assign('SOURCE', $source);
+
+            // Rating stars loop
+            if (isset($source['stars']) && !empty($source['stars'])) {
+                foreach ($source['stars'] as $star) {
+                    $xtpl->assign('STAR', $star);
+                    $xtpl->parse('main.sources.source.rating_stars');
+                }
+            }
+
+            // Can download button (cho sản phẩm miễn phí hoặc đã mua)
+            if (isset($source['can_download']) && $source['can_download']) {
+                $xtpl->parse('main.sources.source.can_download');
+            }
+
+            $xtpl->parse('main.sources.source');
+        }
+        $xtpl->parse('main.sources');
+    } else {
+        $xtpl->parse('main.no_sources');
+    }
+
+    // Sort links
+    if (!empty($sort_links)) {
+        foreach ($sort_links as $sort_key => $sort_data) {
+            $xtpl->assign('SORT', $sort_data);
+            if ($sort_data['active']) {
+                $xtpl->parse('main.sort_links.sort.active');
+            } else {
+                $xtpl->parse('main.sort_links.sort.inactive');
+            }
+            $xtpl->parse('main.sort_links.sort');
+        }
+        $xtpl->parse('main.sort_links');
+    }
+
+    // Pagination
+    if (!empty($generate_page)) {
+        $xtpl->parse('main.pagination');
+    }
+
+    $xtpl->parse('main');
+    return $xtpl->text('main');
+}
+
+/**
  * nv_theme_sharecode_category()
  * Render trang danh mục mã nguồn
  */
@@ -363,19 +710,19 @@ function nv_theme_sharecode_category($category, $sources, $subcategories, $sort_
     if (!empty($sources)) {
         foreach ($sources as $source) {
             $xtpl->assign('SOURCE', $source);
-            
+
             // Price display
             if ($source['fee_type'] == 'free') {
                 $xtpl->parse('main.sources.source.free_price');
             } else {
                 $xtpl->parse('main.sources.source.paid_price');
             }
-            
+
             // Rating
             if ($source['avg_rating'] > 0) {
                 $xtpl->parse('main.sources.source.rating');
             }
-            
+
             $xtpl->parse('main.sources.source');
         }
         $xtpl->parse('main.sources');
@@ -406,6 +753,7 @@ function nv_theme_sharecode_tag($tag, $sources, $related_tags, $sort_links, $cur
     $xtpl->assign('LANG', $lang_module);
     $xtpl->assign('MODULE_NAME', $module_name);
     $xtpl->assign('TAG', $tag);
+    $xtpl->assign('TAG_NAME', $tag['name']);
     $xtpl->assign('TOTAL_SOURCES', number_format($total_sources));
     $xtpl->assign('NV_LANG_VARIABLE', NV_LANG_VARIABLE);
     $xtpl->assign('NV_LANG_DATA', NV_LANG_DATA);
@@ -421,7 +769,6 @@ function nv_theme_sharecode_tag($tag, $sources, $related_tags, $sort_links, $cur
         $xtpl->parse('main.related_tags');
     }
 
-    // Sort links
     foreach ($sort_links as $sort_key => $sort_data) {
         $xtpl->assign('SORT', $sort_data);
         if ($sort_data['active']) {
@@ -434,20 +781,28 @@ function nv_theme_sharecode_tag($tag, $sources, $related_tags, $sort_links, $cur
     // Sources
     if (!empty($sources)) {
         foreach ($sources as $source) {
-            $xtpl->assign('SOURCE', $source);
-            
-            // Price display
-            if ($source['fee_type'] == 'free') {
-                $xtpl->parse('main.sources.source.free_price');
-            } else {
-                $xtpl->parse('main.sources.source.paid_price');
-            }
-            
-            // Rating
+            // Rating stars
             if ($source['avg_rating'] > 0) {
-                $xtpl->parse('main.sources.source.rating');
+                $full_stars = floor($source['avg_rating']);
+                $empty_stars = 5 - $full_stars;
+
+                for ($i = 0; $i < $full_stars; $i++) {
+                    $xtpl->assign('STAR', ['class' => 'filled']);
+                    $xtpl->parse('main.sources.source.rating_stars');
+                }
+                for ($i = 0; $i < $empty_stars; $i++) {
+                    $xtpl->assign('STAR', ['class' => 'empty']);
+                    $xtpl->parse('main.sources.source.rating_stars');
+                }
             }
-            
+
+            $xtpl->assign('SOURCE', $source);
+
+            // Can download check
+            if ($source['fee_type'] == 'free') {
+                $xtpl->parse('main.sources.source.can_download');
+            }
+
             $xtpl->parse('main.sources.source');
         }
         $xtpl->parse('main.sources');
@@ -489,14 +844,17 @@ function nv_theme_sharecode_download($source, $download_url, $download_type, $ca
     // Format data
     $source['add_time_format'] = date('d/m/Y H:i', $source['add_time']);
     $source['price_text'] = $source['fee_type'] == 'free' ? 'Miễn phí' : number_format($source['fee_amount']) . ' VNĐ';
-    
-    // Image
-    if (!empty($source['image']) && file_exists(NV_UPLOADS_REAL_DIR . '/' . $module_upload . '/' . $source['image'])) {
-        $source['image_url'] = NV_BASE_SITEURL . NV_UPLOADS_DIR . '/' . $module_upload . '/' . $source['image'];
+
+    // Image - logic fallback: image > avatar > default
+    // Database paths now include 'uploads/' prefix
+    if (!empty($source['image']) && file_exists(NV_ROOTDIR . '/' . $source['image'])) {
+        $source['image_url'] = NV_BASE_SITEURL . $source['image'];
+    } elseif (!empty($source['avatar']) && file_exists(NV_ROOTDIR . '/' . $source['avatar'])) {
+        $source['image_url'] = NV_BASE_SITEURL . $source['avatar'];
     } else {
         $source['image_url'] = NV_BASE_SITEURL . 'themes/default/images/no-image.png';
     }
-    
+
     $xtpl->assign('SOURCE', $source);
 
     // Download type
@@ -564,26 +922,25 @@ function nv_theme_sharecode_history($purchases, $generate_page, $stats, $total_p
     $xtpl->assign('NV_NAME_VARIABLE', NV_NAME_VARIABLE);
     $xtpl->assign('BASE_URL', NV_BASE_SITEURL);
     $xtpl->assign('MODULE_URL', NV_BASE_SITEURL . 'index.php?' . NV_LANG_VARIABLE . '=' . NV_LANG_DATA . '&' . NV_NAME_VARIABLE . '=' . $module_name);
-    
+
     // Statistics
     $xtpl->assign('STATS', $stats);
     $xtpl->assign('TOTAL_PURCHASES', $total_purchases);
 
     if (empty($purchases)) {
-        $xtpl->parse('main.empty_list');
+        $xtpl->parse('main.no_purchases');
     } else {
         foreach ($purchases as $purchase) {
             $xtpl->assign('PURCHASE', $purchase);
-            $xtpl->parse('main.purchase_list.purchase');
+            $xtpl->parse('main.purchases.purchase');
         }
-        
-        // Pagination
-        if (!empty($generate_page)) {
-            $xtpl->assign('PAGINATION', $generate_page);
-            $xtpl->parse('main.purchase_list.pagination');
-        }
-        
-        $xtpl->parse('main.purchase_list');
+        $xtpl->parse('main.purchases');
+    }
+
+    // Pagination (outside purchases block)
+    if (!empty($generate_page)) {
+        $xtpl->assign('PAGINATION', $generate_page);
+        $xtpl->parse('main.pagination');
     }
 
     $xtpl->parse('main');
@@ -629,7 +986,7 @@ function nv_theme_sharecode_author($author_info, $sources, $categories, $sort_op
     }
 
     // Author rating stars
-    if ($author_info['avg_rating'] > 0) {
+    if (isset($author_info['avg_rating']) && $author_info['avg_rating'] > 0) {
         $author_info['rating_stars'] = str_repeat('★', round($author_info['avg_rating'])) . str_repeat('☆', 5 - round($author_info['avg_rating']));
         $xtpl->assign('AUTHOR', $author_info);
         $xtpl->parse('main.has_rating');
@@ -639,19 +996,19 @@ function nv_theme_sharecode_author($author_info, $sources, $categories, $sort_op
     if (!empty($sources)) {
         foreach ($sources as $source) {
             $xtpl->assign('SOURCE', $source);
-            
+
             // Price display
             if ($source['fee_type'] == 'free') {
                 $xtpl->parse('main.sources.source.free_price');
-            } else {
+            } elseif ($source['fee_type'] == 'paid') {
                 $xtpl->parse('main.sources.source.paid_price');
             }
-            
+
             // Rating
-            if ($source['avg_rating'] > 0) {
+            if (isset($source['avg_rating']) && $source['avg_rating'] > 0) {
                 $xtpl->parse('main.sources.source.rating');
             }
-            
+
             $xtpl->parse('main.sources.source');
         }
         $xtpl->parse('main.sources');
@@ -673,27 +1030,72 @@ function nv_theme_sharecode_author($author_info, $sources, $categories, $sort_op
  * nv_theme_sharecode_submit()
  * Theme function for submit page
  */
-function nv_theme_sharecode_submit($categories, $errors = [])
+function nv_theme_sharecode_submit($categories, $available_keywords = [], $available_tags = [], $form_data = [], $errors = [])
 {
-    global $module_file, $lang_module, $module_name, $nv_Request, $global_config;
+    global $module_file, $lang_module, $module_name, $nv_Request, $global_config, $module_upload, $module_data;
 
     $xtpl = new XTemplate('submit.tpl', NV_ROOTDIR . '/themes/' . $global_config['site_theme'] . '/modules/' . $module_file);
 
-    // Get posted data for form retention
-    $data = [
-        'title' => $nv_Request->get_textarea('title', 'post', ''),
-        'catid' => $nv_Request->get_int('catid', 'post', 0),
-        'description' => $nv_Request->get_textarea('description', 'post', ''),
-        'demo_link' => $nv_Request->get_textarea('demo_link', 'post', ''),
-        'fee_type' => $nv_Request->get_string('fee_type', 'post', 'free'),
-        'fee_amount' => $nv_Request->get_float('fee_amount', 'post', 0),
-        'keywords' => $nv_Request->get_textarea('keywords', 'post', ''),
-        'tags' => $nv_Request->get_textarea('tags', 'post', ''),
-        'download_link_type' => $nv_Request->get_string('download_link_type', 'post', 'file'),
-        'download_link' => $nv_Request->get_textarea('download_link', 'post', '')
-    ];
+    // Use provided form data or get from request
+    if (empty($form_data)) {
+        $data = [
+            'title' => $nv_Request->get_textarea('title', 'post', ''),
+            'alias' => $nv_Request->get_title('alias', 'post', ''),
+            'catid' => $nv_Request->get_int('catid', 'post', 0),
+            'description' => $nv_Request->get_textarea('description', 'post', ''),
+            'content' => $nv_Request->get_editor('content', 'post', ''),
+            'demo_link' => $nv_Request->get_textarea('demo_link', 'post', ''),
+            'external_source_link' => $nv_Request->get_textarea('external_source_link', 'post', ''),
+            'fee_type' => $nv_Request->get_string('fee_type', 'post', 'free'),
+            'fee_amount' => $nv_Request->get_float('fee_amount', 'post', 0),
+            'keywords' => $nv_Request->get_textarea('keywords', 'post', ''),
+            'tags' => $nv_Request->get_textarea('tags', 'post', ''),
+            'download_link_type' => $nv_Request->get_string('download_link_type', 'post', 'external'),
+            'download_link' => $nv_Request->get_textarea('download_link', 'post', ''),
+            'contact_phone' => $nv_Request->get_title('contact_phone', 'post', ''),
+            'contact_email' => $nv_Request->get_title('contact_email', 'post', ''),
+            'contact_skype' => $nv_Request->get_title('contact_skype', 'post', ''),
+            'contact_telegram' => $nv_Request->get_title('contact_telegram', 'post', ''),
+            'contact_zalo' => $nv_Request->get_title('contact_zalo', 'post', ''),
+            'contact_facebook' => $nv_Request->get_title('contact_facebook', 'post', ''),
+            'contact_website' => $nv_Request->get_title('contact_website', 'post', ''),
+            'contact_address' => $nv_Request->get_textarea('contact_address', 'post', '')
+        ];
+    } else {
+        $data = $form_data;
+    }
+
+    // Format fee_amount using NukeViet number format
+    if (isset($data['fee_amount']) && $data['fee_amount'] > 0) {
+        $data['fee_amount_formatted'] = nv_number_format($data['fee_amount'], 0);
+    } else {
+        $data['fee_amount_formatted'] = '';
+    }
+
+    // Ensure module_upload is defined
+    if (empty($module_upload)) {
+        $module_upload = $module_data;
+    }
+
+    // Initialize editor if available
+    if (defined('NV_EDITOR')) {
+        require_once NV_ROOTDIR . '/' . NV_EDITORSDIR . '/' . NV_EDITOR . '/nv.php';
+    }
+
+    // Prepare content for editor - ensure it's never null or undefined
+    $content_value = isset($data['content']) ? $data['content'] : '';
+    $content_value = htmlspecialchars(nv_editor_br2nl($content_value));
+
+    // Create content editor
+    if (defined('NV_EDITOR') and nv_function_exists('nv_aleditor')) {
+        $upload_path = NV_UPLOADS_DIR . '/' . $module_upload;
+        $content_editor = nv_aleditor('content', '100%', '400px', $content_value, '', $upload_path, $upload_path);
+    } else {
+        $content_editor = '<textarea name="content" class="form-control" rows="10" placeholder="Mô tả chi tiết về sản phẩm..." required>' . $content_value . '</textarea>';
+    }
 
     $xtpl->assign('DATA', $data);
+    $xtpl->assign('CONTENT_EDITOR', $content_editor);
 
     // Handle errors
     if (!empty($errors)) {
@@ -710,6 +1112,14 @@ function nv_theme_sharecode_submit($categories, $errors = [])
         $xtpl->assign('CATEGORY', $category);
         $xtpl->parse('main.category');
     }
+
+    // Available keywords for select2
+    $keywords_json = json_encode($available_keywords);
+    $xtpl->assign('AVAILABLE_KEYWORDS_JSON', $keywords_json);
+
+    // Available tags for select2
+    $tags_json = json_encode($available_tags);
+    $xtpl->assign('AVAILABLE_TAGS_JSON', $tags_json);
 
     // Radio button checks
     $xtpl->assign('CHECKED_FREE', $data['fee_type'] == 'free' ? 'checked' : '');
@@ -735,68 +1145,27 @@ function nv_theme_sharecode_favorites($favorites, $generate_page, $total_favorit
     global $module_file, $lang_module, $module_name, $global_config;
 
     $xtpl = new XTemplate('favorites.tpl', NV_ROOTDIR . '/themes/' . $global_config['site_theme'] . '/modules/' . $module_file);
-
     $xtpl->assign('LANG', $lang_module);
     $xtpl->assign('MODULE_NAME', $module_name);
     $xtpl->assign('TOTAL_FAVORITES', $total_favorites);
+    $xtpl->assign('NV_LANG_VARIABLE', NV_LANG_VARIABLE);
+    $xtpl->assign('NV_LANG_DATA', NV_LANG_DATA);
+    $xtpl->assign('NV_NAME_VARIABLE', NV_NAME_VARIABLE);
+    $xtpl->assign('NV_BASE_SITEURL', NV_BASE_SITEURL);
 
     if (!empty($favorites)) {
         foreach ($favorites as $item) {
-            $xtpl->assign('ITEM', $item);
-            $xtpl->parse('main.favorites.item');
+            $xtpl->assign('FAVORITE', $item);
+            $xtpl->parse('main.favorites.favorite');
         }
         $xtpl->parse('main.favorites');
-        
+
         if (!empty($generate_page)) {
-            $xtpl->assign('PAGINATION', $generate_page);
-            $xtpl->parse('main.pagination');
+            $xtpl->assign('GENERATE_PAGE', $generate_page);
+            $xtpl->parse('main.generate_page');
         }
     } else {
         $xtpl->parse('main.no_favorites');
-    }
-
-    $xtpl->parse('main');
-    return $xtpl->text('main');
-}
-
-/**
- * nv_theme_sharecode_notifications()
- * Hiển thị danh sách notifications
- *
- * @param array $notifications
- * @param string $generate_page
- * @param int $total_notifications
- * @param int $unread_count
- * @return string
- */
-function nv_theme_sharecode_notifications($notifications, $generate_page, $total_notifications, $unread_count)
-{
-    global $module_file, $lang_module, $module_name, $global_config;
-
-    $xtpl = new XTemplate('notifications.tpl', NV_ROOTDIR . '/themes/' . $global_config['site_theme'] . '/modules/' . $module_file);
-
-    $xtpl->assign('LANG', $lang_module);
-    $xtpl->assign('MODULE_NAME', $module_name);
-    $xtpl->assign('TOTAL_NOTIFICATIONS', $total_notifications);
-    $xtpl->assign('UNREAD_COUNT', $unread_count);
-
-    if (!empty($notifications)) {
-        foreach ($notifications as $item) {
-            $xtpl->assign('ITEM', $item);
-            $xtpl->parse('main.notifications.item');
-        }
-        $xtpl->parse('main.notifications');
-        
-        if (!empty($generate_page)) {
-            $xtpl->assign('PAGINATION', $generate_page);
-            $xtpl->parse('main.pagination');
-        }
-        
-        if ($unread_count > 0) {
-            $xtpl->parse('main.mark_all_read');
-        }
-    } else {
-        $xtpl->parse('main.no_notifications');
     }
 
     $xtpl->parse('main');
@@ -844,6 +1213,120 @@ function nv_theme_sharecode_dashboard($stats, $recent_sources, $recent_reviews, 
         $xtpl->parse('main.recent_reviews');
     } else {
         $xtpl->parse('main.no_recent_reviews');
+    }
+
+    $xtpl->parse('main');
+    return $xtpl->text('main');
+}
+
+/**
+ * nv_theme_sharecode_revenue()
+ * Hiển thị trang doanh thu
+ *
+ * @param array $stats
+ * @param array $products
+ * @param array $chart_data
+ * @param array $transactions
+ * @param string $generate_page
+ * @param string $time_filter
+ * @param int $year
+ * @param int $month
+ * @param float $commission_rate
+ * @return string
+ */
+function nv_theme_sharecode_revenue($stats, $products, $chart_data, $transactions, $generate_page, $time_filter, $year, $month, $commission_rate)
+{
+    global $module_file, $lang_module, $module_name, $global_config;
+
+    $xtpl = new XTemplate('revenue.tpl', NV_ROOTDIR . '/themes/' . $global_config['site_theme'] . '/modules/' . $module_file);
+
+    $xtpl->assign('LANG', $lang_module);
+    $xtpl->assign('MODULE_NAME', $module_name);
+    $xtpl->assign('STATS', $stats);
+    $xtpl->assign('COMMISSION_RATE', $commission_rate);
+    $xtpl->assign('AUTHOR_RATE', 100 - $commission_rate);
+    $xtpl->assign('TIME_FILTER', $time_filter);
+    $xtpl->assign('YEAR', $year);
+    $xtpl->assign('MONTH', $month);
+    $xtpl->assign('NV_LANG_VARIABLE', NV_LANG_VARIABLE);
+    $xtpl->assign('NV_LANG_DATA', NV_LANG_DATA);
+    $xtpl->assign('NV_NAME_VARIABLE', NV_NAME_VARIABLE);
+    $xtpl->assign('BASE_URL', NV_BASE_SITEURL);
+
+    // Chart data
+    $xtpl->assign('CHART_DATA', json_encode($chart_data));
+
+    // Time filter options
+    $time_filters = [
+        'all' => 'Tất cả',
+        'today' => 'Hôm nay',
+        'yesterday' => 'Hôm qua',
+        'this_week' => 'Tuần này',
+        'last_week' => 'Tuần trước',
+        'this_month' => 'Tháng này',
+        'last_month' => 'Tháng trước',
+        'this_year' => 'Năm này',
+        'custom' => 'Tùy chọn'
+    ];
+
+    foreach ($time_filters as $key => $label) {
+        $selected = ($time_filter == $key) ? 'selected="selected"' : '';
+        $xtpl->assign('TIME_OPTION', [
+            'value' => $key,
+            'text' => $label,
+            'selected' => $selected
+        ]);
+        $xtpl->parse('main.time_option');
+    }
+
+    // Year options
+    $current_year = date('Y');
+    for ($i = $current_year; $i >= $current_year - 5; $i--) {
+        $selected = ($year == $i) ? 'selected="selected"' : '';
+        $xtpl->assign('YEAR_OPTION', [
+            'value' => $i,
+            'selected' => $selected
+        ]);
+        $xtpl->parse('main.year_option');
+    }
+
+    // Month options
+    for ($i = 1; $i <= 12; $i++) {
+        $selected = ($month == $i) ? 'selected="selected"' : '';
+        $xtpl->assign('MONTH_OPTION', [
+            'value' => $i,
+            'name' => 'Tháng ' . $i,
+            'selected' => $selected
+        ]);
+        $xtpl->parse('main.month_option');
+    }
+
+    // Products list
+    if (!empty($products)) {
+        foreach ($products as $product) {
+            $xtpl->assign('PRODUCT', $product);
+            $xtpl->parse('main.products.product');
+        }
+        $xtpl->parse('main.products');
+    } else {
+        $xtpl->parse('main.no_products');
+    }
+
+    // Transactions list
+    if (!empty($transactions)) {
+        foreach ($transactions as $transaction) {
+            $xtpl->assign('TRANSACTION', $transaction);
+            $xtpl->parse('main.transactions.transaction');
+        }
+        $xtpl->parse('main.transactions');
+
+        // Pagination
+        if (!empty($generate_page)) {
+            $xtpl->assign('PAGINATION', $generate_page);
+            $xtpl->parse('main.pagination');
+        }
+    } else {
+        $xtpl->parse('main.no_transactions');
     }
 
     $xtpl->parse('main');

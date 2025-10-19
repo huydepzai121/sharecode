@@ -32,7 +32,7 @@ $post['vietqr_screenshots_key'] = '';
 
 // Kiểm tra điều kiện gọi API VietQR
 if (!isset($payment_config['acq_id'][$post['atm_acq']])) {
-    $vietrq_error = $lang_module['atm_vietqr_error_acq'];
+    $vietrq_error = $nv_Lang->getModule('atm_vietqr_error_acq');
 } elseif ($is_vietqr) {
     $post['atm_to_bank'] = $array_banks[$payment_config['acq_id'][$post['atm_acq']]]['name'];
     $post['atm_to_name'] = $payment_config['account_name'][$post['atm_acq']];
@@ -75,7 +75,7 @@ if (empty($atm_error)) {
             }
             nv_deletefile($upload_info['name']);
         } else {
-            $atm_error = $lang_module['atm_error_recvbank'];
+            $atm_error = $nv_Lang->getModule('atm_error_recvbank');
         }
     } else {
         // Lấy từ request
@@ -93,8 +93,8 @@ if (empty($atm_error)) {
     }
 
     if (!isset($payment_config['acq_id'][$post['atm_acq']])) {
-        $atm_error = $lang_module['vietqr_error_acq'];
+        $atm_error = $nv_Lang->getModule('vietqr_error_acq');
     } elseif (empty($post['vietqr_screenshots'])) {
-        $atm_error = $lang_module['vietqr_error_screenshots'];
+        $atm_error = $nv_Lang->getModule('vietqr_error_screenshots');
     }
 }

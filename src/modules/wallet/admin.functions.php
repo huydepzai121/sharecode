@@ -46,9 +46,12 @@ function getInfoUser($userid)
  * @param mixed $status cộng hay trừ tiền
  * @return
  */
-function update_money($userid, $money, $currTranStatus, $oldTranStatus, $status, $money_unit = 'VND')
+function update_money($userid, $money, $money_unit, $currTranStatus, $oldTranStatus, $status)
 {
     global $db, $db_config, $module_data;
+    if ($money_unit == '') {
+        $money_unit = 'VND';
+    }
 
     $_sql = 'SELECT * FROM ' . $db_config['prefix'] . '_' . $module_data . '_money WHERE userid=' . $userid . ' AND money_unit=' . $db->quote($money_unit);
     $_query = $db->query($_sql);
@@ -80,6 +83,7 @@ function update_money($userid, $money, $currTranStatus, $oldTranStatus, $status,
         $stmt->bindValue(':tokenkey', '', PDO::PARAM_STR);
 
         $exc = $stmt->execute();
+        return $exc;
     } else {
         $row = $_query->fetch();
         $stmt = $db->prepare('UPDATE ' . $db_config['prefix'] . '_' . $module_data . '_money SET
@@ -115,7 +119,17 @@ function update_money($userid, $money, $currTranStatus, $oldTranStatus, $status,
         }
 
         $exc = $stmt->execute();
+        return $exc;
     }
 }
 
 define('NV_IS_FILE_ADMIN', true);
+$allow_func = [
+    'main',
+    'add_bank_info',
+    'transaction',
+    'addacount',
+    'config',
+    'viewtransaction',
+    'add_transaction',
+];

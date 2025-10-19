@@ -50,7 +50,25 @@
                         <label for="description" class="form-label">Mô tả</label>
                         <textarea class="form-control" name="description" id="description" rows="3">{DATA.description}</textarea>
                     </div>
-                    
+
+                    <div class="mb-3">
+                        <label for="image" class="form-label">Hình ảnh đại diện</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" name="image" id="image" value="{DATA.image}" readonly>
+                            <button type="button" class="btn btn-outline-secondary" onclick="selectImage();">
+                                <i class="fa fa-image"></i> Chọn ảnh
+                            </button>
+                        </div>
+                        <!-- BEGIN: current_image -->
+                        <div class="mt-2">
+                            <img src="{DATA.image_url}" alt="Current image" class="img-thumbnail" style="max-width: 150px; max-height: 100px;">
+                            <button type="button" class="btn btn-sm btn-danger ms-2" onclick="removeImage();">
+                                <i class="fa fa-trash"></i> Xóa ảnh
+                            </button>
+                        </div>
+                        <!-- END: current_image -->
+                    </div>
+
                     <div class="mb-3">
                         <label for="weight" class="form-label">Thứ tự</label>
                         <input type="number" class="form-control" name="weight" id="weight" value="{DATA.weight}" min="0">
@@ -148,8 +166,40 @@
 <script type="text/javascript">
 function nv_del_category(id) {
     if (confirm('Bạn có chắc chắn muốn xóa danh mục này?')) {
-        window.location.href = '{NV_BASE_ADMINURL}index.php?{NV_LANG_VARIABLE}={NV_LANG_DATA}&{NV_NAME_VARIABLE}={MODULE_NAME}&{NV_OP_VARIABLE}={OP}&action=delete&id=' + id + '&confirm=' + nv_md5(id + '{NV_CHECK_SESSION}');
+        window.location.href = '{NV_BASE_ADMINURL}index.php?{NV_LANG_VARIABLE}={NV_LANG_DATA}&{NV_NAME_VARIABLE}={MODULE_NAME}&{NV_OP_VARIABLE}={OP}&action=delete&id=' + id + '&confirm=' + nv_md5_check(id + '{NV_CHECK_SESSION}');
     }
 }
+
+function selectImage() {
+    var area = 'image';
+    var path = '{NV_UPLOADS_DIR}/sharecode';
+    var currentpath = '{NV_UPLOADS_DIR}/sharecode';
+    var type = 'image';
+
+    nv_open_browse(script_name + "?" + nv_name_variable + "=upload&popup=1&area=" + area + "&path=" + path + "&type=" + type + "&currentpath=" + currentpath, "NVImg", 850, 420, "resizable=no,scrollbars=no,toolbar=no,location=no,status=no");
+    return false;
+}
+
+function removeImage() {
+    $('#image').val('');
+    $('.current-image').hide();
+}
+
+// Auto generate alias from title
+$('#title').on('input', function() {
+    var title = $(this).val();
+    var alias = title.toLowerCase()
+        .replace(/[àáạảãâầấậẩẫăằắặẳẵ]/g, 'a')
+        .replace(/[èéẹẻẽêềếệểễ]/g, 'e')
+        .replace(/[ìíịỉĩ]/g, 'i')
+        .replace(/[òóọỏõôồốộổỗơờớợởỡ]/g, 'o')
+        .replace(/[ùúụủũưừứựửữ]/g, 'u')
+        .replace(/[ỳýỵỷỹ]/g, 'y')
+        .replace(/đ/g, 'd')
+        .replace(/[^a-z0-9\s]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/^-+|-+$/g, '');
+    $('#alias').val(alias);
+});
 </script>
 <!-- END: main -->

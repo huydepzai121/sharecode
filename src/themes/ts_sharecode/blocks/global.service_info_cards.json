@@ -1,0 +1,28 @@
+{
+    "info": {
+        "name": "Thông tin block menu cuối trang",
+        "author": "Nguyễn Lâm",
+        "website": "https://hoclaptrinh99.com/",
+        "description": "Block hiển thị 4 card thông tin dịch vụ: Liên hệ, Tìm xe, Lái thử, Đặt lịch"
+    },
+    "config": {
+        "hotline": "0988111223",
+        "search_link": "/car-interface/search",
+        "test_drive_link": "/car-interface/test-drive",
+        "booking_link": "/car-interface/booking"
+    },
+    "datafunction": "nv_service_info_cards_config",
+    "submitfunction": "nv_service_info_cards_submit",
+    "i18n": {
+        "en": {
+            "info": {
+                "name": "Service Information Cards"
+            }
+        },
+        "vi": {
+            "info": {
+                "name": "Thông tin dịch vụ"
+            }
+        }
+    }
+}

@@ -1,0 +1,207 @@
+.swiper-wrapper {
+    align-items: center;
+}
+
+.swiper-wrapper .gallery-top a img {
+    max-width: 500px;
+}
+
+.imgage__slide_first {
+    width: 100% !important;
+}
+
+.gallery-thumbs {
+    height: 20%;
+    box-sizing: border-box;
+    padding: 10px 0;
+}
+
+.gallery-thumbs .swiper-slide {
+    height: 100%;
+    opacity: 0.4;
+}
+
+.gallery-thumbs .swiper-slide-active,
+.gallery-thumbs .swiper-slide-thumb-active {
+    opacity: 1;
+    padding: 4px;
+    cursor: pointer;
+}
+
+.gallery-thumbs .swiper-slide.swiper-slide-thumb-active {
+    background-color: #f4f4f4;
+}
+
+.gallery-thumbs .swiper-slide-thumb-active {
+    border: 1px solid #ff5c00;
+    border-radius: 6px;
+}
+
+.product-image-block {
+    background: #fff;
+    padding: 10px;
+    border-radius: 5px;
+    position: relative;
+}
+
+.swiper-container {
+    position: relative;
+    overflow: hidden;
+    list-style: none;
+    padding: 0;
+    z-index: 1;
+}
+
+.product-image-block .swiper-image {
+    display: -ms-flexbox;
+    display: flex;
+    position: relative;
+    flex-direction: column; /* Thay đổi thành cột để slide chính ở trên */
+}
+
+.product-image-block .gallery-thumbs {
+    -ms-flex: 0 0 auto;
+    flex: 0 0 auto;
+    order: 2; /* Đặt thumbnails xuống dưới */
+    margin-right: 0;
+    /* margin-top: 15px; */
+    padding: 10px 0;
+    height: auto; /* Tự động điều chỉnh chiều cao */
+}
+
+.swiper-slide {
+    flex-shrink: 0;
+    width: 100%;
+    height: 100%;
+    position: relative;
+    transition-property: transform;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.gallery-thumbs {
+    overflow-x: auto; /* Cuộn ngang thay vì dọc */
+    overflow-y: hidden;
+    max-height: 120px; /* Giảm chiều cao */
+    white-space: nowrap; /* Giữ thumbnails trên một hàng */
+}
+
+.gallery-thumbs .swiper-wrapper {
+    display: flex;
+    flex-direction: row; /* Sắp xếp thumbnails theo hàng ngang */
+}
+
+.gallery-thumbs .swiper-slide {
+    width: auto !important; /* Tự động điều chỉnh chiều rộng */
+    flex-shrink: 0;
+    margin-right: 10px;
+}
+
+/* Tùy chỉnh thanh cuộn ngang */
+.gallery-thumbs::-webkit-scrollbar {
+    height: 6px; /* Chiều cao của thanh cuộn ngang */
+    width: 4px; /* Giữ width cho mobile */
+    background-color: #f0f0f0; /* Màu nền của thanh cuộn */
+}
+
+/* Tùy chỉnh thanh trượt bên trong thanh cuộn */
+.gallery-thumbs::-webkit-scrollbar-thumb {
+    background-color: #ebaa09; /* Màu của thanh trượt */
+    border-radius: 10px; /* Bo góc của thanh trượt */
+}
+
+/* Tùy chỉnh khi người dùng hover lên thanh trượt */
+.gallery-thumbs::-webkit-scrollbar-thumb:hover {
+    background-color: #555; /* Màu khi hover */
+}
+
+/* Tùy chỉnh phần rãnh của thanh cuộn */
+.gallery-thumbs::-webkit-scrollbar-track {
+    background-color: #e0e0e0; /* Màu của rãnh */
+}
+
+/* Thumbnail images styling */
+.gallery-thumbs img {
+    max-height: 80px;
+    width: auto;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+}
+
+@media (min-width: 768px) {
+    .gallery-thumbs {
+        overflow-x: auto; /* Cuộn ngang cho desktop */
+        overflow-y: hidden;
+        min-height: 100px; /* Giảm chiều cao */
+        max-height: 120px;
+        white-space: nowrap;
+    }
+
+    .gallery-thumbs .swiper-wrapper {
+        display: flex;
+        flex-direction: row;
+    }
+
+    .gallery-thumbs .swiper-slide {
+        width: auto !important;
+        flex-shrink: 0;
+        margin-right: 10px;
+    }
+}
+
+@media (max-width: 767px) {
+    .product-image-block {
+        padding: 0px;
+    }
+
+    .product-image-block .swiper-image {
+        flex-direction: column;
+    }
+
+    .product-image-block .gallery-thumbs {
+        height: auto;
+        flex: 100%;
+        overflow-y: unset;
+        overflow-x: scroll;
+    }
+
+    .product-image-block .gallery-thumbs img {
+        padding: 4px;
+        max-height: 68px;
+    }
+
+    /* Tùy chỉnh thanh cuộn */
+    .gallery-thumbs::-webkit-scrollbar {
+        height: 4px; /* Độ rộng của thanh cuộn */
+        background-color: #f0f0f0; /* Màu nền của thanh cuộn */
+    }
+
+    .swiper-button-next , .swiper-button-prev {
+        display: none;
+    }
+}
+
+/* Đảm bảo gallery-top luôn ở trên */
+.gallery-top {
+    order: 1;
+    margin-bottom: 15px;
+}
+
+/* Đảm bảo gallery-thumbs luôn ở dưới */
+.gallery-thumbs {
+    order: 2;
+}
+
+/* Fix cho main image container */
+.gallery-top .swiper-slide {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.gallery-top .swiper-slide img {
+    max-width: 100%;
+    height: auto;
+    object-fit: contain;
+}

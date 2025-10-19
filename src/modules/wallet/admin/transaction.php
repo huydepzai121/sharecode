@@ -81,8 +81,8 @@ if ($nv_Request->isset_request('ajax_action', 'post')) {
                     $module_upload = $_module_upload;
                 }
             } else {
-                // Cập nhật số tiền nếu giao dịch nạp tiền
-                update_money($row['userid'], $row['money_total'], $new_vid, $row['transaction_status'], $row['status'], $row['money_unit']);
+                // Cập nhật số tiền nếu giao dịch nạp tiền
+                update_money($row['userid'], $row['money_total'], $row['money_unit'], $new_vid, $row['transaction_status'], $row['status']);
             }
 
             $content = 'OK_' . $transactionid;
@@ -95,16 +95,23 @@ if ($nv_Request->isset_request('ajax_action', 'post')) {
     include NV_ROOTDIR . '/includes/footer.php';
 }
 
-$xtpl = new XTemplate($op . '.tpl', NV_ROOTDIR . '/themes/' . $global_config['module_theme'] . '/modules/' . $module_file);
-$xtpl->assign('LANG', \NukeViet\Core\Language::$lang_module);
-$xtpl->assign('NV_BASE_ADMINURL', NV_BASE_ADMINURL);
-$xtpl->assign('NV_LANG_VARIABLE', NV_LANG_VARIABLE);
-$xtpl->assign('NV_LANG_DATA', NV_LANG_DATA);
-$xtpl->assign('NV_NAME_VARIABLE', NV_NAME_VARIABLE);
-$xtpl->assign('NV_OP_VARIABLE', NV_OP_VARIABLE);
-$xtpl->assign('MODULE_NAME', $module_name);
-$xtpl->assign('OP', $op);
+// Chuẩn bị dữ liệu cho template
+$template = get_tpl_dir([$global_config['module_theme'], $global_config['admin_theme']], 'admin_future', '/modules/' . $module_file . '/transaction.tpl');
+$tpl = new \NukeViet\Template\NVSmarty();
+$tpl->setTemplateDir(NV_ROOTDIR . '/themes/' . $template . '/modules/' . $module_file);
 
+// Gán các biến cơ bản cho template
+$tpl->assign('LANG', $nv_Lang);
+$tpl->assign('NV_BASE_ADMINURL', NV_BASE_ADMINURL);
+$tpl->assign('NV_LANG_VARIABLE', NV_LANG_VARIABLE);
+$tpl->assign('NV_LANG_DATA', NV_LANG_DATA);
+$tpl->assign('NV_NAME_VARIABLE', NV_NAME_VARIABLE);
+$tpl->assign('NV_OP_VARIABLE', NV_OP_VARIABLE);
+$tpl->assign('MODULE_NAME', $module_name);
+$tpl->assign('OP', $op);
+$tpl->assign('ASSETS_STATIC_URL', NV_BASE_SITEURL . 'assets/');
+
+// Khởi tạo các biến tìm kiếm
 $array_fields_search = [
     'customer_name' => $nv_Lang->getModule('customer_name'),
     'customer_email' => $nv_Lang->getModule('customer_email'),
@@ -194,101 +201,14 @@ if ($per_page_old != $per_page) {
 
 $base_url = NV_BASE_ADMINURL . 'index.php?' . NV_LANG_VARIABLE . '=' . NV_LANG_DATA . '&amp;' . NV_NAME_VARIABLE . '=' . $module_name . '&amp;' . NV_OP_VARIABLE . '=' . $op;
 
-$where = [];
-if (!empty($view_user_info)) {
-    $base_url .= '&amp;userid=' . $view_user_info['userid'];
-    $where[] = 'tb1.userid=' . $view_user_info['userid'];
-}
-if (!empty($view_order_info)) {
-    $base_url .= '&amp;orderid=' . $view_order_info['id'];
-    $where[] = 'tb1.order_id=' . $view_order_info['id'];
-}
-if (!empty($array_search['q'])) {
-    $isSearchSubmit = true;
-    $base_url .= '&amp;q=' . urlencode($array_search['q']);
-    if (preg_match('/^(GD|WP)([0-9]+)$/i', $array_search['q'], $m)) {
-        // Tìm theo số hóa đơn
-        $where[] = 'tb1.id=' . intval($m[2]);
-    } else {
-        // Tìm từ khóa thông thường
-        $dblike = $db->dblikeescape($array_search['q']);
-        if (empty($array_search['are'])) {
-            $whereOr = [];
-            foreach ($array_fields_search as $key => $val) {
-                $whereOr[] = 'tb1.' . $key . " LIKE '%" . $dblike . "%'";
-            }
-            $where[] = '(' . implode(' OR ', $whereOr) . ')';
-        } else {
-            $where[] = 'tb1.' . $array_search['are'] . " LIKE '%" . $dblike . "%'";
-        }
-    }
-}
-if (!empty($array_search['are'])) {
-    $base_url .= '&amp;are=' . $array_search['are'];
-}
-if ($array_search['crf']) {
-    $isSearchSubmit = true;
-    $base_url .= '&amp;crf=' . nv_date('d.m.Y', $array_search['crf']);
-    $where[] = 'tb1.created_time>=' . $array_search['crf'];
-}
-if ($array_search['crt']) {
-    $isSearchSubmit = true;
-    $base_url .= '&amp;crt=' . nv_date('d.m.Y', $array_search['crt']);
-    $where[] = 'tb1.created_time<' . ($array_search['crt'] + 86400);
-}
-if ($array_search['st'] != 0) {
-    $isSearchSubmit = true;
-    $base_url .= '&amp;st=' . $array_search['st'];
-    $where[] = 'tb1.status=' . $array_search['st'];
-}
-if (!empty($array_search['mo'])) {
-    $isSearchSubmit = true;
-    $base_url .= '&amp;mo=' . $array_search['mo'];
-    $where[] = 'tb1.money_unit=' . $db->quote($array_search['mo']);
-}
-if ($array_search['aou']) {
-    $isSearchSubmit = true;
-    $base_url .= '&amp;aou=' . $array_search['aou'];
-    if ($array_search['aou'] == 1) {
-        $where[] = 'tb1.adminid!=0';
-    } else {
-        $where[] = 'tb1.customer_id!=0';
-    }
-}
-if ($array_search['tty'] != -1) {
-    $isSearchSubmit = true;
-    $base_url .= '&amp;tty=' . $array_search['tty'];
-    $where[] = 'tb1.transaction_type=' . $array_search['tty'];
-}
-if ($array_search['trf']) {
-    $isSearchSubmit = true;
-    $base_url .= '&amp;trf=' . nv_date('d.m.Y', $array_search['trf']);
-    $where[] = 'tb1.transaction_time>=' . $array_search['trf'];
-}
-if ($array_search['trt']) {
-    $isSearchSubmit = true;
-    $base_url .= '&amp;trt=' . nv_date('d.m.Y', $array_search['trt']);
-    $where[] = 'tb1.transaction_time<' . ($array_search['trt'] + 86400);
-}
-if ($array_search['tst'] != -1) {
-    $isSearchSubmit = true;
-    $base_url .= '&amp;tst=' . $array_search['tst'];
-    $where[] = 'tb1.transaction_status=' . $array_search['tst'];
-}
-if (!empty($array_search['tpa'])) {
-    $isSearchSubmit = true;
-    $base_url .= '&amp;tpa=' . $array_search['tpa'];
-    $where[] = 'tb1.payment=' . $db->quote($array_search['tpa']);
-}
+// Removed all WHERE conditions as requested
 
 $db->sqlreset();
 $db->select('COUNT(*)');
 $db->from($db_config['prefix'] . '_' . $module_data . '_transaction tb1');
 $db->join('LEFT JOIN ' . NV_USERS_GLOBALTABLE . ' tb2 ON tb1.adminid=tb2.userid LEFT JOIN ' . NV_USERS_GLOBALTABLE . ' tb3 ON tb1.userid=tb3.userid LEFT JOIN ' . NV_USERS_GLOBALTABLE . ' tb4 ON tb1.customer_id=tb4.userid');
 
-if (!empty($where)) {
-    $db->where(implode(' AND ', $where));
-}
+// No WHERE conditions applied
 
 $all_page = $db->query($db->sql())->fetchColumn();
 
@@ -300,15 +220,17 @@ $result = $db->query($db->sql());
 
 $xuatra = $congvao = 0;
 $arr_list_transaction = [];
+$arrUserId = [];
 while ($row = $result->fetch()) {
     if ($row['status'] == -1) {
         $xuatra = $row['money_total'] + $xuatra;
     } else {
         $congvao = $row['money_total'] + $congvao;
     }
+
     $arr_list_transaction[$row['id']] = [
         'id' => $row['id'], //
-        'code' => empty($row['order_id']) ? vsprintf('GD%010s', [$row['id']]) : vsprintf('WP%010s', [$row['id']]),
+        'code' => empty($row['order_id']) ? sprintf('GD%010s', $row['id']) : sprintf('WP%010s', $row['id']),
         'created_time' => date('d/m/Y H:i', $row['created_time']), //
         'status' => ($row['status'] == 1) ? '+' : '-', //
         'money_unit' => $row['money_unit'], //
@@ -332,149 +254,121 @@ while ($row = $result->fetch()) {
         'view_user' => NV_BASE_ADMINURL . "index.php?" . NV_LANG_VARIABLE . "=" . NV_LANG_DATA . "&amp;" . NV_NAME_VARIABLE . "=" . $module_name . "&amp;" . NV_OP_VARIABLE . "=" . $op . "&amp;userid=" . $row['userid'], //
         'view_transaction' => NV_BASE_ADMINURL . "index.php?" . NV_LANG_VARIABLE . "=" . NV_LANG_DATA . "&amp;" . NV_NAME_VARIABLE . "=" . $module_name . "&amp;" . NV_OP_VARIABLE . "=viewtransaction&amp;id=" . $row['id'], //
     ];
+
+    $arrUserId[] = $row['userid'];
+}
+
+if (!empty($arrUserId)) {
+    $sql = "SELECT userid, username,first_name, last_name FROM " . NV_USERS_GLOBALTABLE . " WHERE userid in (" . implode(',', $arrUserId) . ")";
+    $infoUs = $db->query($sql)->fetch();
+    $infoUs['fullname'] = nv_show_name_user($infoUs['first_name'], $infoUs['last_name']);
+}
+
+foreach ($arr_list_transaction as $k => $v) {
+    if ($v['userid'] == $infoUs['userid']) {
+        $arr_list_transaction[$k]['customer_name'] = $infoUs['fullname'];
+    }
 }
 
 $sum = -$xuatra + $congvao;
 $sum = get_display_money($sum);
 
-$i = 1;
-foreach ($arr_list_transaction as $element) {
-    $xtpl->assign('stt', $i);
-    $xtpl->assign('CONTENT', $element);
-    if (!empty($element['is_expired'])) {
-        $xtpl->assign('TRANSACTION_STATUS', $nv_Lang->getModule('transaction_expired'));
-        $xtpl->parse('main.loop.transaction_status1');
-    } elseif ($element['transaction_status'] != 4 and ($IS_FULL_ADMIN or !empty($PERMISSION_ADMIN['is_mtransaction']))) {
-        foreach ($global_array_transaction_status as $key => $value) {
-            $xtpl->assign('OPTION', [
-                'key' => $key,
-                'title' => $value,
-                'selected' => ($key == $element['transaction_status']) ? ' selected="selected"' : '',
-                'disabled' => ($key == 0) ? ' disabled="disabled"' : ''
-            ]);
-            $xtpl->parse('main.loop.transaction_status.loops');
-        }
-        $xtpl->parse('main.loop.transaction_status');
-    } else {
-        $xtpl->assign('TRANSACTION_STATUS', isset($global_array_transaction_status[$element['transaction_status']]) ? $global_array_transaction_status[$element['transaction_status']] : 'N/A');
-        $xtpl->parse('main.loop.transaction_status1');
-    }
+// Gán dữ liệu tìm kiếm
+$tpl->assign('DATA_SEARCH', $array_search);
 
-    $xtpl->parse('main.loop');
-    $i++;
-}
-
-$generate_page = nv_generate_page($base_url, $all_page, $per_page, $page);
-if ($generate_page) {
-    $xtpl->assign('NV_GENERATE_PAGE', $generate_page);
-    $xtpl->parse('main.generate_page');
-}
-
-$xtpl->assign('sum', $sum);
-
-$array_search['crf'] = empty($array_search['crf']) ? '' : nv_date('d.m.Y', $array_search['crf']);
-$array_search['crt'] = empty($array_search['crt']) ? '' : nv_date('d.m.Y', $array_search['crt']);
-$array_search['trf'] = empty($array_search['trf']) ? '' : nv_date('d.m.Y', $array_search['trf']);
-$array_search['trt'] = empty($array_search['trt']) ? '' : nv_date('d.m.Y', $array_search['trt']);
-$xtpl->assign('DATA_SEARCH', $array_search);
-
+// Gán thông tin xem theo user nếu có
 if (!empty($view_user_info)) {
-    $xtpl->assign('VIEW_USER_NAME', $view_user_info['username']);
-    $xtpl->assign('VIEW_USER_CANCEL', NV_BASE_ADMINURL . 'index.php?' . NV_LANG_VARIABLE . '=' . NV_LANG_DATA . '&amp;' . NV_NAME_VARIABLE . '=' . $module_name . '&amp;' . NV_OP_VARIABLE . '=' . $op);
-    $xtpl->parse('main.view_user_info');
+    $tpl->assign('VIEW_USER_INFO', true);
+    $tpl->assign('VIEW_USER_NAME', $view_user_info['username']);
+    $tpl->assign('VIEW_USER_CANCEL', NV_BASE_ADMINURL . 'index.php?' . NV_LANG_VARIABLE . '=' . NV_LANG_DATA . '&' . NV_NAME_VARIABLE . '=' . $module_name);
 }
 
+// Gán thông tin xem theo đơn hàng nếu có
 if (!empty($view_order_info)) {
-    $xtpl->assign('VIEW_ORDER_NAME', vsprintf('DH%010s', [$view_order_info['id']]));
-    $xtpl->assign('VIEW_ORDER_CANCEL', NV_BASE_ADMINURL . 'index.php?' . NV_LANG_VARIABLE . '=' . NV_LANG_DATA . '&amp;' . NV_NAME_VARIABLE . '=' . $module_name . '&amp;' . NV_OP_VARIABLE . '=' . $op);
-    $xtpl->parse('main.view_order_info');
+    $tpl->assign('VIEW_ORDER_INFO', true);
+    $tpl->assign('VIEW_ORDER_NAME', sprintf('DH%010s', $view_order_info['id']));
+    $tpl->assign('VIEW_ORDER_CANCEL', NV_BASE_ADMINURL . 'index.php?' . NV_LANG_VARIABLE . '=' . NV_LANG_DATA . '&' . NV_NAME_VARIABLE . '=' . $module_name);
 }
 
-if ($isSearchSubmit) {
-    $xtpl->assign('COLLAPSE1', 'true');
-    $xtpl->assign('COLLAPSE2', ' in');
-} else {
-    $xtpl->assign('COLLAPSE1', 'false');
-    $xtpl->assign('COLLAPSE2', '');
-}
+// Gán trạng thái collapse form tìm kiếm
+$tpl->assign('COLLAPSE1', $isSearchSubmit ? 'true' : 'false');
+$tpl->assign('COLLAPSE2', $isSearchSubmit ? ' in' : '');
 
-// Xuất phạm vi tìm
-foreach ($array_fields_search as $k => $v) {
-    $fields_search = [
-        'key' => $k,
-        'title' => $v,
-        'selected' => $k == $array_search['are'] ? ' selected="selected"' : ''
+// Gán các select box tìm kiếm
+$fields_search = [];
+foreach ($array_fields_search as $key => $value) {
+    $fields_search[] = [
+        'key' => $key,
+        'title' => $value,
+        'selected' => ($key == $array_search['are']) ? ' selected="selected"' : ''
     ];
-    $xtpl->assign('FIELDS_SEARCH', $fields_search);
-    $xtpl->parse('main.fields_search');
 }
+$tpl->assign('FIELDS_SEARCH', $fields_search);
+
+// Gán loại giao dịch
+$transaction_types = [];
 foreach ([1, -1] as $val) {
-    $st = [
+    $transaction_types[] = [
         'key' => $val,
         'title' => $val == 1 ? $nv_Lang->getModule('transaction1') : $nv_Lang->getModule('transaction2'),
         'selected' => $val == $array_search['st'] ? ' selected="selected"' : ''
     ];
-    $xtpl->assign('ST', $st);
-    $xtpl->parse('main.st');
 }
+$tpl->assign('ST', $transaction_types);
+
+// Gán đơn vị tiền tệ
+$money_sys = [];
 foreach ($global_array_money_sys as $row) {
-    $money_sys = [
+    $money_sys[] = [
         'key' => $row['code'],
         'title' => $row['code'],
         'selected' => $row['code'] == $array_search['mo'] ? ' selected="selected"' : ''
     ];
-    $xtpl->assign('MONEY_SYS', $money_sys);
-    $xtpl->parse('main.money_sys');
 }
-foreach ([1, 2] as $row) {
-    $aou = [
-        'key' => $row,
-        'title' => $nv_Lang->getModule('search_aou' . $row),
-        'selected' => $row == $array_search['aou'] ? ' selected="selected"' : ''
+$tpl->assign('MONEY_SYS', $money_sys);
+
+// Gán loại giao dịch
+$transaction_type = [];
+foreach ($global_array_transaction_type as $key => $value) {
+    $transaction_type[] = [
+        'key' => $key,
+        'title' => $value,
+        'selected' => $key == $array_search['tty'] ? ' selected="selected"' : ''
     ];
-    $xtpl->assign('AOU', $aou);
-    $xtpl->parse('main.aou');
 }
-foreach ($global_array_transaction_type as $k => $v) {
-    $tty = [
-        'key' => $k,
-        'title' => $v,
-        'selected' => $k == $array_search['tty'] ? ' selected="selected"' : ''
+$tpl->assign('TTY', $transaction_type);
+
+// Gán trạng thái giao dịch
+$transaction_status = [];
+foreach ($global_array_transaction_status as $key => $value) {
+    $transaction_status[] = [
+        'key' => $key,
+        'title' => $value,
+        'selected' => $key == $array_search['tst'] ? ' selected="selected"' : ''
     ];
-    $xtpl->assign('TTY', $tty);
-    $xtpl->parse('main.tty');
 }
-foreach ($global_array_transaction_status as $k => $v) {
-    $tst = [
-        'key' => $k,
-        'title' => $v,
-        'selected' => $k == $array_search['tst'] ? ' selected="selected"' : ''
-    ];
-    $xtpl->assign('TST', $tst);
-    $xtpl->parse('main.tst');
-}
+$tpl->assign('TST', $transaction_status);
+
+// Gán phương thức thanh toán
+$payment_methods = [];
 foreach ($global_array_payments as $row) {
-    $tpa = [
+    $payment_methods[] = [
         'key' => $row['payment'],
         'title' => $row['paymentname'],
         'selected' => $row['payment'] == $array_search['tpa'] ? ' selected="selected"' : ''
     ];
-    $xtpl->assign('TPA', $tpa);
-    $xtpl->parse('main.tpa');
 }
-for ($i = 1; $i <= 100; $i++) {
-    $val = $i * 5;
-    $per_page = [
-        'key' => $val,
-        'title' => $val,
-        'selected' => $val == $array_search['per_page'] ? ' selected="selected"' : ''
-    ];
-    $xtpl->assign('PER_PAGE', $per_page);
-    $xtpl->parse('main.per_page');
+$tpl->assign('TPA', $payment_methods);
+
+// Gán danh sách giao dịch
+$tpl->assign('TRANSACTIONS', $arr_list_transaction);
+
+// Gán phân trang
+if (!empty($generate_page)) {
+    $tpl->assign('GENERATE_PAGE', $generate_page);
 }
 
-$xtpl->parse('main');
-$contents = $xtpl->text('main');
+$contents = $tpl->fetch('transaction.tpl');
 
 $page_title = $nv_Lang->getModule('transaction');
 

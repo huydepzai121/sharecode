@@ -1,0 +1,26 @@
+{
+    "info": {
+        "name": "Block bàn giao xe",
+        "author": "Augment Agent",
+        "website": "https://nukeviet.vn/",
+        "description": "Block hiển thị danh sách bàn giao xe mới nhất từ module car-interface"
+    },
+    "config": {
+        "title": "Bàn giao xe mới nhất",
+        "description": "Những khoảnh khắc đáng nhớ khi khách hàng nhận xe"
+    },
+    "datafunction": "nv_block_data_config_vehicle_handover",
+    "submitfunction": "nv_block_data_config_vehicle_handover_submit",
+    "i18n": {
+        "en": {
+            "info": {
+                "name": "Vehicle Handover Block"
+            }
+        },
+        "vi": {
+            "info": {
+                "name": "Block bàn giao xe"
+            }
+        }
+    }
+}

@@ -1,0 +1,27 @@
+{
+    "info": {
+        "name": "Block danh sách xe",
+        "author": "Nguyễn Lâm",
+        "website": "https://hoclaptrinh99.com/",
+        "description": "Block hiển thị danh sách xe Mercedes-Benz"
+    },
+    "config": {
+        "title": "Chọn an toàn - chọn vững vàng êm ái!",
+        "description": "Khám phá bộ sưu tập xe Mercedes-Benz cao cấp",
+        "show_count": 8
+    },
+    "datafunction": "nv_block_data_config_car_showcase",
+    "submitfunction": "nv_block_data_config_car_showcase_submit",
+    "i18n": {
+        "en": {
+            "info": {
+                "name": "Car Showcase Block"
+            }
+        },
+        "vi": {
+            "info": {
+                "name": "Block danh sách xe"
+            }
+        }
+    }
+}

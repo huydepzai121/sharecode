@@ -25,7 +25,11 @@ $allow_func = [
     'tags',
     'tag-content',
     'pending',
-    'get_details'
+    'keywords',
+    'payments',
+    'payment-content',
+    'comments',
+    'finance'
 ];
 
 /**
@@ -102,22 +106,122 @@ function nv_admin_sharecode_update_source_tags($source_id, $tag_ids)
         return false;
     }
 
+    // Lấy danh sách tag cũ để cập nhật count
+    $old_tag_ids = [];
+    $sql_old = "SELECT tag_id FROM " . NV_PREFIXLANG . "_" . $module_data . "_source_tags WHERE source_id = " . $source_id;
+    $result_old = $db->query($sql_old);
+    while ($row_old = $result_old->fetch()) {
+        $old_tag_ids[] = intval($row_old['tag_id']);
+    }
+
     // Xóa tags cũ
     $sql_delete = "DELETE FROM " . NV_PREFIXLANG . "_" . $module_data . "_source_tags WHERE source_id = " . $source_id;
     $db->query($sql_delete);
 
-    // Thêm tags mới
+    // Giảm total_sources cho tags cũ
+    if (!empty($old_tag_ids)) {
+        foreach ($old_tag_ids as $old_tag_id) {
+            $sql_update = "UPDATE " . NV_PREFIXLANG . "_" . $module_data . "_tags SET total_sources = GREATEST(total_sources - 1, 0) WHERE id = " . $old_tag_id;
+            $db->query($sql_update);
+        }
+    }
+
+    // Thêm tags mới và cập nhật total_sources
     if (!empty($tag_ids) && is_array($tag_ids)) {
         foreach ($tag_ids as $tag_id) {
             $tag_id = intval($tag_id);
             if ($tag_id > 0) {
+                // Thêm liên kết source-tag
                 $sql_insert = "INSERT INTO " . NV_PREFIXLANG . "_" . $module_data . "_source_tags (source_id, tag_id) VALUES (" . $source_id . ", " . $tag_id . ")";
                 $db->query($sql_insert);
+
+                // Tăng total_sources cho tag
+                $sql_update = "UPDATE " . NV_PREFIXLANG . "_" . $module_data . "_tags SET total_sources = total_sources + 1 WHERE id = " . $tag_id;
+                $db->query($sql_update);
             }
         }
     }
 
     return true;
+}
+
+/**
+ * Cập nhật keywords cho source
+ */
+function nv_admin_sharecode_update_source_keywords($source_id, $keyword_ids)
+{
+    global $db, $module_data;
+
+    $source_id = intval($source_id);
+
+    if ($source_id <= 0) {
+        return false;
+    }
+
+    // Lấy danh sách keyword cũ để cập nhật count
+    $old_keyword_ids = [];
+    $sql_old = "SELECT keyword_id FROM " . NV_PREFIXLANG . "_" . $module_data . "_source_keywords WHERE source_id = " . $source_id;
+    $result_old = $db->query($sql_old);
+    while ($row_old = $result_old->fetch()) {
+        $old_keyword_ids[] = intval($row_old['keyword_id']);
+    }
+
+    // Xóa keywords cũ
+    $sql_delete = "DELETE FROM " . NV_PREFIXLANG . "_" . $module_data . "_source_keywords WHERE source_id = " . $source_id;
+    $db->query($sql_delete);
+
+    // Giảm total_sources cho keywords cũ (nếu có field này)
+    if (!empty($old_keyword_ids)) {
+        foreach ($old_keyword_ids as $old_keyword_id) {
+            // Note: Bảng keywords chưa có field total_sources, có thể thêm sau
+            // $sql_update = "UPDATE " . NV_PREFIXLANG . "_" . $module_data . "_keywords SET total_sources = GREATEST(total_sources - 1, 0) WHERE id = " . $old_keyword_id;
+            // $db->query($sql_update);
+        }
+    }
+
+    // Thêm keywords mới
+    if (!empty($keyword_ids) && is_array($keyword_ids)) {
+        foreach ($keyword_ids as $keyword_id) {
+            $keyword_id = intval($keyword_id);
+            if ($keyword_id > 0) {
+                // Thêm liên kết source-keyword
+                $sql_insert = "INSERT INTO " . NV_PREFIXLANG . "_" . $module_data . "_source_keywords (source_id, keyword_id) VALUES (" . $source_id . ", " . $keyword_id . ")";
+                $db->query($sql_insert);
+
+                // Tăng total_sources cho keyword (nếu có field này)
+                // $sql_update = "UPDATE " . NV_PREFIXLANG . "_" . $module_data . "_keywords SET total_sources = total_sources + 1 WHERE id = " . $keyword_id;
+                // $db->query($sql_update);
+            }
+        }
+    }
+
+    return true;
+}
+
+/**
+ * Lấy keywords của source
+ */
+function nv_admin_sharecode_get_source_keywords($source_id)
+{
+    global $db, $module_data;
+
+    $source_id = intval($source_id);
+    $keywords = [];
+
+    if ($source_id > 0) {
+        $sql = "SELECT k.id, k.name, k.alias, k.description, k.status
+                FROM " . NV_PREFIXLANG . "_" . $module_data . "_keywords k
+                INNER JOIN " . NV_PREFIXLANG . "_" . $module_data . "_source_keywords sk ON k.id = sk.keyword_id
+                WHERE sk.source_id = " . $source_id . " AND k.status = 1
+                ORDER BY k.weight ASC, k.name ASC";
+
+        $result = $db->query($sql);
+        while ($row = $result->fetch()) {
+            $keywords[] = $row;
+        }
+    }
+
+    return $keywords;
 }
 
 /**
@@ -393,10 +497,107 @@ function nv_admin_sharecode_delete_source($source_id)
     // Xóa download logs
     $db->exec("DELETE FROM " . NV_PREFIXLANG . "_" . $module_data . "_download_logs WHERE source_id=" . $source_id);
     
+    // Xóa comments
+    $db->exec("DELETE FROM " . NV_PREFIXLANG . "_" . $module_data . "_comments WHERE source_id=" . $source_id);
+
     // Xóa source
     $result = $db->exec("DELETE FROM " . NV_PREFIXLANG . "_" . $module_data . "_sources WHERE id=" . $source_id);
-    
+
     return $result > 0;
+}
+
+
+
+/**
+ * Thêm watermark vào ảnh
+ * @param string $image_path Đường dẫn đến file ảnh
+ * @param string $watermark_text Text watermark
+ * @return bool
+ */
+function add_watermark_to_image($image_path, $watermark_text)
+{
+    if (!file_exists($image_path) || empty($watermark_text)) {
+        return false;
+    }
+
+    $image_info = getimagesize($image_path);
+    if (!$image_info) {
+        return false;
+    }
+
+    $width = $image_info[0];
+    $height = $image_info[1];
+    $mime_type = $image_info['mime'];
+
+    // Tạo resource ảnh từ file
+    switch ($mime_type) {
+        case 'image/jpeg':
+            $image = imagecreatefromjpeg($image_path);
+            break;
+        case 'image/png':
+            $image = imagecreatefrompng($image_path);
+            break;
+        case 'image/gif':
+            $image = imagecreatefromgif($image_path);
+            break;
+        default:
+            return false;
+    }
+
+    if (!$image) {
+        return false;
+    }
+
+    // Cấu hình watermark
+    $font_size = max(12, $width / 30); // Kích thước font tự động theo ảnh
+    $font_color = imagecolorallocatealpha($image, 255, 255, 255, 50); // Trắng, trong suốt 50%
+    $shadow_color = imagecolorallocatealpha($image, 0, 0, 0, 50); // Đen, trong suốt 50%
+
+    // Sử dụng imagestring thay vì TTF font để tránh lỗi
+    $text_width = strlen($watermark_text) * 10; // Ước tính độ rộng
+    $text_height = 15; // Chiều cao font size 5
+
+    $x = $width - $text_width - 20; // Cách lề phải 20px
+    $y = $height - $text_height - 20; // Cách lề dưới 20px
+
+    // Vẽ shadow (đổ bóng)
+    imagestring($image, 5, $x + 1, $y + 1, $watermark_text, $shadow_color);
+    imagestring($image, 5, $x, $y, $watermark_text, $font_color);
+
+    // Lưu ảnh
+    $result = false;
+    switch ($mime_type) {
+        case 'image/jpeg':
+            $result = imagejpeg($image, $image_path, 90);
+            break;
+        case 'image/png':
+            $result = imagepng($image, $image_path);
+            break;
+        case 'image/gif':
+            $result = imagegif($image, $image_path);
+            break;
+    }
+
+    imagedestroy($image);
+    return $result;
+}
+
+/**
+ * Cập nhật lại total_sources cho tất cả tags
+ */
+function nv_admin_sharecode_update_all_tags_count()
+{
+    global $db, $module_data;
+
+    // Cập nhật total_sources cho tất cả tags dựa trên số lượng liên kết thực tế
+    $sql = "UPDATE " . NV_PREFIXLANG . "_" . $module_data . "_tags t
+            SET total_sources = (
+                SELECT COUNT(*)
+                FROM " . NV_PREFIXLANG . "_" . $module_data . "_source_tags st
+                WHERE st.tag_id = t.id
+            )";
+
+    return $db->query($sql);
 }
 
 /**
@@ -457,3 +658,54 @@ function nv_admin_sharecode_get_statistics()
 
     return $stats;
 }
+
+/**
+ * nv_sharecode_send_email_notification()
+ * Gửi email thông báo
+ *
+ * @param string $to_email
+ * @param string $to_name
+ * @param string $subject
+ * @param string $message
+ * @return bool
+ */
+function nv_sharecode_send_email_notification($to_email, $to_name, $subject, $message)
+{
+    global $global_config, $lang_global;
+    
+    if (empty($to_email) || empty($subject) || empty($message)) {
+        return false;
+    }
+    
+    try {
+        // Chuẩn bị email
+        $from = [$global_config['site_email'], $global_config['site_name']];
+        $to = [$to_email, $to_name];
+        
+        // Template email cơ bản
+        $email_template = '
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            <div style="background: #f8f9fa; padding: 20px; text-align: center;">
+                <h2 style="color: #333; margin: 0;">' . $global_config['site_name'] . '</h2>
+                <p style="margin: 5px 0 0 0; color: #666;">ShareCode - Chia sẻ mã nguồn</p>
+            </div>
+            <div style="padding: 30px 20px;">
+                <h3 style="color: #333; margin-top: 0;">' . $subject . '</h3>
+                <div style="color: #555; line-height: 1.6;">
+                    ' . $message . '
+                </div>
+            </div>
+            <div style="background: #f8f9fa; padding: 15px 20px; text-align: center; font-size: 12px; color: #666;">
+                <p>Đây là email tự động, vui lòng không trả lời email này.</p>
+                <p>© ' . date('Y') . ' ' . $global_config['site_name'] . '. All rights reserved.</p>
+            </div>
+        </div>';
+        
+        return nv_sendmail($from, $to, $subject, $email_template);
+    } catch (Exception $e) {
+        return false;
+    }
+}
+
+
+

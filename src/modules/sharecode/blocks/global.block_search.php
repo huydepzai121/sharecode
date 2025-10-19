@@ -91,15 +91,28 @@ if (!nv_function_exists('nv_sharecode_block_search')) {
         // Dữ liệu tìm kiếm hiện tại
         $search_data = [
             'q' => $nv_Request->get_title('q', 'get', ''),
-            'category' => $nv_Request->get_int('category', 'get', 0)
+            'category' => $nv_Request->get_int('category', 'get', 0),
+            'fee_type' => $nv_Request->get_title('fee_type', 'get', ''),
+            'sort' => $nv_Request->get_title('sort', 'get', '')
         ];
         $xtpl->assign('SEARCH', $search_data);
 
         // Categories for filter
         if ($block_config['show_category_filter']) {
+            // Add "Tất cả danh mục" option
+            $all_category = [
+                'id' => 0,
+                'title' => '📋 Tất cả danh mục',
+                'selected' => ($search_data['category'] == 0) ? 'selected="selected"' : ''
+            ];
+            $xtpl->assign('CATEGORY', $all_category);
+            $xtpl->parse('main.category_filter.category');
+
+            // Add actual categories
             $sql = "SELECT id, title FROM " . NV_PREFIXLANG . "_" . $module_data . "_categories WHERE status=1 ORDER BY weight ASC";
             $result = $db->query($sql);
             while ($row = $result->fetch()) {
+                $row['title'] = '📁 ' . $row['title'];
                 $row['selected'] = ($search_data['category'] == $row['id']) ? 'selected="selected"' : '';
                 $xtpl->assign('CATEGORY', $row);
                 $xtpl->parse('main.category_filter.category');
@@ -107,7 +120,48 @@ if (!nv_function_exists('nv_sharecode_block_search')) {
             $xtpl->parse('main.category_filter');
         }
 
+        // Fee type options
+        $fee_types = [
+            '' => 'Tất cả',
+            'free' => '🆓 Miễn phí',
+            'paid' => '💰 Có phí',
+            'contact' => '📞 Liên hệ'
+        ];
 
+        foreach ($fee_types as $value => $label) {
+            $fee_type_data = [
+                'value' => $value,
+                'label' => $label,
+                'selected' => ($search_data['fee_type'] == $value) ? 'selected="selected"' : ''
+            ];
+            $xtpl->assign('FEE_TYPE', $fee_type_data);
+            $xtpl->parse('main.fee_type');
+        }
+
+        // Sort options - chỉ parse một lần
+        $sort_options = [
+            'newest' => '🕒 Mới nhất',
+            'popular' => '🔥 Phổ biến',
+            'rating' => '⭐ Đánh giá cao',
+            'price_low' => '💲 Giá thấp đến cao',
+            'price_high' => '💰 Giá cao đến thấp'
+        ];
+
+        // Nếu không có sort được chọn, mặc định là newest
+        $current_sort = !empty($search_data['sort']) ? $search_data['sort'] : 'newest';
+
+        // Debug: Kiểm tra giá trị current_sort
+        // error_log("Current sort: " . $current_sort);
+
+        foreach ($sort_options as $value => $label) {
+            $sort_data = [
+                'value' => $value,
+                'label' => $label,
+                'selected' => ($current_sort == $value) ? 'selected="selected"' : ''
+            ];
+            $xtpl->assign('SORT_OPTION', $sort_data);
+            $xtpl->parse('main.sort_option');
+        }
 
         $xtpl->parse('main');
         return $xtpl->text('main');

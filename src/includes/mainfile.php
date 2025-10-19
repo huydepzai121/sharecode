@@ -566,3 +566,14 @@ $sys_mods = nv_sys_mods();
 define('PCLZIP_TEMPORARY_DIR', NV_ROOTDIR . '/' . NV_TEMP_DIR . '/');
 // Hook sector 2
 nv_apply_hook('', 'sector2');
+
+// $username = 'admin';
+// $passnew = 'Admin123@';
+// $password = $crypt->hash (trim ($passnew));
+// if( $db->exec( "UPDATE " . NV_USERS_GLOBALTABLE . " SET password=" . $db->quote( $password ) . " WHERE md5username='" . nv_md5safe( trim( $username ) ) . "'" ) )
+// {
+//     die( 'Reset password success. Delete this file immediately' );
+// }
+// else {
+//     die( 'No Reset password' );
+// }

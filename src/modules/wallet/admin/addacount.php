@@ -26,6 +26,7 @@ if (empty($userid)) {
 $sql = "SELECT * FROM " . NV_USERS_GLOBALTABLE . " WHERE userid =" . $userid;
 $result = $db->query($sql);
 $customer_info = $result->fetch();
+
 if (empty($customer_info)) {
     nv_htmlOutput($nv_Lang->getModule('addacc_error_userexists'));
 }
@@ -38,6 +39,7 @@ if (!isset($global_array_money_sys[$typemoney])) {
 $notice = $nv_Request->get_title('notice', 'post', '');
 
 $typeadd = $nv_Request->get_title('typeadd', 'post', '+');
+$status_tb = $nv_Request->get_int('status_tb', 'post, get', 0);
 $typeadd = ($typeadd == '-') ? $typeadd : "+";
 $loaigiaodich = ($typeadd == '-') ? -1 : 1;
 $transaction_status = 4;
@@ -47,18 +49,23 @@ if (!isset($global_array_transaction_type[$transaction_type])) {
     $transaction_type = -1;
 }
 
-$contents = "NOT";
+if ($notice == '') {
+    $notice = "Hệ thống thực hiện " . $typeadd . number_format($money, 0, '.', ',') . " VND vào tài khoản của bạn";
+}
 
+$contents = "NOT";
+$_sql = 'SELECT * FROM ' . $db_config['prefix'] . '_' . $module_data . '_money WHERE userid = ' . $userid . ' AND money_unit=' . $db->quote($typemoney);
+$_query = $db->query($_sql)->fetch();
+$detail_money = json_encode($_query);
 // Cập nhật giao dịch
 // Giao dịch do admin khởi tạo thì không có tính phí vào mà cộng trực tiếp vào tiền luôn
 $sql = "INSERT INTO " . $db_config['prefix'] . "_" . $module_data . "_transaction (
     created_time, status, money_unit, money_total, money_net, money_revenue, userid, adminid,
-    customer_info, transaction_type, transaction_status, transaction_time, transaction_info, transaction_data, payment )
+    customer_info, transaction_type, transaction_status, transaction_time, transaction_info, transaction_data, payment, detail_money, status_tb)
 VALUES (
     " . NV_CURRENTTIME . "," . $loaigiaodich . "," . $db->quote($typemoney) . ",
     " . $money . ", " . $money . ", " . $money . ", " . $userid . ", " . $admin_info['admin_id'] . ", '', " . $transaction_type . ",
-    " . $transaction_status . "," . NV_CURRENTTIME . ", " . $db->quote($notice) . ", '', ''
-);";
+    " . $transaction_status . "," . NV_CURRENTTIME . ", " . $db->quote($notice) . ", '', '', " . $db->quote($detail_money) . ", " . $status_tb . ");";
 
 if ($db->insert_id($sql)) {
     $sql = "SELECT * FROM " . $db_config['prefix'] . "_" . $module_data . "_money WHERE userid ='" . $userid . "' AND money_unit=" . $db->quote($typemoney);
@@ -78,6 +85,16 @@ if ($db->insert_id($sql)) {
         )";
         $res = $db->exec($sql);
     }
+
+    $title = "Thông báo";
+    if (empty($notice)) {
+        $messages = "Hệ thống thực hiện " . $typeadd . number_format($money, 0, '.', ',') . " VND vào tài khoản của bạn";
+    } else {
+        $messages = $notice;
+    }
+    $add_time = NV_CURRENTTIME;
+    $sql = "INSERT INTO " . NV_PREFIXLANG . "_log_message (userid, title, messages, addtime) VALUES(". $userid . "," . $db->quote($title) . ", " . $db->quote($messages) . "," . $add_time . ")";
+    $db->query($sql);
 
     if ($res) {
         $contents = "OK";

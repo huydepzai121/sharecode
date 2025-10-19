@@ -160,18 +160,17 @@ ErrorDocument 504 /error.php?code=504
   RewriteRule ^api/([a-zA-Z0-9]+)/([a-zA-Z0-9]+)/?$ api.php?module=$1&action=$2 [L]
   RewriteRule ^api/([a-zA-Z0-9]+)/?$ api.php?action=$1 [L]
 
-  # ShareCode SEO URLs
-  RewriteRule ^sharecode/detail/([a-zA-Z0-9\-_]+)/?$ index.php?language=vi&nv=sharecode&op=detail&alias=$1 [L]
-  RewriteRule ^sharecode/category/([a-zA-Z0-9\-_]+)/?$ index.php?language=vi&nv=sharecode&op=category&t=$1 [L]
-  RewriteRule ^sharecode/tag/([a-zA-Z0-9\-_]+)/?$ index.php?language=vi&nv=sharecode&op=tag&t=$1 [L]
-
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
   RewriteRule ^admin/(.*)/$ admin/index.php [L]
   RewriteRule ^admin/$ admin/index.php [L]
+
+  # Redirect tag URLs without trailing slash to version with trailing slash
+  RewriteRule ^([a-zA-Z0-9\-]+)/tag/([a-zA-Z0-9\-]+)$ /$1/tag/$2/ [L,R=301]
+
   RewriteRule (.*)(/|\.html)$ index.php [L]
 
-  RewriteRule (.*)tag/([^?]+)$ index.php [L]
+  RewriteRule (.*)tag/([^?/]+)/$ index.php [L]
   RewriteRule ^([a-zA-Z0-9\-\/]+)/([a-zA-Z0-9\-]+)$ /$1/$2/ [L,R=301]
   RewriteRule ^([a-zA-Z0-9\-]+)$ /$1/ [L,R=301]
 </IfModule>

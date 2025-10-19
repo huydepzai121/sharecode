@@ -42,11 +42,7 @@
                                         <small class="form-text text-muted">Từ 1 đến 100</small>
                                     </div>
                                     
-                                    <div class="mb-3">
-                                        <label for="cache_time" class="form-label">Thời gian cache (giây)</label>
-                                        <input type="number" class="form-control" name="cache_time" id="cache_time" value="{CONFIG.cache_time}" min="0">
-                                        <small class="form-text text-muted">0 = không cache</small>
-                                    </div>
+
                                 </div>
                             </div>
                             
@@ -141,6 +137,19 @@
                         <div class="col-md-6">
                             <div class="card mb-4">
                                 <div class="card-header">
+                                    <h6 class="card-title mb-0">Cấu hình hoa hồng</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <label for="author_commission_rate" class="form-label">Tỷ lệ hoa hồng cho tác giả (%)</label>
+                                        <input type="number" class="form-control" name="author_commission_rate" id="author_commission_rate" value="{CONFIG.author_commission_rate}" min="0" max="100">
+                                        <small class="form-text text-muted">Từ 0% đến 100%. Mặc định: 70%</small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card mb-4">
+                                <div class="card-header">
                                     <h6 class="card-title mb-0">Cấu hình email thông báo</h6>
                                 </div>
                                 <div class="card-body">
@@ -167,10 +176,10 @@
                     </div>
                     
                     <div class="text-center">
-                        <button type="submit" class="btn btn-primary btn-lg" name="save_config">
+                        <button type="submit" class="btn btn-primary" name="save_config">
                             <i class="fa fa-save"></i> Lưu cấu hình
                         </button>
-                        <a href="{NV_BASE_ADMINURL}index.php?{NV_LANG_VARIABLE}={NV_LANG_DATA}&{NV_NAME_VARIABLE}={MODULE_NAME}" class="btn btn-secondary btn-lg">
+                        <a href="{NV_BASE_ADMINURL}index.php?{NV_LANG_VARIABLE}={NV_LANG_DATA}&{NV_NAME_VARIABLE}={MODULE_NAME}" class="btn btn-secondary">
                             <i class="fa fa-arrow-left"></i> Quay lại
                         </a>
                     </div>

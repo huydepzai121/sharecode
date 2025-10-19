@@ -23,7 +23,7 @@ LEFT JOIN " . NV_USERS_GLOBALTABLE . " tb4 ON tb1.customer_id=tb4.userid
 WHERE tb1.id = " . $id;
 $result = $db->query($sql);
 if ($result->rowCount() != 1) {
-    nv_info_die($lang_global['error_404_title'], $lang_global['error_404_title'], $lang_global['error_404_content']);
+    nv_info_die($nv_Lang->getGlobal('error_404_title'), $nv_Lang->getGlobal('error_404_title'), $nv_Lang->getGlobal('error_404_content'));
 }
 $row = $result->fetch();
 
@@ -36,9 +36,9 @@ $xtpl->assign('MODULE_NAME', $module_name);
 $xtpl->assign('OP', $op);
 
 if (empty($row['order_id'])) {
-    $row['code'] = vsprintf('GD%010s', [$row['id']]);
+    $row['code'] = sprintf('GD%010s', $row['id']);
 } else {
-    $row['code'] = vsprintf('WP%010s', [$row['id']]);
+    $row['code'] = sprintf('WP%010s', $row['id']);
 }
 $row['created_time'] = date("H:i d/m/Y", $row['created_time']);
 $row['transaction_time'] = date("H:i d/m/Y", $row['transaction_time']);

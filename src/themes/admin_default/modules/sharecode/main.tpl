@@ -199,7 +199,7 @@
 <script type="text/javascript">
 function nv_del_source(id) {
     if (confirm('Bạn có chắc chắn muốn xóa mã nguồn này?')) {
-        window.location.href = '{NV_BASE_ADMINURL}index.php?{NV_LANG_VARIABLE}={NV_LANG_DATA}&{NV_NAME_VARIABLE}={MODULE_NAME}&{NV_OP_VARIABLE}=sources&action=delete&id=' + id + '&confirm=' + nv_md5(id + '{NV_CHECK_SESSION}');
+        window.location.href = '{NV_BASE_ADMINURL}index.php?{NV_LANG_VARIABLE}={NV_LANG_DATA}&{NV_NAME_VARIABLE}={MODULE_NAME}&{NV_OP_VARIABLE}=sources&action=delete&id=' + id + '&confirm=' + nv_md5_check(id + '{NV_CHECK_SESSION}');
     }
 }
 </script>

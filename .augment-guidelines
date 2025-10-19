@@ -1,0 +1,17 @@
+# Workspace Guidelines
+
+## General
+- IMPORTANT: Please do not run the code reformat command yourself. I will do it later.
+- ALWAYS respond in Vietnamese.
+
+## Coding style
+- Follow PSR-12 standard for PHP.
+- Avoid using `var_dump`, use `pr($a)` instead.
+
+## Framework
+- Prefer official NukeViet libraries.
+- Avoid importing unverified third-party libraries.
+
+## Best practices
+- Add comments for all public functions.
+- All code must pass `phpcs` before commit.
